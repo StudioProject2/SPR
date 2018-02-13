@@ -10,6 +10,8 @@
 #include "Camera3.h"
 #include "CameraDebug.h"
 
+#define NO_OF_BULLETS 20
+
 class SceneA2 : public Scene
 {
 	enum UNIFORM_TYPE
