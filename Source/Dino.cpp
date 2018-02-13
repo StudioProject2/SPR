@@ -1,6 +1,6 @@
 #include "Dino.h"
 
-
+//PUSSY BOOOI
 
 Dino::Dino()
 {
