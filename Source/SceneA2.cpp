@@ -8,6 +8,7 @@
 #include "LoadOBJ.h"
 #include "Box.h"
 #include "Monster.h"
+#include "bullet.h"
 
 #include <cstdlib>
 #include <iomanip>
@@ -20,6 +21,7 @@ double elaspeTime = 0.0;
 double deltaTime = 0.0;
 double monsterTime = 0.0;
 Monster *MonsterPtr[5] = { NULL, NULL, NULL, NULL, NULL};
+bullet *bulletPtr[5] = { NULL, NULL, NULL, NULL, NULL };
 
 SceneA2::SceneA2()
 {
@@ -300,7 +302,6 @@ void SceneA2::Update(double dt)
 			}
 		}
 	}
-
 	for (int i = 0; i < 5; i++)
 	{
 		if (MonsterPtr[i] != NULL)
