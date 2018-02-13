@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 #include "SceneA2.h"
-#include "Var.h"
+#include "MainMenu.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -66,7 +66,7 @@ void resize_callback(GLFWwindow* window, int w, int h)
 void Application::Init()
 {
 	//Disable Cursor
-	//ShowCursor(false);
+	ShowCursor(false);
 
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
@@ -116,6 +116,7 @@ void Application::Init()
 
 void Application::Run()
 {
+
 	//Main Loop
 	Scene *scene = NULL;
 	//Init static variable
@@ -127,9 +128,18 @@ void Application::Run()
 	{
 		if (sceneChange == 0)
 		{
+			ShowCursor(true);
+			scene = new MainMenu();
+			scene->Init();
+			sceneChange = 10;
+		}
+		if (sceneChange == 1)
+		{
+			ShowCursor(false);
 			scene = new SceneA2();
 			scene->Init();
 			sceneChange = 10;
+
 		}
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();

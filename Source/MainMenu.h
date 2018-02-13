@@ -1,5 +1,5 @@
-#ifndef SCENE_A2
-#define SCENE_A2
+#ifndef MAINMENU
+#define MAINMENU
 
 #include "Scene.h"
 #include "Camera.h"
@@ -10,7 +10,7 @@
 #include "Camera3.h"
 #include "CameraDebug.h"
 
-class SceneA2 : public Scene
+class MainMenu : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -83,6 +83,7 @@ class SceneA2 : public Scene
 	};
 
 
+
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -130,13 +131,12 @@ class SceneA2 : public Scene
 	};
 
 public:
-	SceneA2();
-	~SceneA2();
+	MainMenu();
+	~MainMenu();
 
 	virtual void Init();
 	virtual void Update(double dt);
 	virtual void Render();
-	//virtual void Spawn();
 	virtual void Exit();
 
 private:
@@ -165,9 +165,11 @@ private:
 
 	MS modelStack, viewStack, projectionStack;
 
-	Camera3 camera;
+	Camera camera;
 
 	Light light[4];
+
+
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);

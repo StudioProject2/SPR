@@ -1,4 +1,5 @@
-#include "SceneA2.h"
+#include <iostream>
+#include "MainMenu.h"
 #include "GL\glew.h"
 #include "shader.hpp"
 #include "Mtx44.h"
@@ -9,26 +10,20 @@
 #include "Box.h"
 #include "Var.h"
 
-#include <iomanip>
-#include <sstream>
-
 using namespace std;
 
-double elaspeTime = 0.0;
-double deltaTime = 0.0;
-
-
-SceneA2::SceneA2()
+MainMenu::MainMenu()
 {
+
 }
 
-SceneA2::~SceneA2()
+MainMenu::~MainMenu()
 {
+
 }
 
-void SceneA2::Init()
+void MainMenu::Init()
 {
-	//hidecursor = 1;
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
@@ -40,7 +35,7 @@ void SceneA2::Init()
 	glBindVertexArray(m_vertexArrayID);
 	//Enable culling
 	//glEnable(GL_CULL_FACE);
-	// Enable blending
+	//Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -226,13 +221,6 @@ void SceneA2::Init()
 	glUniform1f(m_parameters[U_LIGHT3_COSINNER], light[3].cosInner);
 	glUniform1f(m_parameters[U_LIGHT3_EXPONENT], light[3].exponent);
 
-	//Init meshList
-	for (int i = 0; i < NUM_GEOMETRY; i++)
-	{
-		meshList[i] = NULL;
-	}
-
-	//Others
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	//SKYBOX STUFF
@@ -256,17 +244,24 @@ void SceneA2::Init()
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.f;
 
+	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
+	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
+	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
+	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
+	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
+	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
 
-	//Debuggging Cube
-	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
-
-	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 }
 
-
-void SceneA2::Update(double dt)
+void MainMenu::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
@@ -307,23 +302,67 @@ void SceneA2::Update(double dt)
 		if (scaleAll > maxScale)
 			scaleAll = 1; // reset Scale
 	}
+	double posx;
+	double posy;
+	Application::GetMousePosition(posx, posy);
 
-	if (Application::IsKeyPressed(VK_NUMPAD0))
+	if (posx > 270 && posx < 490)
 	{
-		spawn = true;
+		if (posy > 330 && posy < 370)
+		{
+			if (Application::IsKeyPressed(VK_LBUTTON))
+			{
+				sceneChange = 1;
+
+				std::cout << "you have started the game" << endl;
+			}
+			else
+			{
+				sceneChange = 0;
+			}
+		}
+
 	}
-	else
+	if (posx > 300 && posx < 470)
 	{
-		NULL;
+		if (posy > 435 && posy < 470)
+		{
+			if (Application::IsKeyPressed(VK_LBUTTON))
+			{
+
+				std::cout << "you have muted the game" << endl;
+			}
+			else
+			{
+				sceneChange = 0;
+			}
+		}
+
+	}	
+	if (posx > 300 && posx < 465)
+	{
+		if (posy > 535 && posy < 565)
+		{
+			if (Application::IsKeyPressed(VK_LBUTTON))
+			{
+				exit(EXIT_FAILURE);
+			}
+			else
+			{
+				sceneChange = 0;
+			}
+		}
+
 	}
 
 	camera.Update(dt);
-
-	std::cout << camera.position << std::endl;
-
+	
+	std::cout << posx << std::endl;
+	std::cout << posy << std::endl;
+	//std::cout << camera.position << std::endl;
 }
 
-void SceneA2::Render()
+void MainMenu::Render()
 {
 	//Clear color & depth buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -464,33 +503,24 @@ void SceneA2::Render()
 	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
-	//DEBUGGING
-	//modelStack.PushMatrix();
-	//modelStack.Translate(0, 0, 0);
-	//modelStack.Scale(100, 100, 100);
-	//RenderMesh(meshList[GEO_CUBE], false);
-	//modelStack.PopMatrix();
-
-	
-	//SPAWN AI
-	if (spawn == true)
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(200, 10, 200);
-		modelStack.Scale(5, 5, 5);
-		RenderMesh(meshList[GEO_CUBE], false);
-		modelStack.PopMatrix();
-	}
-	else
-	{
-		NULL;
-	}
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to sleep", Color(1, 1, 1), 3, 1, 5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Dino", Color(0.8,0.6,0.1), 6, 5, 7);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Extinction", Color(0.8, 0.6, 0.1), 6, 2, 6);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Start", Color(1,1,1), 5, 6, 5);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Mute", Color(1, 1, 1), 5, 6.5, 3);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5, 1);
 	modelStack.PopMatrix();
 }
 
-void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
+void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
 
@@ -533,9 +563,10 @@ void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+
 }
 
-void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
+void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -562,7 +593,7 @@ void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -606,7 +637,7 @@ void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, floa
 	glEnable(GL_DEPTH_TEST);
 }
 
-void SceneA2::Exit()
+void MainMenu::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{

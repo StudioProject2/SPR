@@ -27,23 +27,7 @@ void Camera::Reset()
 
 void Camera::Update(double dt)
 {
-	static const float CAMERA_SPEED = 200.f;
-	if(Application::IsKeyPressed(VK_LEFT) || Application::IsKeyPressed('A'))
-	{
-		position.x -= (float)(CAMERA_SPEED * 0.2 * dt);
-	}
-	if(Application::IsKeyPressed(VK_RIGHT) || Application::IsKeyPressed('D'))
-	{
-		position.x += (float)(CAMERA_SPEED * 0.2 * dt);
-	}
-	if(Application::IsKeyPressed(VK_UP) || Application::IsKeyPressed('W'))
-	{
-		position.y += (float)(CAMERA_SPEED * 0.2 * dt);
-	}
-	if(Application::IsKeyPressed(VK_DOWN) || Application::IsKeyPressed('S'))
-	{
-		position.y -= (float)(CAMERA_SPEED * 0.2 * dt);
-	}
+
 }
 
 
