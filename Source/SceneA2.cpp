@@ -335,7 +335,7 @@ void SceneA2::UpdateBullets()
 }
 void SceneA2::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3);
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3, 3, 3);
 
 	if (elaspeTime > monsterTime)
 	{
@@ -801,3 +801,4 @@ void SceneA2::Exit()
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
+}	
