@@ -11,6 +11,7 @@
 #include "CameraDebug.h"
 
 #define NO_OF_BULLETS 20
+#define MOBNUM 5;
 
 class SceneA2 : public Scene
 {
@@ -173,6 +174,7 @@ private:
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 	
 	void UpdateBullets();
+	void UpdateMonsterBullets();
 	void RenderBullets();
 };
 

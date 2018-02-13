@@ -9,12 +9,12 @@
 #include "Box.h"
 #include "Monster.h"
 #include "monsterBullet.h"
+#include "bullet.h"
 
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
-#define MOBNUM 5;
 using namespace std;
 
 Monster *MonsterPtr[5] = { NULL, NULL, NULL, NULL, NULL};
@@ -281,6 +281,8 @@ void SceneA2::Init()
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
+		//TO DO: init collision for the bullets here
+		//TO DO: add a function to detect monster hit box
 	}
 }
 
@@ -289,12 +291,52 @@ void SceneA2::Update(double dt)
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3);
 	deltaTime = dt;
 	start.isShooting = true;
   
   UpdateBullets();
-  
+  UpdateMonsterBullets();
+	
+	if (gameOver)
+	{
+		std::cout << "Game over" << std::endl;
+	}
+	if (Application::IsKeyPressed('1'))
+	{
+		glEnable(GL_CULL_FACE);
+	}
+	if (Application::IsKeyPressed('2'))
+	{
+		glDisable(GL_CULL_FACE);
+	}
+
+	camera.Update(dt);
+	//std::cout << camera.position << std::endl;
+}
+void SceneA2::UpdateBullets()
+{
+	Vector3 view = (camera.target - camera.position).Normalized();
+	
+	cout << bulletPtr[0]->weaponShootingTimer << endl;
+
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (i == 0)
+		{
+			bulletPtr[0]->updateBullet(view, camera, start);
+			//TO DO: update first bullet collision box
+		}
+		else
+		{
+			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
+			//TO DO: update rest of bullets collision box
+		}
+	}
+}
+void SceneA2::UpdateMonsterBullets()
+{
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3);
+
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < 5; i++)
@@ -413,39 +455,6 @@ void SceneA2::Update(double dt)
 		}
 	}
 
-	if (gameOver)
-	{
-		std::cout << "Game over" << std::endl;
-	}
-	if (Application::IsKeyPressed('1'))
-	{
-		glEnable(GL_CULL_FACE);
-	}
-	if (Application::IsKeyPressed('2'))
-	{
-		glDisable(GL_CULL_FACE);
-	}
-
-	camera.Update(dt);
-	//std::cout << camera.position << std::endl;
-}
-void SceneA2::UpdateBullets()
-{
-	Vector3 view = (camera.target - camera.position).Normalized();
-	
-	cout << bulletPtr[0]->weaponShootingTimer << endl;
-
-	for (int i = 0; i < NO_OF_BULLETS; i++)
-	{
-		if (i == 0)
-		{
-			bulletPtr[0]->updateBullet(view, camera, start);
-		}
-		else
-		{
-			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
-		}
-	}
 }
 void SceneA2::Render()
 {
@@ -792,5 +801,3 @@ void SceneA2::Exit()
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
-
-}
