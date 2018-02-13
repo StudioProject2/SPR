@@ -1,6 +1,7 @@
 #include "Monster.h"
 #include <cstdlib>
 
+//CHANGE THEO2
 Monster::Monster()
 {
 	float spawnPtX = 300;
