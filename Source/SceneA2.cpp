@@ -8,19 +8,17 @@
 #include "LoadOBJ.h"
 #include "Box.h"
 #include "Monster.h"
+#include "monsterBullet.h"
 #include "bullet.h"
 
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
-#define MOBNUM 5;
 using namespace std;
 
-double elaspeTime = 0.0;
-double deltaTime = 0.0;
-double monsterTime = 0.0;
 Monster *MonsterPtr[5] = { NULL, NULL, NULL, NULL, NULL};
+monsterBullet *monsterBulletPtr[25];
 bullet *bulletPtr[NO_OF_BULLETS];
 bullet start;
 
@@ -40,6 +38,12 @@ void SceneA2::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
+	monster1BulletTime = elaspeTime + 4.0;
+	monster2BulletTime = elaspeTime + 4.0;
+	monster3BulletTime = elaspeTime + 4.0;
+	monster4BulletTime = elaspeTime + 4.0;
+	monster5BulletTime = elaspeTime + 4.0;
+
 
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -53,15 +57,6 @@ void SceneA2::Init()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
-
-	rotateAngle = 0.0f;
-	translateX = 0.0f;
-	scaleAll = 0.0f;
-	rotateStar = 0.0f;
-
-	rotateAmt = 60;
-	translateAmt = 10;
-	scaleAmt = 2;
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -264,7 +259,8 @@ void SceneA2::Init()
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.f;
-
+	//Bullet
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -273,10 +269,20 @@ void SceneA2::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
-	//bullet init
+	//Monsters
+
+	for (int i = 0; i < 25; i++)
+	{
+		monsterBulletPtr[i] = NULL;
+	}
+
+	gameOver = false;
+  
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
+		//TO DO: init collision for the bullets here
+		//TO DO: add a function to detect monster hit box
 	}
 }
 
@@ -285,38 +291,16 @@ void SceneA2::Update(double dt)
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
-	
+	deltaTime = dt;
 	start.isShooting = true;
-
-	//if (MonsterPtr[0] == NULL)
-	//{
-	//	MonsterPtr[0] = new Monster();
-	//	MonsterPtr[1] = new Monster();
-	//}
-
-	//cout << (*MonsterPtr[0]).pos << endl;
-	if (elaspeTime > monsterTime)
+  
+  UpdateBullets();
+  UpdateMonsterBullets();
+	
+	if (gameOver)
 	{
-		for (int i = 0; i < 5; i++)
-		{
-			if (MonsterPtr[i] == NULL)
-			{
-				MonsterPtr[i] = new Monster();
-				monsterTime = elaspeTime + 3.0;
-				break;
-			}
-		}
+		std::cout << "Game over" << std::endl;
 	}
-	for (int i = 0; i < 5; i++)
-	{
-		if (MonsterPtr[i] != NULL)
-		{
-			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-		}
-	}
-
-	UpdateBullets();
-
 	if (Application::IsKeyPressed('1'))
 	{
 		glEnable(GL_CULL_FACE);
@@ -326,35 +310,8 @@ void SceneA2::Update(double dt)
 		glDisable(GL_CULL_FACE);
 	}
 
-	if (Application::IsKeyPressed(VK_SPACE))
-	{
-		float upperRotateBounds = 360;
-		float lowerRotateBounds = 0;
-
-		float translateMax = 10;
-		float screenMin = -10;
-
-		float maxScale = 10;
-
-		rotateAngle += (float)(rotateAmt * dt);
-		translateX += (float)(translateAmt * dt);
-		scaleAll += (float)(scaleAmt * dt);
-
-		//std::cout << rotateAngle << std::endl;
-
-		//Without these bounds, translate will move out of screen and scale will be too large
-		if (rotateAngle > upperRotateBounds || rotateAngle < lowerRotateBounds)
-			rotateAmt = -rotateAmt; // -60 or -(-60)
-
-		if (translateX > translateMax)
-			translateX = screenMin; // start from left side of screen
-
-		if (scaleAll > maxScale)
-			scaleAll = 1; // reset Scale
-	}
-
-
 	camera.Update(dt);
+	//std::cout << camera.position << std::endl;
 }
 void SceneA2::UpdateBullets()
 {
@@ -367,12 +324,137 @@ void SceneA2::UpdateBullets()
 		if (i == 0)
 		{
 			bulletPtr[0]->updateBullet(view, camera, start);
+			//TO DO: update first bullet collision box
 		}
 		else
 		{
 			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
+			//TO DO: update rest of bullets collision box
 		}
 	}
+}
+void SceneA2::UpdateMonsterBullets()
+{
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3);
+
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < 5; i++)
+		{
+			if (MonsterPtr[i] == NULL)
+			{
+				MonsterPtr[i] = new Monster();
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+
+	if (elaspeTime > monster1BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[0] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[0], camera.position);
+					monster1BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster2BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[1] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[1], camera.position);
+					monster2BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster3BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[2] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[2], camera.position);
+					monster3BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster4BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[3] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[3], camera.position);
+					monster4BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster5BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[4] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[4], camera.position);
+					monster5BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
+		}
+	}
+
+	for (int i = 0; i < 25; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			monsterBulletPtr[i]->move();
+			if (monsterBulletPtr[i]->isBulletInBox(player))
+			{
+				gameOver = true;
+			}
+			if (monsterBulletPtr[i]->bulletCollide())
+			{
+				monsterBulletPtr[i] = NULL;
+				delete monsterBulletPtr[i];
+			}
+		}
+	}
+
 }
 void SceneA2::Render()
 {
@@ -528,6 +610,20 @@ void SceneA2::Render()
 		}
 	}
 
+	for (int i = 0; i < 25; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], false);
+			modelStack.PopMatrix();
+			std::cout << i << " : " << (*monsterBulletPtr[i]).pos << std::endl;
+			std::cout << i << " : " << (*monsterBulletPtr[i]).target << std::endl;
+		}
+	}
+  
 	RenderBullets();
 
 	//if (MonsterPtr[0] != NULL)
@@ -547,7 +643,6 @@ void SceneA2::Render()
 	//	modelStack.PopMatrix();
 	//}
 
-
 	//FPS
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
@@ -556,7 +651,10 @@ void SceneA2::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
 
-
+	if (gameOver)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
+	}
 }
 
 void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)

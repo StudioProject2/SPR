@@ -11,6 +11,7 @@
 #include "CameraDebug.h"
 
 #define NO_OF_BULLETS 20
+#define MOBNUM 5;
 
 class SceneA2 : public Scene
 {
@@ -151,19 +152,21 @@ private:
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
-	float rotateAngle;
-	float translateX;
-	float scaleAll;
-
-	float rotateAmt;
-	float translateAmt;
-	float scaleAmt;
-
-	float rotateStar;
-	float rotateStar2;
 	MS modelStack, viewStack, projectionStack;
 
 	Camera3 camera;
+
+	double elaspeTime;
+	double tempElaspeTime;
+	double deltaTime;
+	double monsterTime;
+	double monster1BulletTime;
+	double monster2BulletTime;
+	double monster3BulletTime;
+	double monster4BulletTime;
+	double monster5BulletTime;
+
+	bool gameOver;
 
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
@@ -171,6 +174,7 @@ private:
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 	
 	void UpdateBullets();
+	void UpdateMonsterBullets();
 	void RenderBullets();
 };
 
