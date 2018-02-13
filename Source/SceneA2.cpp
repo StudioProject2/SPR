@@ -21,7 +21,7 @@ double elaspeTime = 0.0;
 double deltaTime = 0.0;
 double monsterTime = 0.0;
 Monster *MonsterPtr[5] = { NULL, NULL, NULL, NULL, NULL};
-bullet *bulletPtr[5];
+bullet *bulletPtr[NO_OF_BULLETS];
 bullet start;
 
 SceneA2::SceneA2()
@@ -274,7 +274,7 @@ void SceneA2::Init()
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
 	//bullet init
-	for (int bul = 0; bul < 5; bul++)
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
 	}
@@ -362,7 +362,7 @@ void SceneA2::UpdateBullets()
 	
 	cout << bulletPtr[0]->weaponShootingTimer << endl;
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
 		if (i == 0)
 		{
@@ -370,10 +370,7 @@ void SceneA2::UpdateBullets()
 		}
 		else
 		{
-			bulletPtr[1]->updateBullet(view, camera, *bulletPtr[0]);
-			bulletPtr[2]->updateBullet(view, camera, *bulletPtr[1]);
-			bulletPtr[3]->updateBullet(view, camera, *bulletPtr[2]);
-			bulletPtr[4]->updateBullet(view, camera, *bulletPtr[3]);
+			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
 		}
 	}
 }
@@ -680,7 +677,7 @@ void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, floa
 
 void SceneA2::RenderBullets()
 {
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
 		if (bulletPtr[i] != NULL)
 		{
