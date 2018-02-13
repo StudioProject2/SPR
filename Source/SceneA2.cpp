@@ -19,6 +19,8 @@ using namespace std;
 
 Monster *MonsterPtr[5] = { NULL, NULL, NULL, NULL, NULL};
 monsterBullet *monsterBulletPtr[25];
+bullet *bulletPtr[NO_OF_BULLETS];
+bullet start;
 
 SceneA2::SceneA2()
 {
@@ -30,7 +32,6 @@ SceneA2::~SceneA2()
 
 void SceneA2::Init()
 {
-
 	//Monster spawn
 	srand((unsigned int)time(NULL));
 	//Timer
@@ -42,6 +43,7 @@ void SceneA2::Init()
 	monster3BulletTime = elaspeTime + 4.0;
 	monster4BulletTime = elaspeTime + 4.0;
 	monster5BulletTime = elaspeTime + 4.0;
+
 
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -64,7 +66,6 @@ void SceneA2::Init()
 	Color colour;
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 
-	// Get a handle for our "colorTexture" uniform
 	m_parameters[U_COLOR_TEXTURE_ENABLED] = glGetUniformLocation(m_programID, "colorTextureEnabled");
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 
@@ -236,6 +237,8 @@ void SceneA2::Init()
 	//Others
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
@@ -274,16 +277,24 @@ void SceneA2::Init()
 	}
 
 	gameOver = false;
+  
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		bulletPtr[bul] = new bullet();
+	}
 }
 
 void SceneA2::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
-	deltaTime = dt;	
-
+	deltaTime = dt;
 	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3);
-
+	deltaTime = dt;
+	start.isShooting = true;
+  
+  UpdateBullets();
+  
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < 5; i++)
@@ -416,10 +427,26 @@ void SceneA2::Update(double dt)
 	}
 
 	camera.Update(dt);
-
 	//std::cout << camera.position << std::endl;
 }
+void SceneA2::UpdateBullets()
+{
+	Vector3 view = (camera.target - camera.position).Normalized();
+	
+	cout << bulletPtr[0]->weaponShootingTimer << endl;
 
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (i == 0)
+		{
+			bulletPtr[0]->updateBullet(view, camera, start);
+		}
+		else
+		{
+			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
+		}
+	}
+}
 void SceneA2::Render()
 {
 	//Clear color & depth buffer every frame
@@ -561,15 +588,7 @@ void SceneA2::Render()
 	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
-	//DEBUGGING
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 0);
-	modelStack.Scale(10, 10, 10);
-	//RenderMesh(meshList[GEO_CUBE], false);
-	modelStack.PopMatrix();
-
 	//SPAWN MOBS
-
 	for (int i = 0; i < 5; i++)
 	{
 		if (MonsterPtr[i] != NULL)
@@ -582,7 +601,7 @@ void SceneA2::Render()
 		}
 	}
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 25; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
@@ -595,7 +614,25 @@ void SceneA2::Render()
 			std::cout << i << " : " << (*monsterBulletPtr[i]).target << std::endl;
 		}
 	}
+  
+	RenderBullets();
 
+	//if (MonsterPtr[0] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[0]).pos.x, 0, (*MonsterPtr[0]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
+	//if (MonsterPtr[1] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[1]).pos.x, 0, (*MonsterPtr[1]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
 
 	//FPS
 	std::ostringstream sFps;
@@ -725,6 +762,20 @@ void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, floa
 	modelStack.PopMatrix();
 
 	glEnable(GL_DEPTH_TEST);
+}
+
+void SceneA2::RenderBullets()
+{
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (bulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			RenderMesh(meshList[GEO_BULLETS], false);
+			modelStack.PopMatrix();
+		}
+	}
 }
 
 void SceneA2::Exit()

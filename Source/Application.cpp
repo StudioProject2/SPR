@@ -66,7 +66,7 @@ void resize_callback(GLFWwindow* window, int w, int h)
 void Application::Init()
 {
 	//Disable Cursor
-	ShowCursor(false);
+	//ShowCursor(false);
 
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
