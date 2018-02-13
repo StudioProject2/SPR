@@ -104,6 +104,8 @@ class SceneA2 : public Scene
 		GEO_LIGHTBALL,
 		GEO_LIGHTBALL2,
 
+		GEO_BULLETS,
+
 		GEO_LEFT,
 		GEO_RIGHT,
 		GEO_TOP,
@@ -165,6 +167,9 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
+	
+	void UpdateBullets();
+	void RenderBullets();
 };
 
 #endif

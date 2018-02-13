@@ -5,6 +5,27 @@
 
 class Camera3 : public Camera
 {
+private:
+	double prevPosX;
+	double prevPosY;
+	double prevPosZ;
+
+	bool isJumpingUp;
+	bool isJumpingDown;
+	bool isDropping;
+	float jumpOffset;
+	float jumpSpeed;
+	double jumpPos;
+
+	bool _collidedX;
+	bool _collidedY;
+	bool _collidedZ;
+
+	float movementSpeed;
+
+	void JumpUp(double dt);
+	void JumpDown(double dt);
+	void DropDown(double dt);
 public:
 	//Vector3 position;
 	//Vector3 target;
@@ -36,7 +57,7 @@ public:
 	virtual void Init(const Vector3& pos, const Vector3& target, const Vector3& up);
 	virtual void Update(double dt);
 	virtual void Reset();
-	void BoundsCheck(int);
+	void BoundsCheck();
 	void InteractionCheck();
 
 
