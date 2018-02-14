@@ -24,11 +24,10 @@ void bullet::updateBullet(Vector3 view, Camera3 camera, bullet &isShot)
 	if (Application::IsKeyPressed(VK_LBUTTON) && !throwed && isShot.isShooting)
 	{
 		throwed = true;
-		offsetY = 0;
-		shootTarget = view;
 		shot = true;
+		shootTarget = view;
 		throws = camera.position;
-		weaponTimer = 0;
+		offsetY = 0;
 	}
 	if (shot)
 	{
@@ -40,6 +39,7 @@ void bullet::updateBullet(Vector3 view, Camera3 camera, bullet &isShot)
 		{
 			isShooting = true;
 			shot = false;
+			weaponTimer = 0;
 		}
 	}
 

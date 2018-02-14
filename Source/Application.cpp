@@ -13,12 +13,13 @@
 #include <stdlib.h>
 
 #include "SceneA2.h"
-#include "Var.h"
+#include "MainMenu.h"
+#include "LevelSelect.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
-int sceneChange = 0;
+int Application::sceneChange = 0;
 
 //Define an error callback
 static void error_callback(int error, const char* description)
@@ -66,7 +67,7 @@ void resize_callback(GLFWwindow* window, int w, int h)
 void Application::Init()
 {
 	//Disable Cursor
-	ShowCursor(false);
+	//ShowCursor(false);
 
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
@@ -117,19 +118,35 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene *scene = NULL;
+	//Scene *scene = NULL;
 	//Init static variable
 	//Scene *scene = new SceneA2();
 	//scene->Init();
+	Scene *scene1 = new SceneA2();
+	Scene *sceneMenu = new MainMenu();
+	Scene *sceneLevel = new LevelSelect();
+	Scene *scene = scene1;
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
-		if (sceneChange == 0)
+		if (Application::sceneChange == 0)
 		{
-			scene = new SceneA2();
+			scene = sceneMenu;
 			scene->Init();
-			sceneChange = 10;
+			Application::sceneChange = 10;
+		}
+		if (Application::sceneChange == 1)
+		{
+			scene = sceneLevel;
+			scene->Init();
+			Application::sceneChange = 10;
+		}
+		if (Application::sceneChange == 2)
+		{
+			scene = scene1;
+			scene->Init();
+			Application::sceneChange = 10;
 		}
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
@@ -139,8 +156,14 @@ void Application::Run()
 		glfwPollEvents();
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 	} //Check if the ESC key had been pressed or if the window had been closed
-	scene->Exit();
-	delete scene;
+
+	scene1->Exit();
+	sceneMenu->Exit();
+	sceneLevel->Exit();
+	
+	delete scene1;
+	delete sceneMenu;
+	delete sceneLevel;
 }
 
 void Application::Exit()

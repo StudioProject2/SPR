@@ -16,6 +16,7 @@ public:
 	static bool IsKeyPressed(unsigned short key);
 	static void SetMousePosition(double xPos, double yPos);
 	static void GetMousePosition(double &xPos, double &yPos);
+	static int sceneChange;
 
 private:
 
