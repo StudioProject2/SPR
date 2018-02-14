@@ -2,7 +2,6 @@
 #include "Application.h"
 #include "Mtx44.h"
 #include "Box.h"
-#include "Var.h"
 
 #define FLOOR_POSITION 100
 
