@@ -2,6 +2,13 @@
 
 #include <cstdlib>
 
+bool isPointInBox(Vector3 position, Box box)
+{
+	return (position.x >= box.minX&&position.x <= box.maxX) &&
+		(position.y >= box.minY&&position.y <= box.maxY) &&
+		(position.z >= box.minZ && position.z <= box.maxZ);
+}
+
 Monster::Monster()
 {
 	float spawnPtX = 300;
