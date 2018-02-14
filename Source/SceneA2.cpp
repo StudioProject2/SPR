@@ -15,14 +15,10 @@
 #include <iomanip>
 #include <sstream>
 
+
 using namespace std;
 
-Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-Box *monsterBoxPtr[MOBNUM];
-monsterBullet *monsterBulletPtr[25];
-bullet *bulletPtr[NO_OF_BULLETS];
-bullet start;
-Box *bulletBoxPtr[NO_OF_BULLETS];
+
 
 SceneA2::SceneA2()
 {
@@ -40,17 +36,13 @@ void SceneA2::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
-	monster1BulletTime = elaspeTime + 4.0;
-	monster2BulletTime = elaspeTime + 4.0;
-	monster3BulletTime = elaspeTime + 4.0;
-	monster4BulletTime = elaspeTime + 4.0;
-	monster5BulletTime = elaspeTime + 4.0;
 
 	hitmarkerSize = 0;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterPtr[i] = NULL;
+		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -314,6 +306,7 @@ void SceneA2::Update(double dt)
 	start.isShooting = true;
   
   UpdateBullets();
+  UpdateMonsters();
   UpdateMonsterBullets();
   UpdateMonsterHitbox();
 	
@@ -328,6 +321,7 @@ void SceneA2::Update(double dt)
 	}
 
 	camera.Update(dt);
+	std::cout << camera.position << std::endl;
 }
 void SceneA2::UpdateBullets()
 {
@@ -349,114 +343,28 @@ void SceneA2::UpdateBullets()
 		}
 	}
 }
+
 void SceneA2::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3, 3, 3);
-
-	if (elaspeTime > monsterTime)
-	{
-		for (int i = 0; i < MOBNUM; i++)
-		{
-			if (MonsterPtr[i] == NULL)
-			{
-				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-				monsterTime = elaspeTime + 3.0;
-				break;
-			}
-		}
-	}
-
-	if (elaspeTime > monster1BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[0] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[0], camera.position);
-					monster1BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster2BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[1] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[1], camera.position);
-					monster2BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster3BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[2] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[2], camera.position);
-					monster3BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster4BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[3] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[3], camera.position);
-					monster4BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster5BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[4] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[4], camera.position);
-					monster5BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
+  Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
-			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			for (int j = 0; j < MOBBULLETNUM; j++)
+			{
+				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
+				{
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+					return;
+				}
+			}
 		}
 	}
 
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
@@ -474,6 +382,35 @@ void SceneA2::UpdateMonsterBullets()
 	}
 
 }
+
+
+void SceneA2::UpdateMonsters()
+{
+  
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterPtr[i] == NULL)
+			{
+				MonsterPtr[i] = new Monster();
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+}
+
 void SceneA2::UpdateMonsterHitbox()
 {
 	bool isHit = false;
@@ -663,7 +600,7 @@ void SceneA2::Render()
 		}
 	}
 
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
@@ -695,6 +632,16 @@ void SceneA2::Render()
 	//}
 
 	//FPS
+	modelStack.PushMatrix();
+	modelStack.Scale(100, 100, 100);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(100, 0, 105);
+	modelStack.Scale(3, 3, 3);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
