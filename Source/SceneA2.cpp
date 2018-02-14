@@ -314,7 +314,6 @@ void SceneA2::Update(double dt)
 	}
 
 	camera.Update(dt);
-	std::cout << camera.position << std::endl;
 }
 void SceneA2::UpdateBullets()
 {
