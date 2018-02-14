@@ -11,7 +11,9 @@
 #include "CameraDebug.h"
 
 #define NO_OF_BULLETS 20
-#define MOBNUM 5;
+#define BULLET_SIZE 1
+#define MOBNUM 10
+#define MOB_SIZE 10
 
 class SceneA2 : public Scene
 {
@@ -175,7 +177,13 @@ private:
 	
 	void UpdateBullets();
 	void UpdateMonsterBullets();
+	void UpdateMonsterHitbox();
+
 	void RenderBullets();
+	void RenderHitmarker();
+
+	int hitmarkerSize;
+	int hitmarkerTimer;
 };
 
 #endif
