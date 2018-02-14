@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 #include "SceneA2.h"
-#include "Var.h"
+#include "SceneStage2.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -127,7 +127,7 @@ void Application::Run()
 	{
 		if (sceneChange == 0)
 		{
-			scene = new SceneA2();
+			scene = new SceneStage2();
 			scene->Init();
 			sceneChange = 10;
 		}

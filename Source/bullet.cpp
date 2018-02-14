@@ -75,3 +75,14 @@ void bullet::monsterHit(Camera3 camera, bool isHit)
 		throwed = false;
 	}
 }
+
+bool bullet::isBulletHit(Box *bullets, Box *monster)
+{
+	return (((bullets->maxX >= monster->minX && bullets->maxX <= monster->maxX) &&
+		(bullets->maxY >= monster->minY && bullets->maxY <= monster->maxY) &&
+		(bullets->maxZ >= monster->minZ && bullets->maxZ <= monster->maxZ))
+		||
+		((bullets->minX >= monster->minX && bullets->minX <= monster->maxX) &&
+		(bullets->minY >= monster->minY && bullets->minY <= monster->maxY) &&
+			(bullets->minZ >= monster->minZ && bullets->minZ <= monster->maxZ)));
+}

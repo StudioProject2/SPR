@@ -32,6 +32,7 @@ public:
 	Vector3 shootTarget;
 	void updateBullet(Vector3 view, Camera3 camera, bullet &isShot);
 	void monsterHit(Camera3, bool isHit);
+	bool isBulletHit(Box *bullets, Box *monster);
 	bool throwed;
 	int offsetY;
 	

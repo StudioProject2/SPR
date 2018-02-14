@@ -2,7 +2,6 @@
 #include "Application.h"
 #include "Mtx44.h"
 #include "Box.h"
-#include "Var.h"
 
 #define FLOOR_POSITION 100
 
@@ -142,11 +141,6 @@ void Camera3::BoundsCheck()
 		position.z = prevPosZ;
 		target = position + view;
 	}
-
-	/*if (_collidedY)
-	{
-	std::cout << "Y Collided" << std::endl;
-	}*/
 }
 
 void Camera3::JumpUp(double dt)
@@ -182,7 +176,6 @@ void Camera3::JumpDown(double dt)
 	{
 		jumpSpeed = 14.0f;
 		isJumpingDown = false;
-		std::cout << "collision" << std::endl;
 	}
 	else
 	{
@@ -190,7 +183,6 @@ void Camera3::JumpDown(double dt)
 		target = position + view;
 		jumpSpeed = 14.0f;
 		isJumpingDown = false;
-		std::cout << "no collision" << std::endl;
 	}
 }
 
@@ -202,7 +194,6 @@ void Camera3::DropDown(double dt)
 		position.y = position.y - (jumpSpeed * dt);
 		target = position + view;
 		jumpSpeed += jumpOffset;
-		std::cout << "dropping" << std::endl;
 	}
 	else if (_collidedY)
 	{
