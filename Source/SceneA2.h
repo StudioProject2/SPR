@@ -9,6 +9,10 @@
 #include "Light.h"
 #include "Camera3.h"
 #include "CameraDebug.h"
+#include "Box.h"
+#include "Monster.h"
+#include "monsterBullet.h"
+#include "bullet.h"
 
 
 #define NO_OF_BULLETS 20
