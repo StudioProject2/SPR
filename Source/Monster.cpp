@@ -1,4 +1,5 @@
 #include "Monster.h"
+
 #include <cstdlib>
 
 Monster::Monster()
@@ -15,22 +16,77 @@ Monster::Monster()
 	monsterDirTime = 0.0;
 }
 
-
 Monster::~Monster()
 {
 }
 
-void Monster::move(Vector3 camView)
+bool isPointXInBox1(Vector3 position, Box box)
+{
+	if (((position.x >= box.minX - 1 && position.x <= box.minX + 1)
+		&& (position.y >= box.minY && position.y <= box.maxY)
+		&& (position.z >= box.minZ && position.z <= box.maxZ))
+		|| ((position.x >= box.maxX - 1 && position.x <= box.maxX + 1)
+			&& (position.y >= box.minY && position.y <= box.maxY)
+			&& (position.z >= box.minZ && position.z <= box.maxZ)))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool isPointYInBox1(Vector3 position, Box box)
+{
+	if (((position.x >= box.minX && position.x <= box.maxX)
+		&& (position.y >= box.minY - 1 && position.y <= box.minY + 1)
+		&& (position.z >= box.minZ && position.z <= box.maxZ))
+		|| ((position.x >= box.minX && position.x <= box.maxX)
+			&& (position.y >= box.maxY - 1 && position.y <= box.maxY + 1)
+			&& (position.z >= box.minZ && position.z <= box.maxZ)))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool isPointZInBox1(Vector3 position, Box box)
+{
+	if (((position.x >= box.minX && position.x <= box.maxX)
+		&& (position.y >= box.minY && position.y <= box.maxY)
+		&& (position.z >= box.minZ - 1 && position.z <= box.minZ + 1))
+		|| ((position.x >= box.minX && position.x <= box.maxX)
+			&& (position.y >= box.minY && position.y <= box.maxY)
+			&& (position.z >= box.maxZ - 1 && position.z <= box.maxZ + 1)))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void Monster::move(Vector3 camPos)
 {
 	Vector3 temp;
-	target = camView;
-	temp = (camView - pos).Normalize();
+	target = camPos;
+	temp = (camPos - pos).Normalize();
 	pos.x = pos.x + temp.x;
 	pos.z = pos.z + temp.z;
 }
 
-void Monster::moveRand(Vector3 camView, double elaspeTime)
+void Monster::moveRand(Vector3 camPos, double elaspeTime)
 {
+	//PrevPositions For Ai
+	prevPosX = pos.x;
+	prevPosY = pos.y;
+	prevPosZ = pos.z;
+
 	//Vector for movement
 	Vector3 up = Vector3(0, 1, 0);
 	Vector3 view = (target - pos).Normalized();
@@ -38,8 +94,8 @@ void Monster::moveRand(Vector3 camView, double elaspeTime)
 
 	//Calculations
 	Vector3 temp;
-	target = camView;
-	temp = (camView - pos).Normalize();
+	target = camPos;
+	temp = (camPos - pos).Normalize();
 
 	if (moveRight == true)
 	{
@@ -63,5 +119,46 @@ void Monster::moveRand(Vector3 camView, double elaspeTime)
 
 		monsterDirTime = elaspeTime + 2.0;
 	}
+	boundsCheck();
 }
 
+void Monster::boundsCheck()
+{
+	Box cube = Box(Vector3(0, 0, 0), 120);
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	if (isPointXInBox1(pos, cube))
+		
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox1(pos, cube))
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox1(pos, cube))
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - pos).Normalized();
+
+	if (_collidedX)
+	{
+		pos.x = prevPosX;
+		target = pos + view;
+	}
+
+	else if (_collidedZ)
+	{
+		pos.z = prevPosZ;
+		target = pos + view;
+	}
+
+
+
+}
