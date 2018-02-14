@@ -301,10 +301,6 @@ void SceneA2::Update(double dt)
   UpdateMonsters();
   UpdateMonsterBullets();
 	
-	if (gameOver)
-	{
-		std::cout << "Game over" << std::endl;
-	}
 	if (Application::IsKeyPressed('1'))
 	{
 		glEnable(GL_CULL_FACE);
@@ -339,7 +335,7 @@ void SceneA2::UpdateBullets()
 }
 void SceneA2::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3, 3, 3);
+  Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3, 3, 3);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
