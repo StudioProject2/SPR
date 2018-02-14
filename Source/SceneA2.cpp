@@ -15,8 +15,8 @@
 #include <iomanip>
 #include <sstream>
 
-#define MOBNUM 10
-#define MOBBULLETNUM 50
+#define MOBNUM 50
+#define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 using namespace std;
 
@@ -311,7 +311,7 @@ void SceneA2::Update(double dt)
 	}
 
 	camera.Update(dt);
-	//std::cout << camera.position << std::endl;
+	std::cout << camera.position << std::endl;
 }
 void SceneA2::UpdateBullets()
 {
@@ -335,7 +335,7 @@ void SceneA2::UpdateBullets()
 }
 void SceneA2::UpdateMonsterBullets()
 {
-  Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3, 3, 3);
+  Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -538,7 +538,7 @@ void SceneA2::Render()
 	modelStack.PopMatrix();
 
 	//SPAWN MOBS
-	for (int i = 0; i < MOBNUM; i++)
+	/*for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -560,7 +560,7 @@ void SceneA2::Render()
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
-	}
+	}*/
   
 	RenderBullets();
 
@@ -582,6 +582,16 @@ void SceneA2::Render()
 	//}
 
 	//FPS
+	modelStack.PushMatrix();
+	modelStack.Scale(100, 100, 100);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(100, 0, 105);
+	modelStack.Scale(3, 3, 3);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
