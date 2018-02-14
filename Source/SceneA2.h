@@ -160,11 +160,6 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double monsterTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
 
 	bool gameOver;
 
@@ -175,6 +170,7 @@ private:
 	
 	void UpdateBullets();
 	void UpdateMonsterBullets();
+	void UpdateMonsters();
 	void RenderBullets();
 };
 
