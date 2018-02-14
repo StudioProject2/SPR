@@ -15,9 +15,10 @@
 #include <iomanip>
 #include <sstream>
 
+#define MOBNUM 10
 using namespace std;
 
-Monster *MonsterPtr[5] = { NULL, NULL, NULL, NULL, NULL};
+Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, NULL };
 monsterBullet *monsterBulletPtr[25];
 bullet *bulletPtr[NO_OF_BULLETS];
 bullet start;
@@ -44,7 +45,10 @@ void SceneA2::Init()
 	monster4BulletTime = elaspeTime + 4.0;
 	monster5BulletTime = elaspeTime + 4.0;
 
-
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		MonsterPtr[i] = NULL;
+	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
@@ -335,11 +339,11 @@ void SceneA2::UpdateBullets()
 }
 void SceneA2::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3, 3, 3);
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3);
 
 	if (elaspeTime > monsterTime)
 	{
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < MOBNUM; i++)
 		{
 			if (MonsterPtr[i] == NULL)
 			{
@@ -430,7 +434,7 @@ void SceneA2::UpdateMonsterBullets()
 		}
 	}
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -598,7 +602,7 @@ void SceneA2::Render()
 	modelStack.PopMatrix();
 
 	//SPAWN MOBS
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -801,4 +805,4 @@ void SceneA2::Exit()
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
-}	
+}
