@@ -15,18 +15,7 @@
 #include <iomanip>
 #include <sstream>
 
-#define MOBNUM 50
-#define MOBBULLETNUM 100
-#define MOBBULLETDELAY 2.0
 using namespace std;
-
-Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-Box *monsterBoxPtr[MOBNUM];
-monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-double monsterBulletDelay[MOBNUM];
-bullet *bulletPtr[NO_OF_BULLETS];
-bullet start;
-Box *bulletBoxPtr[NO_OF_BULLETS];
 
 SceneA2::SceneA2()
 {
@@ -390,8 +379,6 @@ void SceneA2::UpdateMonsterBullets()
 	}
 
 }
-
-
 void SceneA2::UpdateMonsters()
 {
   
