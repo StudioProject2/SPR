@@ -138,6 +138,9 @@ class SceneStage2 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_TREE,
+		GEO_GRASS,
+
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
@@ -189,6 +192,12 @@ private:
 
 	void RenderBullets();
 	void RenderHitmarker();
+	void RenderMonster();
+	void RednerMonsterBullets();
+	void RenderLights();
+	void RenderSkybox();
+	void RenderObj();
+	void RenderUi();
 
 	int hitmarkerSize;
 	int hitmarkerTimer;

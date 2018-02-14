@@ -19,6 +19,14 @@ SceneStage2::SceneStage2()
 
 SceneStage2::~SceneStage2()
 {
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (bulletPtr[i] != NULL)
+		{
+			delete bulletPtr[i];
+			delete bulletBoxPtr[i];
+		}
+	}
 }
 
 void SceneStage2::Init()
@@ -233,26 +241,32 @@ void SceneStage2::Init()
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage2//skybox_front.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage2//skybox_back.tga");
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage2//skybox_right.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage2//skybox_left.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage2//skybox_top.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
-	//FLOOR
-	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
-	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
-	meshList[GEO_FLOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_FLOOR]->material.kShininess = 1.f;
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage2//skybox_bottom.tga");
+	meshList[GEO_BOTTOM]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_BOTTOM]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BOTTOM]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_BOTTOM]->material.kShininess = 1.f;
+	
 	//Bullet
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+
+	//tree
+	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
+	meshList[GEO_TREE]->textureID = LoadTGA("Image//stage2//objtextures//Tree2.tga");
+
+	//grass
+	meshList[GEO_GRASS] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Patch.obj");
+	meshList[GEO_GRASS]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -432,190 +446,28 @@ void SceneStage2::Render()
 	viewStack.LoadIdentity();
 	viewStack.LookAt(camera.position.x, camera.position.y, camera.position.z, camera.target.x, camera.target.y, camera.target.z, camera.up.x, camera.up.y, camera.up.z);
 	modelStack.LoadIdentity();
+	
+	//Lights && Skybox
+	RenderLights();
+	RenderSkybox();
 
-	if (light[0].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[0].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[0].position;
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[0].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[0].position;
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightPosition_cameraspace.x);
-	}
-	//********************SECOND LIGHT***************************
-	if (light[1].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[1].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[1].position;
-		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[1].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[1].position;
-		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightPosition_cameraspace.x);
-	}
-	//*******************THIRD LIGHT******************************
-	if (light[2].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[2].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[2].position;
-		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[2].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[2].position;
-		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightPosition_cameraspace.x);
-	}
-	//*******************FOURTH LIGHT******************************
-	if (light[3].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[3].position.x, light[3].position.y, light[3].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[3].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[3].position;
-		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[3].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT3_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[3].position;
-		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
-	}
-
-	//SKYBOX + FLOOR
-	modelStack.PushMatrix();
-	//RenderMesh(meshList[GEO_AXES], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, -1000);
-	RenderMesh(meshList[GEO_FRONT], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(-1000, 0, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	RenderMesh(meshList[GEO_LEFT], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(1000, 0, 0);
-	modelStack.Rotate(-90, 0, 1, 0);
-	RenderMesh(meshList[GEO_RIGHT], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 1000);
-	modelStack.Rotate(180, 0, 1, 0);
-	RenderMesh(meshList[GEO_BACK], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 1000, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(90, 1, 0, 0);
-	RenderMesh(meshList[GEO_TOP], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, -1000, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_BOTTOM], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_FLOOR], true);
-	modelStack.PopMatrix();
-
-	//LIGHTBALLS
-	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-
-	//SPAWN MOBS
-	for (int i = 0; i < MOBNUM; i++)
-	{
-		if (MonsterPtr[i] != NULL)
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
-			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
-			modelStack.PopMatrix();
-		}
-	}
-
-	for (int i = 0; i < MOBBULLETNUM; i++)
-	{
-		if (monsterBulletPtr[i] != NULL)
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
-			modelStack.Scale(2, 2, 2);
-			RenderMesh(meshList[GEO_SPHERE], false);
-			modelStack.PopMatrix();
-		}
-	}
-
+	//World Objs
+	RenderObj();
+	
+	//MOBS
+	RenderMonster();
+	RednerMonsterBullets();
+	
+	//Player
 	RenderBullets();
-
-	//FPS
-	modelStack.PushMatrix();
-	modelStack.Scale(100, 100, 100);
-	RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(100, 0, 105);
-	modelStack.Scale(3, 3, 3);
-	RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-
-	std::ostringstream sFps;
-	sFps << std::fixed << std::setprecision(3);
-	sFps << 1.0 / deltaTime << "fps";
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
-	modelStack.PopMatrix();
-
+	RenderUi();
 	RenderHitmarker();
 
 	if (gameOver)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
 	}
+
 }
 
 void SceneStage2::RenderMesh(Mesh *mesh, bool enableLight)
@@ -734,6 +586,138 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 	glEnable(GL_DEPTH_TEST);
 }
 
+void SceneStage2::RenderSkybox()
+{
+	//SKYBOX + FLOOR
+	modelStack.PushMatrix();
+	modelStack.Translate(0, 0, -1000);
+	RenderMesh(meshList[GEO_FRONT], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(-1000, 0, 0);
+	modelStack.Rotate(90, 0, 1, 0);
+	RenderMesh(meshList[GEO_LEFT], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(1000, 0, 0);
+	modelStack.Rotate(-90, 0, 1, 0);
+	RenderMesh(meshList[GEO_RIGHT], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(0, 0, 1000);
+	modelStack.Rotate(180, 0, 1, 0);
+	RenderMesh(meshList[GEO_BACK], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(0, 1000, 0);
+	modelStack.Rotate(90, 0, 1, 0);
+	modelStack.Rotate(90, 1, 0, 0);
+	RenderMesh(meshList[GEO_TOP], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(0, -10, 0);
+	modelStack.Rotate(90, 0, 1, 0);
+	modelStack.Rotate(-90, 1, 0, 0);
+	RenderMesh(meshList[GEO_BOTTOM], false);
+	modelStack.PopMatrix();
+
+}
+void SceneStage2::RenderObj()
+{
+	//trees
+	modelStack.PushMatrix();
+	modelStack.Translate(0, 0, 100);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_TREE], false);
+	modelStack.PopMatrix();
+
+	//grass
+	modelStack.PushMatrix();
+	modelStack.Translate(0, 0, 100);
+	modelStack.Scale(10, 0, 10);
+	RenderMesh(meshList[GEO_GRASS], false);
+	modelStack.PopMatrix();
+
+}
+void SceneStage2::RenderLights()
+{
+	if (light[0].type == Light::LIGHT_DIRECTIONAL)
+	{
+		Vector3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
+		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightDirection_cameraspace.x);
+	}
+	else if (light[0].type == Light::LIGHT_SPOT)
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[0].position;
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightPosition_cameraspace.x);
+		Vector3 spotDirection_cameraspace = viewStack.Top() * light[0].spotDirection;
+		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
+	}
+	else
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[0].position;
+		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightPosition_cameraspace.x);
+	}
+	//********************SECOND LIGHT***************************
+	if (light[1].type == Light::LIGHT_DIRECTIONAL)
+	{
+		Vector3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
+		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightDirection_cameraspace.x);
+	}
+	else if (light[1].type == Light::LIGHT_SPOT)
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[1].position;
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightPosition_cameraspace.x);
+		Vector3 spotDirection_cameraspace = viewStack.Top() * light[1].spotDirection;
+		glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
+	}
+	else
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[1].position;
+		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightPosition_cameraspace.x);
+	}
+	//*******************THIRD LIGHT******************************
+	if (light[2].type == Light::LIGHT_DIRECTIONAL)
+	{
+		Vector3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
+		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
+		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightDirection_cameraspace.x);
+	}
+	else if (light[2].type == Light::LIGHT_SPOT)
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[2].position;
+		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightPosition_cameraspace.x);
+		Vector3 spotDirection_cameraspace = viewStack.Top() * light[2].spotDirection;
+		glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
+	}
+	else
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[2].position;
+		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightPosition_cameraspace.x);
+	}
+	//*******************FOURTH LIGHT******************************
+	if (light[3].type == Light::LIGHT_DIRECTIONAL)
+	{
+		Vector3 lightDir(light[3].position.x, light[3].position.y, light[3].position.z);
+		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
+		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightDirection_cameraspace.x);
+	}
+	else if (light[3].type == Light::LIGHT_SPOT)
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[3].position;
+		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
+		Vector3 spotDirection_cameraspace = viewStack.Top() * light[3].spotDirection;
+		glUniform3fv(m_parameters[U_LIGHT3_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
+	}
+	else
+	{
+		Position lightPosition_cameraspace = viewStack.Top() * light[3].position;
+		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
+	}
+
+}
 void SceneStage2::RenderBullets()
 {
 	for (int i = 0; i < NO_OF_BULLETS; i++)
@@ -747,10 +731,58 @@ void SceneStage2::RenderBullets()
 		}
 	}
 }
+void SceneStage2::RenderMonster()
+{
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_CUBE], false);
+			modelStack.PopMatrix();
+		}
+	}
+}
+void SceneStage2::RednerMonsterBullets()
+{
+	for (int i = 0; i < MOBBULLETNUM; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], false);
+			modelStack.PopMatrix();
+		}
+	}
 
+}
 void SceneStage2::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
+}
+void SceneStage2::RenderUi()
+{
+	std::ostringstream sFps;
+	sFps << std::fixed << std::setprecision(3);
+	sFps << 1.0 / deltaTime << "fps";
+
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
+	modelStack.PopMatrix();
+
+	std::ostringstream timePast;
+	timePast << std::fixed << std::setprecision(1);
+	timePast << elaspeTime << "time past.";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], timePast.str(), Color(1, 1, 1), 2, 29, 29);
+	modelStack.PopMatrix();
+
 }
 
 void SceneStage2::Exit()
