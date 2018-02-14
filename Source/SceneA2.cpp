@@ -6,10 +6,6 @@
 #include "Utility.h"
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
-#include "Box.h"
-#include "Monster.h"
-#include "monsterBullet.h"
-#include "bullet.h"
 
 #include <cstdlib>
 #include <iomanip>
@@ -425,6 +421,7 @@ void SceneA2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
+					bulletPtr[bul]->monsterHit(camera, true);
 				}
 			}
 		}
@@ -437,7 +434,6 @@ void SceneA2::UpdateMonsterHitbox()
 	{
 		hitmarkerTimer -= 1;
 		hitmarkerSize = 5;
-
 	}
 }
 
