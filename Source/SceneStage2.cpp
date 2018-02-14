@@ -1,4 +1,4 @@
-#include "SceneA2.h"
+#include "SceneStage2.h"
 #include "GL\glew.h"
 #include "shader.hpp"
 #include "Mtx44.h"
@@ -13,15 +13,15 @@
 
 using namespace std;
 
-SceneA2::SceneA2()
+SceneStage2::SceneStage2()
 {
 }
 
-SceneA2::~SceneA2()
+SceneStage2::~SceneStage2()
 {
 }
 
-void SceneA2::Init()
+void SceneStage2::Init()
 {
 	//Monster spawn
 	srand((unsigned int)time(NULL));
@@ -269,7 +269,7 @@ void SceneA2::Init()
 	}
 
 	gameOver = false;
-  
+
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
@@ -278,20 +278,20 @@ void SceneA2::Init()
 	}
 }
 
-void SceneA2::Update(double dt)
+void SceneStage2::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
 	deltaTime = dt;
 	start.isShooting = true;
-  
-  UpdateBullets();
-  UpdateMonsters();
-  UpdateMonsterBullets();
-  UpdateMonsterHitbox();
-	
-	
+
+	UpdateBullets();
+	UpdateMonsters();
+	UpdateMonsterBullets();
+	UpdateMonsterHitbox();
+
+
 	if (Application::IsKeyPressed('1'))
 	{
 		glEnable(GL_CULL_FACE);
@@ -303,10 +303,10 @@ void SceneA2::Update(double dt)
 
 	camera.Update(dt);
 }
-void SceneA2::UpdateBullets()
+void SceneStage2::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
-	
+
 	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
 		if (i == 0)
@@ -324,9 +324,9 @@ void SceneA2::UpdateBullets()
 	}
 }
 
-void SceneA2::UpdateMonsterBullets()
+void SceneStage2::UpdateMonsterBullets()
 {
-  Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -362,9 +362,9 @@ void SceneA2::UpdateMonsterBullets()
 	}
 
 }
-void SceneA2::UpdateMonsters()
+void SceneStage2::UpdateMonsters()
 {
-  
+
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
@@ -389,7 +389,7 @@ void SceneA2::UpdateMonsters()
 	}
 }
 
-void SceneA2::UpdateMonsterHitbox()
+void SceneStage2::UpdateMonsterHitbox()
 {
 	bool isHit = false;
 	int monNum;
@@ -424,7 +424,7 @@ void SceneA2::UpdateMonsterHitbox()
 	}
 }
 
-void SceneA2::Render()
+void SceneStage2::Render()
 {
 	//Clear color & depth buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -589,25 +589,8 @@ void SceneA2::Render()
 			modelStack.PopMatrix();
 		}
 	}
-  
-	RenderBullets();
 
-	//if (MonsterPtr[0] != NULL)
-	//{
-	//	modelStack.PushMatrix();
-	//	modelStack.Translate((*MonsterPtr[0]).pos.x, 0, (*MonsterPtr[0]).pos.z);
-	//	modelStack.Scale(10, 10, 10);
-	//	RenderMesh(meshList[GEO_CUBE], false);
-	//	modelStack.PopMatrix();
-	//}
-	//if (MonsterPtr[1] != NULL)
-	//{
-	//	modelStack.PushMatrix();
-	//	modelStack.Translate((*MonsterPtr[1]).pos.x, 0, (*MonsterPtr[1]).pos.z);
-	//	modelStack.Scale(10, 10, 10);
-	//	RenderMesh(meshList[GEO_CUBE], false);
-	//	modelStack.PopMatrix();
-	//}
+	RenderBullets();
 
 	//FPS
 	modelStack.PushMatrix();
@@ -635,7 +618,7 @@ void SceneA2::Render()
 	}
 }
 
-void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
+void SceneStage2::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
 
@@ -680,7 +663,7 @@ void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
 
 }
 
-void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
+void SceneStage2::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -707,7 +690,7 @@ void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -751,7 +734,7 @@ void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, floa
 	glEnable(GL_DEPTH_TEST);
 }
 
-void SceneA2::RenderBullets()
+void SceneStage2::RenderBullets()
 {
 	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
@@ -765,12 +748,12 @@ void SceneA2::RenderBullets()
 	}
 }
 
-void SceneA2::RenderHitmarker()
+void SceneStage2::RenderHitmarker()
 {
 	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
 }
 
-void SceneA2::Exit()
+void SceneStage2::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
