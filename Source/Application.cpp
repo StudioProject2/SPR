@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 #include "SceneA2.h"
-#include "Var.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
