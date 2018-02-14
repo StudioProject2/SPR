@@ -19,12 +19,10 @@ LevelSelect::LevelSelect()
 {
 
 }
-
 LevelSelect::~LevelSelect()
 {
 
 }
-
 void LevelSelect::Init()
 {
 	//Timer
@@ -263,7 +261,6 @@ void LevelSelect::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 }
-
 void LevelSelect::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
@@ -399,7 +396,6 @@ void LevelSelect::Update(double dt)
 	std::cout << posy << std::endl;
 	//std::cout << camera.position << std::endl;
 }
-
 void LevelSelect::Render()
 {
 	//Clear color & depth buffer every frame
@@ -569,7 +565,6 @@ void LevelSelect::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Back", Color(1, 1, 1), 5, 6.5, 1);
 	modelStack.PopMatrix();
 }
-
 void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -615,7 +610,6 @@ void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
 
 
 }
-
 void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -642,7 +636,6 @@ void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
 void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -686,7 +679,6 @@ void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
-
 void LevelSelect::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)

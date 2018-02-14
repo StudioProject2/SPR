@@ -19,12 +19,10 @@ MainMenu::MainMenu()
 {
 
 }
-
 MainMenu::~MainMenu()
 {
 
 }
-
 void MainMenu::Init()
 {
 	//Timer
@@ -263,7 +261,6 @@ void MainMenu::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 }
-
 void MainMenu::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
@@ -364,7 +361,6 @@ void MainMenu::Update(double dt)
 	std::cout << posy << std::endl;
 	//std::cout << camera.position << std::endl;
 }
-
 void MainMenu::Render()
 {
 	//Clear color & depth buffer every frame
@@ -522,7 +518,6 @@ void MainMenu::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5, 1);
 	modelStack.PopMatrix();
 }
-
 void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -568,7 +563,6 @@ void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
 
 
 }
-
 void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -595,7 +589,6 @@ void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
 void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -639,7 +632,6 @@ void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, flo
 
 	glEnable(GL_DEPTH_TEST);
 }
-
 void MainMenu::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
