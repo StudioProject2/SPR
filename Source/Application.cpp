@@ -14,10 +14,12 @@
 
 #include "SceneA2.h"
 #include "MainMenu.h"
+#include "LevelSelect.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
+
 int sceneChange = 0;
 
 //Define an error callback
@@ -66,8 +68,8 @@ void resize_callback(GLFWwindow* window, int w, int h)
 void Application::Init()
 {
 	//Disable Cursor
-	ShowCursor(false);
-
+	//ShowCursor(false);
+	
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
 
@@ -116,7 +118,6 @@ void Application::Init()
 
 void Application::Run()
 {
-
 	//Main Loop
 	Scene *scene = NULL;
 	//Init static variable
@@ -135,12 +136,19 @@ void Application::Run()
 		}
 		if (sceneChange == 1)
 		{
+			ShowCursor(true);
+			scene = new LevelSelect();
+			scene->Init();
+			sceneChange = 10;
+		}
+		if (sceneChange == 2)
+		{
 			ShowCursor(false);
 			scene = new SceneA2();
 			scene->Init();
 			sceneChange = 10;
-
 		}
+
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
 		//Swap buffers

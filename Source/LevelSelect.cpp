@@ -1,5 +1,5 @@
 #include <iostream>
-#include "MainMenu.h"
+#include "LevelSelect.h"
 #include "GL\glew.h"
 #include "shader.hpp"
 #include "Mtx44.h"
@@ -12,24 +12,24 @@
 
 using namespace std;
 
-double elaspeTime;
-double deltaTime;
+double elaspeTime1;
+double deltaTime1;
 
-MainMenu::MainMenu()
+LevelSelect::LevelSelect()
 {
 
 }
 
-MainMenu::~MainMenu()
+LevelSelect::~LevelSelect()
 {
 
 }
 
-void MainMenu::Init()
+void LevelSelect::Init()
 {
 	//Timer
-	elaspeTime = 0.0;
-	deltaTime = 0.0;
+	elaspeTime1 = 0.0;
+	deltaTime1 = 0.0;
 
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -264,11 +264,11 @@ void MainMenu::Init()
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 }
 
-void MainMenu::Update(double dt)
+void LevelSelect::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
-	elaspeTime += dt;
-	deltaTime = dt;
+	elaspeTime1 += dt;
+	deltaTime1 = dt;
 
 	//if (Application::IsKeyPressed('1'))
 	//{
@@ -309,15 +309,15 @@ void MainMenu::Update(double dt)
 	double posy;
 	Application::GetMousePosition(posx, posy);
 
-	if (posx > 270 && posx < 490)
+	if (posx > 245 && posx < 535)
 	{
-		if (posy > 330 && posy < 370)
+		if (posy > 270 && posy < 300)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				sceneChange = 1;
-
-				std::cout << "you have started the game" << endl;
+				//Level 1
+				sceneChange = 2;
+				//std::cout << "you have started the game" << endl;
 			}
 			//else
 			//{
@@ -326,14 +326,14 @@ void MainMenu::Update(double dt)
 		}
 
 	}
-	if (posx > 300 && posx < 470)
+	if (posx > 245 && posx < 535)
 	{
-		if (posy > 435 && posy < 470)
+		if (posy > 340 && posy < 365)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-
-				std::cout << "you have muted the game" << endl;
+				//Level 2
+				//std::cout << "you have started the game" << endl;
 			}
 			//else
 			//{
@@ -341,14 +341,49 @@ void MainMenu::Update(double dt)
 			//}
 		}
 
-	}	
+	}
+	if (posx > 245 && posx < 565)
+	{
+		if (posy > 405 && posy < 435)
+		{
+			if (Application::IsKeyPressed(VK_LBUTTON))
+			{
+				//Level 3
+				//sceneChange = 0;
+				//std::cout << "you have started the game" << endl;
+			}
+			//else
+			//{
+			//	sceneChange = 0;
+			//}
+		}
+
+	}
+	if (posx > 300 && posx < 460)
+	{
+		if (posy > 465 && posy < 490)
+		{
+			if (Application::IsKeyPressed(VK_LBUTTON))
+			{
+				//BOSS
+				//sceneChange = 0;
+				//std::cout << "you have started the game" << endl;
+			}
+			//else
+			//{
+			//	sceneChange = 0;
+			//}
+		}
+
+	}
 	if (posx > 300 && posx < 465)
 	{
 		if (posy > 535 && posy < 565)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				exit(EXIT_FAILURE);
+				//Back to Main Menu
+				sceneChange = 0;
 			}
 			//else
 			//{
@@ -359,13 +394,13 @@ void MainMenu::Update(double dt)
 	}
 
 	camera.Update(dt);
-	
+
 	std::cout << posx << std::endl;
 	std::cout << posy << std::endl;
 	//std::cout << camera.position << std::endl;
 }
 
-void MainMenu::Render()
+void LevelSelect::Render()
 {
 	//Clear color & depth buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -507,23 +542,35 @@ void MainMenu::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Prehistoric", Color(0.8,0.6,0.1), 6, 1.7, 7);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Select", Color(0.8, 0.6, 0.1), 6.5, 4, 8);
 	modelStack.PopMatrix();
+
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Extinction", Color(0.8, 0.6, 0.1), 6, 2.3, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "a Level", Color(0.8, 0.6, 0.1), 6, 4, 7.5);
 	modelStack.PopMatrix();
+
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Start", Color(1,1,1), 5, 6, 5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 1, 1), 4.5, 6, 7);
 	modelStack.PopMatrix();
+
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Mute", Color(1, 1, 1), 5, 6.5, 3);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 2", Color(1, 1, 1), 4.5, 6, 5.5);
 	modelStack.PopMatrix();
+
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5, 1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 1, 1), 4.5, 6, 4);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "BOSS", Color(1, 0, 0), 5, 6.5, 2.5);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Back", Color(1, 1, 1), 5, 6.5, 1);
 	modelStack.PopMatrix();
 }
 
-void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
+void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
 
@@ -569,7 +616,7 @@ void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
 
 }
 
-void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
+void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -596,7 +643,7 @@ void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -640,7 +687,7 @@ void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, flo
 	glEnable(GL_DEPTH_TEST);
 }
 
-void MainMenu::Exit()
+void LevelSelect::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{

@@ -1,5 +1,5 @@
-#ifndef SCENE_A2
-#define SCENE_A2
+#ifndef LEVELSELECT_H
+#define LEVELSELECT_H
 
 #include "Scene.h"
 #include "Camera.h"
@@ -10,10 +10,7 @@
 #include "Camera3.h"
 #include "CameraDebug.h"
 
-#define NO_OF_BULLETS 20
-#define MOBNUM 5;
-
-class SceneA2 : public Scene
+class LevelSelect : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -86,6 +83,7 @@ class SceneA2 : public Scene
 	};
 
 
+
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -106,8 +104,6 @@ class SceneA2 : public Scene
 		GEO_SPHERE8,
 		GEO_LIGHTBALL,
 		GEO_LIGHTBALL2,
-
-		GEO_BULLETS,
 
 		GEO_LEFT,
 		GEO_RIGHT,
@@ -135,8 +131,8 @@ class SceneA2 : public Scene
 	};
 
 public:
-	SceneA2();
-	~SceneA2();
+	LevelSelect();
+	~LevelSelect();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -152,30 +148,31 @@ private:
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
+	float rotateAngle;
+	float translateX;
+	float scaleAll;
+
+	float rotateAmt;
+	float translateAmt;
+	float scaleAmt;
+
+	float rotateStar;
+	float rotateStar2;
+
+	//Spawner
+	bool spawn = false;
+
+
 	MS modelStack, viewStack, projectionStack;
 
-	Camera3 camera;
-
-	double elaspeTime;
-	double tempElaspeTime;
-	double deltaTime;
-	double monsterTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
-
-	bool gameOver;
+	Camera camera;
 
 	Light light[4];
+
+
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	
-	void UpdateBullets();
-	void UpdateMonsterBullets();
-	void RenderBullets();
 };
 
 #endif

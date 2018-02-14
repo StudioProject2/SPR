@@ -12,8 +12,7 @@ public:
 	void Init();
 	void Run();
 	void Exit();
-	bool hidecursor = 0;
-	static void GetMousePos(double &xpos, double &ypos);
+	//static void GetMousePos(double &xpos, double &ypos);
 	static bool IsKeyPressed(unsigned short key);
 	static void SetMousePosition(double xPos, double yPos);
 	static void GetMousePosition(double &xPos, double &yPos);

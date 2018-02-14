@@ -7,16 +7,21 @@
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
 #include "Box.h"
-#include "Var.h"
+#include "Monster.h"
+#include "monsterBullet.h"
+#include "bullet.h"
 
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
+#define MOBNUM 10
 using namespace std;
 
-double elaspeTime = 0.0;
-double deltaTime = 0.0;
-
+Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, NULL };
+monsterBullet *monsterBulletPtr[25];
+bullet *bulletPtr[NO_OF_BULLETS];
+bullet start;
 
 SceneA2::SceneA2()
 {
@@ -28,11 +33,22 @@ SceneA2::~SceneA2()
 
 void SceneA2::Init()
 {
-	//hidecursor = 1;
+	//Monster spawn
+	srand((unsigned int)time(NULL));
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
+	monsterTime = elaspeTime + 3.0;
+	monster1BulletTime = elaspeTime + 4.0;
+	monster2BulletTime = elaspeTime + 4.0;
+	monster3BulletTime = elaspeTime + 4.0;
+	monster4BulletTime = elaspeTime + 4.0;
+	monster5BulletTime = elaspeTime + 4.0;
 
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		MonsterPtr[i] = NULL;
+	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
@@ -44,16 +60,7 @@ void SceneA2::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
-
-	rotateAngle = 0.0f;
-	translateX = 0.0f;
-	scaleAll = 0.0f;
-	rotateStar = 0.0f;
-
-	rotateAmt = 60;
-	translateAmt = 10;
-	scaleAmt = 2;
+	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -63,7 +70,6 @@ void SceneA2::Init()
 	Color colour;
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 
-	// Get a handle for our "colorTexture" uniform
 	m_parameters[U_COLOR_TEXTURE_ENABLED] = glGetUniformLocation(m_programID, "colorTextureEnabled");
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 
@@ -235,6 +241,8 @@ void SceneA2::Init()
 	//Others
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
@@ -255,7 +263,8 @@ void SceneA2::Init()
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.f;
-
+	//Bullet
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -263,66 +272,203 @@ void SceneA2::Init()
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
-}
 
+	//Monsters
+
+	for (int i = 0; i < 25; i++)
+	{
+		monsterBulletPtr[i] = NULL;
+	}
+
+	gameOver = false;
+  
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		bulletPtr[bul] = new bullet();
+		//TO DO: init collision for the bullets here
+		//TO DO: add a function to detect monster hit box
+	}
+}
 
 void SceneA2::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
+	deltaTime = dt;
+	start.isShooting = true;
+  
+  UpdateBullets();
+  UpdateMonsterBullets();
 
-	if (Application::IsKeyPressed('1'))
+  if (Application::IsKeyPressed('P'))
+  {
+	  
+  }
+  //else if
+  //{
+	 // return 0;
+  //}
+	
+	if (gameOver)
 	{
-		glEnable(GL_CULL_FACE);
+		std::cout << "Game over" << std::endl;
 	}
-	if (Application::IsKeyPressed('2'))
-	{
-		glDisable(GL_CULL_FACE);
-	}
-
-	if (Application::IsKeyPressed(VK_SPACE))
-	{
-		float upperRotateBounds = 360;
-		float lowerRotateBounds = 0;
-
-		float translateMax = 10;
-		float screenMin = -10;
-
-		float maxScale = 10;
-
-		rotateAngle += (float)(rotateAmt * dt);
-		translateX += (float)(translateAmt * dt);
-		scaleAll += (float)(scaleAmt * dt);
-
-		//std::cout << rotateAngle << std::endl;
-
-		//Without these bounds, translate will move out of screen and scale will be too large
-		if (rotateAngle > upperRotateBounds || rotateAngle < lowerRotateBounds)
-			rotateAmt = -rotateAmt; // -60 or -(-60)
-
-		if (translateX > translateMax)
-			translateX = screenMin; // start from left side of screen
-
-		if (scaleAll > maxScale)
-			scaleAll = 1; // reset Scale
-	}
-
-	if (Application::IsKeyPressed(VK_NUMPAD0))
-	{
-		spawn = true;
-	}
-	else
-	{
-		NULL;
-	}
+	//if (Application::IsKeyPressed('1'))
+	//{
+	//	glEnable(GL_CULL_FACE);
+	//}
+	//if (Application::IsKeyPressed('2'))
+	//{
+	//	glDisable(GL_CULL_FACE);
+	//}
 
 	camera.Update(dt);
+	//std::cout << camera.position << std::endl;
+}
+void SceneA2::UpdateBullets()
+{
+	Vector3 view = (camera.target - camera.position).Normalized();
+	
+	cout << bulletPtr[0]->weaponShootingTimer << endl;
 
-	std::cout << camera.position << std::endl;
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (i == 0)
+		{
+			bulletPtr[0]->updateBullet(view, camera, start);
+			//TO DO: update first bullet collision box
+		}
+		else
+		{
+			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
+			//TO DO: update rest of bullets collision box
+		}
+	}
+}
+void SceneA2::UpdateMonsterBullets()
+{
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3,3,3 );
+
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterPtr[i] == NULL)
+			{
+				MonsterPtr[i] = new Monster();
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+
+	if (elaspeTime > monster1BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[0] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[0], camera.position);
+					monster1BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster2BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[1] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[1], camera.position);
+					monster2BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster3BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[2] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[2], camera.position);
+					monster3BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster4BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[3] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[3], camera.position);
+					monster4BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	if (elaspeTime > monster5BulletTime)
+	{
+		for (int i = 0; i < 25; i++)
+		{
+			if (MonsterPtr[4] != NULL)
+			{
+				if (monsterBulletPtr[i] == NULL)
+				{
+					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[4], camera.position);
+					monster5BulletTime = elaspeTime + 4.0;
+					return;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
+		}
+	}
+
+	for (int i = 0; i < 25; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			monsterBulletPtr[i]->move();
+			if (monsterBulletPtr[i]->isBulletInBox(player))
+			{
+				gameOver = true;
+			}
+			if (monsterBulletPtr[i]->bulletCollide())
+			{
+				monsterBulletPtr[i] = NULL;
+				delete monsterBulletPtr[i];
+			}
+		}
+	}
 
 }
-
 void SceneA2::Render()
 {
 	//Clear color & depth buffer every frame
@@ -464,32 +610,65 @@ void SceneA2::Render()
 	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
-	//DEBUGGING
-	//modelStack.PushMatrix();
-	//modelStack.Translate(0, 0, 0);
-	//modelStack.Scale(100, 100, 100);
-	//RenderMesh(meshList[GEO_CUBE], false);
-	//modelStack.PopMatrix();
+	//SPAWN MOBS
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_CUBE], false);
+			modelStack.PopMatrix();
+		}
+	}
 
-	
-	//SPAWN AI
-	if (spawn == true)
+	for (int i = 0; i < 25; i++)
 	{
-		modelStack.PushMatrix();
-		modelStack.Translate(200, 10, 200);
-		modelStack.Scale(5, 5, 5);
-		RenderMesh(meshList[GEO_CUBE], false);
-		modelStack.PopMatrix();
+		if (monsterBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], false);
+			modelStack.PopMatrix();
+			std::cout << i << " : " << (*monsterBulletPtr[i]).pos << std::endl;
+			std::cout << i << " : " << (*monsterBulletPtr[i]).target << std::endl;
+		}
 	}
-	else
-	{
-		NULL;
-	}
+  
+	RenderBullets();
+
+	//if (MonsterPtr[0] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[0]).pos.x, 0, (*MonsterPtr[0]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
+	//if (MonsterPtr[1] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[1]).pos.x, 0, (*MonsterPtr[1]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
+
+	//FPS
+	std::ostringstream sFps;
+	sFps << std::fixed << std::setprecision(3);
+	sFps << 1.0 / deltaTime << "fps";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to sleep", Color(1, 1, 1), 3, 1, 5);
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
-}
 
+	if (gameOver)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
+	}
+}
 void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -534,7 +713,6 @@ void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
 	}
 
 }
-
 void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -561,7 +739,6 @@ void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
 void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -605,7 +782,19 @@ void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, floa
 
 	glEnable(GL_DEPTH_TEST);
 }
-
+void SceneA2::RenderBullets()
+{
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (bulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			RenderMesh(meshList[GEO_BULLETS], false);
+			modelStack.PopMatrix();
+		}
+	}
+}
 void SceneA2::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
@@ -620,5 +809,4 @@ void SceneA2::Exit()
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
-
 }

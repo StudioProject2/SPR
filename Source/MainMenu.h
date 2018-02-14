@@ -1,5 +1,5 @@
-#ifndef MAINMENU
-#define MAINMENU
+#ifndef MAINMENU_H
+#define MAINMENU_H
 
 #include "Scene.h"
 #include "Camera.h"
