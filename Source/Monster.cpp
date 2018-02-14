@@ -10,10 +10,19 @@ Monster::Monster()
 	spawnPtX = (rand() % 1400 - 700) + 1.0;
 	spawnPtZ = (rand() % 1400 - 700) + 1.0;
 
-	pos = Vector3(spawnPtX, 0, spawnPtZ);
-	dirChanger = 0;
-	moveRight = true;
-	monsterDirTime = 0.0;
+	Box cube = Box(Vector3(0, 0, 0), 120);
+	do
+	{
+		spawnPtX = (rand() % 1400 - 700) + 1.0;
+		spawnPtZ = (rand() % 1400 - 700) + 1.0;
+
+		pos = Vector3(spawnPtX, 0, spawnPtZ);
+
+		dirChanger = 0;
+		moveRight = true;
+		monsterDirTime = 0.0;
+
+	} while (isPointInBox(pos, cube));
 }
 
 Monster::~Monster()
