@@ -22,7 +22,8 @@ using namespace std;
 
 Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 Box *monsterBoxPtr[MOBNUM];
-monsterBullet *monsterBulletPtr[25];
+monsterBullet *monsterBulletPtr[MOBBULLETNUM];
+double monsterBulletDelay[MOBNUM];
 bullet *bulletPtr[NO_OF_BULLETS];
 bullet start;
 Box *bulletBoxPtr[NO_OF_BULLETS];
@@ -43,17 +44,13 @@ void SceneA2::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
-	monster1BulletTime = elaspeTime + 4.0;
-	monster2BulletTime = elaspeTime + 4.0;
-	monster3BulletTime = elaspeTime + 4.0;
-	monster4BulletTime = elaspeTime + 4.0;
-	monster5BulletTime = elaspeTime + 4.0;
 
 	hitmarkerSize = 0;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterPtr[i] = NULL;
+		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -599,7 +596,7 @@ void SceneA2::Render()
 	modelStack.PopMatrix();
 
 	//SPAWN MOBS
-	/*for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -611,7 +608,7 @@ void SceneA2::Render()
 		}
 	}
 
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
@@ -621,7 +618,7 @@ void SceneA2::Render()
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
-	}*/
+	}
   
 	RenderBullets();
 
