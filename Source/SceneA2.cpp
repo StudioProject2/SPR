@@ -15,10 +15,7 @@
 #include <iomanip>
 #include <sstream>
 
-
 using namespace std;
-
-
 
 SceneA2::SceneA2()
 {
@@ -382,8 +379,6 @@ void SceneA2::UpdateMonsterBullets()
 	}
 
 }
-
-
 void SceneA2::UpdateMonsters()
 {
   
