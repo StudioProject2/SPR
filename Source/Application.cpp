@@ -13,12 +13,16 @@
 #include <stdlib.h>
 
 #include "SceneA2.h"
+#include "SceneBoss.h"
 #include "SceneStage2.h"
+#include "MainMenu.h"
+#include "LevelSelect.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
-int sceneChange = 0;
+int Application::sceneChange = 0;
+//init watscene;
 
 //Define an error callback
 static void error_callback(int error, const char* description)
@@ -117,19 +121,39 @@ void Application::Init()
 void Application::Run()
 {
 	//Main Loop
-	Scene *scene = NULL;
+	//Scene *scene = NULL;
 	//Init static variable
 	//Scene *scene = new SceneA2();
 	//scene->Init();
 
+	Scene *scene2 = new SceneStage2();
+	Scene *scene3 = new SceneA2();
+	Scene *scene4 = new SceneBoss();
+	Scene *sceneMenu = new MainMenu();
+	Scene *sceneLevel = new LevelSelect();
+	Scene *scene = scene3;
+
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
-		if (sceneChange == 0)
+		if (Application::sceneChange == 0)
 		{
-			scene = new SceneStage2();
+			scene = sceneMenu;
 			scene->Init();
-			sceneChange = 10;
+			Application::sceneChange = 10;
+			
+		}
+		if (Application::sceneChange == 1)
+		{
+			scene = sceneLevel;
+			scene->Init();
+			Application::sceneChange = 10;
+		}
+		if (Application::sceneChange == 2)
+		{
+			scene = scene2;
+			scene->Init();
+			Application::sceneChange = 10;
 		}
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
@@ -139,8 +163,14 @@ void Application::Run()
 		glfwPollEvents();
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 	} //Check if the ESC key had been pressed or if the window had been closed
-	scene->Exit();
-	delete scene;
+
+	scene3->Exit();
+	sceneMenu->Exit();
+	sceneLevel->Exit();
+	
+	delete scene3;
+	delete sceneMenu;
+	delete sceneLevel;
 }
 
 void Application::Exit()

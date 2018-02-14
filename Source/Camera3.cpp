@@ -3,7 +3,7 @@
 #include "Mtx44.h"
 #include "Box.h"
 
-#define FLOOR_POSITION 100
+#define FLOOR_POSITION 10
 
 Camera3::Camera3()
 {
