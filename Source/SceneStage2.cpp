@@ -626,15 +626,15 @@ void SceneStage2::RenderObj()
 {
 	//trees
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 100);
+	modelStack.Translate(0, -10, 100);
 	modelStack.Scale(10, 10, 10);
 	RenderMesh(meshList[GEO_TREE], false);
 	modelStack.PopMatrix();
 
 	//grass
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 100);
-	modelStack.Scale(10, 0, 10);
+	modelStack.Translate(0, -10, 100);
+	modelStack.Scale(10, 10, 10);
 	RenderMesh(meshList[GEO_GRASS], false);
 	modelStack.PopMatrix();
 

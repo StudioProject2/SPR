@@ -1,9 +1,10 @@
-#ifndef CAMERA_3_H
-#define CAMERA_3_H
+#pragma once
+#ifndef CAMERA_STAGE_2_H
+#define CAMERA_STAGE_2_H
 
 #include "Camera.h"
 
-class Camera3 : public Camera
+class CameraStage2 : public Camera
 {
 private:
 	double prevPosX;
@@ -52,9 +53,8 @@ public:
 	double oldxmousepos;
 	double oldymousepos;
 
-	Camera3();
-	~Camera3();
-
+	CameraStage2();
+	~CameraStage2();
 	virtual void Init(const Vector3& pos, const Vector3& target, const Vector3& up);
 	virtual void Update(double dt);
 	virtual void Reset();

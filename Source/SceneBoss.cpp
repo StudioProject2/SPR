@@ -804,7 +804,8 @@ void SceneBoss::RenderBullets()
 
 void SceneBoss::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
 }
 
 void SceneBoss::Exit()

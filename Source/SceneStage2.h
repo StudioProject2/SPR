@@ -7,7 +7,7 @@
 #include "MeshBuilder.h"
 #include "MatrixStack.h"
 #include "Light.h"
-#include "Camera3.h"
+#include "CameraStage2.h"
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
@@ -166,7 +166,7 @@ private:
 
 	MS modelStack, viewStack, projectionStack;
 
-	Camera3 camera;
+	CameraStage2 camera;
 
 	double elaspeTime;
 	double tempElaspeTime;

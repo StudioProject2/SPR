@@ -164,10 +164,12 @@ void Application::Run()
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 	} //Check if the ESC key had been pressed or if the window had been closed
 
+	scene2->Exit();
 	scene3->Exit();
 	sceneMenu->Exit();
 	sceneLevel->Exit();
 	
+	delete scene2;
 	delete scene3;
 	delete sceneMenu;
 	delete sceneLevel;
