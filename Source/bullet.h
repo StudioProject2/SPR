@@ -5,6 +5,7 @@
 
 #include "Scene.h"
 #include "Camera3.h"
+#include "CameraStage2.h"
 #include "Mesh.h"
 #include "MeshBuilder.h"
 #include "MatrixStack.h"
@@ -31,7 +32,9 @@ public:
 	Vector3 throws;
 	Vector3 shootTarget;
 	void updateBullet(Vector3 view, Camera3 camera, bullet &isShot);
+	void updateBullet(Vector3 view, CameraStage2 camera, bullet &isShot);
 	void monsterHit(Camera3, bool isHit);
+	void monsterHit(CameraStage2, bool isHit);
 	bool isBulletHit(Box *bullets, Box *monster);
 	bool throwed;
 	int offsetY;
