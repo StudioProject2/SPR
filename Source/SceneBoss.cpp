@@ -413,7 +413,7 @@ void SceneBoss::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
 				}
 			}
 		}

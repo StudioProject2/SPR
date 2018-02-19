@@ -422,24 +422,20 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
+					monNum = mon;
+					bulletPtr[bul]->monsterHit(camera);
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
-					cout << "HIT " << endl;
+          delete bulletBoxPtr[bul];
+	    		bulletBoxPtr[bul] = NULL;
+		    	isHit = false;
 				}
-				if (isHit)
-				{
-					hitmarkerTimer = 50;
-				}
-				if (isHit)
-				{
-					//bulletPtr[bul]->monsterHit(camera, true);
-					delete bulletBoxPtr[bul];
-					bulletBoxPtr[bul] = NULL;
-					isHit = false;
-				}
-			}
-		}
+      }
+    }
 	}
-	
+	if (isHit)
+	{
+		hitmarkerTimer = 50;
+	}
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;

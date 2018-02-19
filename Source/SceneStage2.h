@@ -7,7 +7,7 @@
 #include "MeshBuilder.h"
 #include "MatrixStack.h"
 #include "Light.h"
-#include "CameraStage2.h"
+#include "Camera3.h"
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
@@ -139,7 +139,10 @@ class SceneStage2 : public Scene
 		GEO_GUY,
 
 		GEO_TREE,
-		GEO_GRASS,
+		GEO_GRASS_PATCH,
+		GEO_GRASS_LINE,
+		GEO_FLOWER,
+		GEO_ROCK,
 
 		GEO_TEXT,
 
@@ -166,7 +169,7 @@ private:
 
 	MS modelStack, viewStack, projectionStack;
 
-	CameraStage2 camera;
+	Camera3 camera;
 
 	double elaspeTime;
 	double tempElaspeTime;
@@ -197,6 +200,7 @@ private:
 	void RenderLights();
 	void RenderSkybox();
 	void RenderObj();
+	void RenderMisc();
 	void RenderUi();
 
 	int hitmarkerSize;
