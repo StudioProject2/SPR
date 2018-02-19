@@ -285,12 +285,11 @@ void SceneStage3::Update(double dt)
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
-	deltaTime = dt;
 	start.isShooting = true;
 
 	UpdateBullets();
 	UpdateMonsters();
-	UpdateMonsterBullets();
+	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 
 
@@ -373,7 +372,7 @@ void SceneStage3::UpdateMonsters()
 		{
 			if (MonsterPtr[i] == NULL)
 			{
-				MonsterPtr[i] = new Monster();
+				MonsterPtr[i] = new MonsterFodder();
 				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 				monsterTime = elaspeTime + 3.0;
 				break;
@@ -387,6 +386,20 @@ void SceneStage3::UpdateMonsters()
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
 			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			if ((*MonsterPtr[i]).health <= 0)
+			{
+				delete MonsterPtr[i];
+				delete monsterBoxPtr[i];
+				MonsterPtr[i] = NULL;
+				monsterBoxPtr[i] = NULL; 
+			}
 		}
 	}
 }
@@ -405,20 +418,28 @@ void SceneStage3::UpdateMonsterHitbox()
 			{
 				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
 				{
-					isHit = bulletPtr[0]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
 				}
 				if (isHit)
 				{
-					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
+					cout << "HIT " << endl;
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					//bulletPtr[bul]->monsterHit(camera, true);
+					delete bulletBoxPtr[bul];
+					bulletBoxPtr[bul] = NULL;
+					isHit = false;
 				}
 			}
 		}
 	}
-	if (isHit)
-	{
-		hitmarkerTimer = 50;
-	}
+	
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
