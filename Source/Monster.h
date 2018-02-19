@@ -23,7 +23,7 @@ public:
 	Vector3 view;
 
 	//Movement 
-	bool isAlive;
+	bool firstSpawn;
 	int dirChanger;
 	bool moveRight;
 	double monsterDirTime;
@@ -44,6 +44,12 @@ public:
 	void boundsCheckStage2();
 	void boundsCheckStage3();
 	void boundsCheckBoss();
+	//Fucntions Members for Spawn checking
+	void spawnCheckStage1();
+	void spawnCheckStage2();
+	void spawnCheckStage3();
+	void spawnCheckStage4();
+
 };
 
 #endif 
