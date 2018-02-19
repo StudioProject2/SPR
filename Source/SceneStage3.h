@@ -11,6 +11,7 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
 
@@ -194,6 +195,7 @@ private:
 	int hitmarkerTimer;
 
 	Monster *MonsterPtr[MOBNUM];
+	//Monster *MonsterFodderPtr[MOBNUM];
 	Box *monsterBoxPtr[MOBNUM];
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	double monsterBulletDelay[MOBNUM];

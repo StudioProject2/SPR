@@ -432,7 +432,7 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
 					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
 					isHit = false;
 				}

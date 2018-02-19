@@ -13,16 +13,18 @@ public:
 		LEFT,
 		RIGHT
 	};
+	int health;
 
-	void move(Vector3 view);
-	void moveRand(Vector3 view, double elaspeTime);
-	void boundsCheck();
+	virtual void move(Vector3 view);
+	virtual void moveRand(Vector3 view, double elaspeTime);
 
+	//Vector3
 	Vector3 pos;
 	Vector3 target;
 	Vector3 view;
 
-	bool isAlive;
+	//Movement 
+	bool firstSpawn;
 	int dirChanger;
 	bool moveRight;
 	double monsterDirTime;
@@ -34,7 +36,15 @@ public:
 	bool _collidedX;
 	bool _collidedY;
 	bool _collidedZ;
-
+	//Function Memebers for collision
+	bool isPointInBox(Vector3 position, Box box);
+	bool isPointXInBox1(Vector3 position, Box box);
+	bool isPointYInBox1(Vector3 position, Box box);
+	bool isPointZInBox1(Vector3 position, Box box);
+	void boundsCheckStage1();
+	void boundsCheckStage2();
+	void boundsCheckStage3();
+	void boundsCheckBoss();
 };
 
 #endif 
