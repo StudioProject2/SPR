@@ -6,9 +6,9 @@ monsterBullet::monsterBullet()
 {
 }
 
-monsterBullet::monsterBullet(Monster* x, Vector3 y)
+monsterBullet::monsterBullet(Vector3 x, Vector3 y)
 {
-	pos = x->pos;
+	pos = x;
 	target = (y - pos).Normalize();
 }
 
