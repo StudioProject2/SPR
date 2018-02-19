@@ -17,6 +17,7 @@
 #include "SceneStage1.h"
 #include "SceneStage2.h"
 #include "SceneStage3.h"
+
 #include "MainMenu.h"
 #include "LevelSelect.h"
 
@@ -195,7 +196,6 @@ void Application::Run()
 	scene3->Exit();
 	sceneMenu->Exit();
 	sceneLevel->Exit();
-
 
 	delete sceneBoss;
 	delete scene1;

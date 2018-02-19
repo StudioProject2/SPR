@@ -9,11 +9,18 @@
 #include "Light.h"
 #include "Camera3.h"
 #include "CameraDebug.h"
+#include "Box.h"
+#include "Monster.h"
+#include "monsterBullet.h"
+#include "bullet.h"
+
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
 #define MOBNUM 10
 #define MOB_SIZE 10
+#define MOBBULLETNUM 100
+#define MOBBULLETDELAY 2.0
 
 class SceneA2 : public Scene
 {
@@ -176,6 +183,7 @@ private:
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 	
 	void UpdateBullets();
+	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
 
@@ -184,6 +192,14 @@ private:
 
 	int hitmarkerSize;
 	int hitmarkerTimer;
+
+	Monster *MonsterPtr[MOBNUM];
+	Box *monsterBoxPtr[MOBNUM];
+	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
+	double monsterBulletDelay[MOBNUM];
+	bullet *bulletPtr[NO_OF_BULLETS];
+	bullet start;
+	Box *bulletBoxPtr[NO_OF_BULLETS];
 };
 
 #endif

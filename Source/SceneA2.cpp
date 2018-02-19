@@ -6,27 +6,12 @@
 #include "Utility.h"
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
-#include "Box.h"
-#include "Monster.h"
-#include "monsterBullet.h"
-#include "bullet.h"
 
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
-#define MOBNUM 50
-#define MOBBULLETNUM 100
-#define MOBBULLETDELAY 2.0
 using namespace std;
-
-Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-Box *monsterBoxPtr[MOBNUM];
-monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-double monsterBulletDelay[MOBNUM];
-bullet *bulletPtr[NO_OF_BULLETS];
-bullet start;
-Box *bulletBoxPtr[NO_OF_BULLETS];
 
 SceneA2::SceneA2()
 {
@@ -63,7 +48,7 @@ void SceneA2::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
+	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -244,7 +229,7 @@ void SceneA2::Init()
 	//Others
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -329,7 +314,6 @@ void SceneA2::Update(double dt)
 	}
 
 	camera.Update(dt);
-	std::cout << camera.position << std::endl;
 }
 void SceneA2::UpdateBullets()
 {
@@ -390,8 +374,6 @@ void SceneA2::UpdateMonsterBullets()
 	}
 
 }
-
-
 void SceneA2::UpdateMonsters()
 {
   
@@ -438,6 +420,7 @@ void SceneA2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
+					bulletPtr[bul]->monsterHit(camera, true);
 				}
 			}
 		}
@@ -450,7 +433,6 @@ void SceneA2::UpdateMonsterHitbox()
 	{
 		hitmarkerTimer -= 1;
 		hitmarkerSize = 5;
-
 	}
 }
 

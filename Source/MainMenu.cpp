@@ -315,7 +315,6 @@ void MainMenu::Update(double dt)
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
 				Application::sceneChange = Application::LEVELMENU;
-
 				std::cout << "you have started the game" << endl;
 			}
 			//else
