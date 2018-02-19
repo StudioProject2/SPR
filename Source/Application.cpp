@@ -14,9 +14,11 @@
 
 #include "SceneA2.h"
 #include "SceneBoss.h"
+
 #include "SceneStage1.h"
 #include "SceneStage2.h"
 #include "SceneStage3.h"
+
 #include "MainMenu.h"
 #include "LevelSelect.h"
 
@@ -122,6 +124,7 @@ void Application::Init()
 
 void Application::Run()
 {
+
 	Scene *sceneBoss = new SceneBoss();
 	Scene *scene1 = new SceneStage1();
 	Scene *scene2 = new SceneStage2();
@@ -162,6 +165,7 @@ void Application::Run()
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 	} //Check if the ESC key had been pressed or if the window had been closed
 
+
 	sceneBoss->Exit();
 	scene1->Exit();
 	scene2->Exit();
@@ -169,6 +173,7 @@ void Application::Run()
 	sceneMenu->Exit();
 	sceneLevel->Exit();
 	
+
 	delete sceneBoss;
 	delete scene1;
 	delete scene2;
