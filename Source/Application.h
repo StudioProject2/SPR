@@ -17,6 +17,7 @@ public:
 	static void SetMousePosition(double xPos, double yPos);
 	static void GetMousePosition(double &xPos, double &yPos);
 	static int sceneChange;
+	static int watscene;
 
 private:
 

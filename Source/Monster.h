@@ -20,12 +20,13 @@ public:
 
 	Vector3 pos;
 	Vector3 target;
+	Vector3 view;
 
 	bool isAlive;
 	int dirChanger;
 	bool moveRight;
 	double monsterDirTime;
-	
+
 	//Collision for mob
 	double prevPosX;
 	double prevPosY;
