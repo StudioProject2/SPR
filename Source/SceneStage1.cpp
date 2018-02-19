@@ -1,5 +1,4 @@
-#include <iostream>
-#include "MainMenu.h"
+#include "SceneStage1.h"
 #include "GL\glew.h"
 #include "shader.hpp"
 #include "Mtx44.h"
@@ -7,49 +6,56 @@
 #include "Utility.h"
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
-#include "Box.h"
+#include "bullet.h"
+#include <cstdlib>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 
-double elaspeTime;
-double deltaTime;
+bool singleLoop = false;
 
-MainMenu::MainMenu()
+int HP;
+
+
+
+SceneStage1::SceneStage1()
 {
-
 }
 
-MainMenu::~MainMenu()
+SceneStage1::~SceneStage1()
 {
-
 }
 
-void MainMenu::Init()
+void SceneStage1::Init()
 {
+	HP = 100;
+	//Monster spawn
+	srand((unsigned int)time(NULL));
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
+	monsterTime = elaspeTime + 3.0;
 
+	hitmarkerSize = 0;
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		MonsterPtr[i] = NULL;
+		monsterBulletDelay[i] = elaspeTime + 4.0;
+	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-
-	//Enable blending
+	//Enable culling
+	//glEnable(GL_CULL_FACE);
+	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
-
-	rotateAngle = 0.0f;
-	translateX = 0.0f;
-	scaleAll = 0.0f;
-	rotateStar = 0.0f;
-
-	rotateAmt = 60;
-	translateAmt = 10;
-	scaleAmt = 2;
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -59,7 +65,6 @@ void MainMenu::Init()
 	Color colour;
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 
-	// Get a handle for our "colorTexture" uniform
 	m_parameters[U_COLOR_TEXTURE_ENABLED] = glGetUniformLocation(m_programID, "colorTextureEnabled");
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 
@@ -131,10 +136,10 @@ void MainMenu::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_SPOT;
-	light[0].position.Set(-630, 50, -650);
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].position.Set(-1000, 450, 300);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 4;
+	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -222,128 +227,210 @@ void MainMenu::Init()
 	glUniform1f(m_parameters[U_LIGHT3_COSINNER], light[3].cosInner);
 	glUniform1f(m_parameters[U_LIGHT3_EXPONENT], light[3].exponent);
 
+	//Init meshList
+	for (int i = 0; i < NUM_GEOMETRY; i++)
+	{
+		meshList[i] = NULL;
+	}
+
+	//Others
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
+
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage1//hills_ft.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage1//hills_bk.tga");
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage1//hills_rt.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage1//hills_lf.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage1//hills_up.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage1//hills_dn.tga");
 	//FLOOR
 	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
-	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
+	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Stage1//grassy.tga");
 	meshList[GEO_FLOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_FLOOR]->material.kShininess = 1.f;
+	meshList[GEO_FLOOR]->material.kShininess = 1.0f;
+	//Bullet
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 
-	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
-	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
-	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
-	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
-	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
-	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
+	//Debuggging Cube
+	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
 
+	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
+
+	//Monsters
+
+	for (int i = 0; i < 25; i++)
+	{
+		monsterBulletPtr[i] = NULL;
+	}
+
+	gameOver = false;
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		bulletPtr[bul] = new bullet();
+		//init collision for the bullets here
+		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+	}
 }
 
-void MainMenu::Update(double dt)
+//TO DO: add a function to detect monster hit box
+
+void SceneStage1::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
+	deltaTime = dt;
+	start.isShooting = true;
 
-	//if (Application::IsKeyPressed('1'))
-	//{
-	//	glEnable(GL_CULL_FACE);
-	//}
-	//if (Application::IsKeyPressed('2'))
-	//{
-	//	glDisable(GL_CULL_FACE);
-	//}
+	UpdateBullets();
+	UpdateMonsters();
+	UpdateMonsterBullets();
+	UpdateMonsterHitbox();
 
-	if (Application::IsKeyPressed(VK_SPACE))
+	if (HP <= 0)
 	{
-		float upperRotateBounds = 360;
-		float lowerRotateBounds = 0;
-
-		float translateMax = 10;
-		float screenMin = -10;
-
-		float maxScale = 10;
-
-		rotateAngle += (float)(rotateAmt * dt);
-		translateX += (float)(translateAmt * dt);
-		scaleAll += (float)(scaleAmt * dt);
-
-		//std::cout << rotateAngle << std::endl;
-
-		//Without these bounds, translate will move out of screen and scale will be too large
-		if (rotateAngle > upperRotateBounds || rotateAngle < lowerRotateBounds)
-			rotateAmt = -rotateAmt; // -60 or -(-60)
-
-		if (translateX > translateMax)
-			translateX = screenMin; // start from left side of screen
-
-		if (scaleAll > maxScale)
-			scaleAll = 1; // reset Scale
+		gameOver = true;
 	}
-	double posx;
-	double posy;
-	Application::GetMousePosition(posx, posy);
 
-	if (Application::IsKeyPressed(VK_LBUTTON))
-	{
-		if (posx > 270 && posx < 490)
-		{
-			if (posy > 330 && posy < 370)
-			{
-				//move to level selector
-				Application::sceneChange = 1;
-				std::cout << "you have started the game" << endl;
-			}
-		}
-		if (posx > 300 && posx < 470)
-		{
-			if (posy > 435 && posy < 470)
-			{
-				//disable the sound for the game
-				std::cout << "you have muted the game" << endl;
-			}
-		}
-		if (posx > 300 && posx < 465)
-		{
-			if (posy > 535 && posy < 565)
-			{
-				//Exit game
-				exit(EXIT_FAILURE);
-			}
-		}	
-	}
 
 	camera.Update(dt);
-	
-	std::cout << posx << std::endl;
-	std::cout << posy << std::endl;
-	//std::cout << camera.position << std::endl;
+}
+void SceneStage1::UpdateBullets()
+{
+	Vector3 view = (camera.target - camera.position).Normalized();
+
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (i == 0)
+		{
+			bulletPtr[0]->updateBullet(view, camera, start);
+			//update first bullet collision box
+			*bulletBoxPtr[0] = Box(bulletPtr[0]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+		}
+		else
+		{
+			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
+			//update rest of bullets collision box
+			*bulletBoxPtr[i] = Box(bulletPtr[i]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+		}
+	}
 }
 
-void MainMenu::Render()
+void SceneStage1::UpdateMonsterBullets()
+{
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			for (int j = 0; j < MOBBULLETNUM; j++)
+			{
+				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
+				{
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+					return;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBBULLETNUM; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			monsterBulletPtr[i]->move();
+			if (monsterBulletPtr[i]->isBulletInBox(player))
+			{
+				
+				HP -= 10;
+			}
+			if (monsterBulletPtr[i]->bulletCollide())
+			{
+				monsterBulletPtr[i] = NULL;
+				delete monsterBulletPtr[i];
+			}
+		}
+	}
+
+}
+void SceneStage1::UpdateMonsters()
+{
+
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterPtr[i] == NULL)
+			{
+				MonsterPtr[i] = new Monster();
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+}
+
+void SceneStage1::UpdateMonsterHitbox()
+{
+	bool isHit = false;
+	int monNum;
+	hitmarkerSize = 0;
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		for (int mon = 0; mon < MOBNUM; mon++)
+		{
+			if (!isHit)
+			{
+				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
+				{
+					isHit = bulletPtr[0]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
+				}
+				if (isHit)
+				{
+					monNum = mon;
+					bulletPtr[bul]->monsterHit(camera, true);
+				}
+			}
+		}
+	}
+	if (isHit)
+	{
+		hitmarkerTimer = 50;
+	}
+	if (hitmarkerTimer > 0)
+	{
+		hitmarkerTimer -= 1;
+		hitmarkerSize = 5;
+	}
+}
+
+void SceneStage1::Render()
 {
 	//Clear color & depth buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -471,37 +558,98 @@ void MainMenu::Render()
 	modelStack.PopMatrix();
 
 	//LIGHTBALLS
+	//modelStack.PushMatrix();
+	//modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	//modelStack.Scale(5, 5, 5);
+	//RenderMesh(meshList[GEO_LIGHTBALL], false);
+	//modelStack.PopMatrix();
+	//modelStack.PushMatrix();
+	//modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
+	//RenderMesh(meshList[GEO_LIGHTBALL], false);
+	//modelStack.PopMatrix();
+	//modelStack.PushMatrix();
+	//modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
+	//RenderMesh(meshList[GEO_LIGHTBALL], false);
+	//modelStack.PopMatrix();
+
+	//SPAWN MOBS
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_CUBE], false);
+			modelStack.PopMatrix();
+		}
+	}
+
+	for (int i = 0; i < MOBBULLETNUM; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], false);
+			modelStack.PopMatrix();
+		}
+	}
+
+	RenderBullets();
+
+	//if (MonsterPtr[0] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[0]).pos.x, 0, (*MonsterPtr[0]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
+	//if (MonsterPtr[1] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[1]).pos.x, 0, (*MonsterPtr[1]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
+	string hpText;
+	hpText = to_string(HP);
 	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	RenderTextOnScreen(meshList[GEO_TEXT], hpText, Color(0, 1, 0), 3, 1, 1);
 	modelStack.PopMatrix();
 
+
+	//FPS
+	
+	std::ostringstream sFps;
+	sFps << std::fixed << std::setprecision(3);
+	sFps << 1.0 / deltaTime << "fps";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Prehistoric", Color(0.8,0.6,0.1), 6, 1.7, 7);
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Extinction", Color(0.8, 0.6, 0.1), 6, 2.3, 6);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Start", Color(1,1,1), 5, 6, 5);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Mute", Color(1, 1, 1), 5, 6.5, 3);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5, 1);
-	modelStack.PopMatrix();
+
+	RenderHitmarker();
+
+	if (gameOver)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
+		if (singleLoop == false)
+		{
+			pauseTime = elaspeTime + 3.0;
+			singleLoop = true;
+		}
+
+		if (elaspeTime > pauseTime)
+		{
+			Application::sceneChange = 0;
+		}
+	}
 }
 
-void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
+void SceneStage1::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
 
@@ -544,10 +692,9 @@ void MainMenu::RenderMesh(Mesh *mesh, bool enableLight)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-
 }
 
-void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
+void SceneStage1::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -574,7 +721,7 @@ void MainMenu::RenderText(Mesh* mesh, std::string text, Color color)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+void SceneStage1::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -618,7 +765,26 @@ void MainMenu::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, flo
 	glEnable(GL_DEPTH_TEST);
 }
 
-void MainMenu::Exit()
+void SceneStage1::RenderBullets()
+{
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (bulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			RenderMesh(meshList[GEO_BULLETS], false);
+			modelStack.PopMatrix();
+		}
+	}
+}
+
+void SceneStage1::RenderHitmarker()
+{
+	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
+}
+
+void SceneStage1::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
@@ -632,5 +798,4 @@ void MainMenu::Exit()
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
-
 }

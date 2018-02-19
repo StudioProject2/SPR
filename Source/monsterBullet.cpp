@@ -37,7 +37,13 @@ bool monsterBullet::isBulletInBox(Box box)
 
 bool monsterBullet::bulletCollide()
 {
-	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800)
+	Box cube = Box(Vector3(0, 0, 0), 105);
+	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
+
+	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800
+		|| isBulletInBox(cube)
+		|| isBulletInBox(cube2)
+		)
 	{
 		return true;
 	}

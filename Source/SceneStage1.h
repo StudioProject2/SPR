@@ -1,5 +1,5 @@
-#ifndef SCENE_A2
-#define SCENE_A2
+#ifndef SCENE_STAGE1
+#define SCENE_STAGE1
 
 #include "Scene.h"
 #include "Camera.h"
@@ -22,7 +22,7 @@
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 
-class SceneA2 : public Scene
+class SceneStage1 : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -144,8 +144,8 @@ class SceneA2 : public Scene
 	};
 
 public:
-	SceneA2();
-	~SceneA2();
+	SceneStage1();
+	~SceneStage1();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -169,6 +169,7 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double monsterTime;
+	double pauseTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
@@ -181,7 +182,7 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	
+
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();

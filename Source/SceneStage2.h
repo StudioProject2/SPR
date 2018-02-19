@@ -1,5 +1,5 @@
-#ifndef SCENE_A2
-#define SCENE_A2
+#ifndef SCENE_STAGE_2
+#define SCENE_STAGE_2
 
 #include "Scene.h"
 #include "Camera.h"
@@ -7,7 +7,7 @@
 #include "MeshBuilder.h"
 #include "MatrixStack.h"
 #include "Light.h"
-#include "Camera3.h"
+#include "CameraStage2.h"
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
@@ -22,7 +22,7 @@
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 
-class SceneA2 : public Scene
+class SceneStage2 : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -138,14 +138,17 @@ class SceneA2 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_TREE,
+		GEO_GRASS,
+
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
 	};
 
 public:
-	SceneA2();
-	~SceneA2();
+	SceneStage2();
+	~SceneStage2();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -163,7 +166,7 @@ private:
 
 	MS modelStack, viewStack, projectionStack;
 
-	Camera3 camera;
+	CameraStage2 camera;
 
 	double elaspeTime;
 	double tempElaspeTime;
@@ -181,7 +184,7 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	
+
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
@@ -189,6 +192,12 @@ private:
 
 	void RenderBullets();
 	void RenderHitmarker();
+	void RenderMonster();
+	void RednerMonsterBullets();
+	void RenderLights();
+	void RenderSkybox();
+	void RenderObj();
+	void RenderUi();
 
 	int hitmarkerSize;
 	int hitmarkerTimer;

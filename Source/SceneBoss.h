@@ -1,5 +1,5 @@
-#ifndef SCENE_A2
-#define SCENE_A2
+#ifndef SCENE_BOSS
+#define SCENE_BOSS
 
 #include "Scene.h"
 #include "Camera.h"
@@ -22,7 +22,7 @@
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 
-class SceneA2 : public Scene
+class SceneBoss : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -97,24 +97,8 @@ class SceneA2 : public Scene
 
 	enum GEOMETRY_TYPE
 	{
-		GEO_AXES,
-		GEO_QUAD,
-		GEO_QUAD1,
-		GEO_CUBE,
-		GEO_CIRCLE,
-		GEO_RING,
-		GEO_HEM,
 		GEO_SPHERE,
-		GEO_SPHERE1,
-		GEO_SPHERE2,
-		GEO_SPHERE3,
-		GEO_SPHERE4,
-		GEO_SPHERE5,
-		GEO_SPHERE6,
-		GEO_SPHERE7,
-		GEO_SPHERE8,
-		GEO_LIGHTBALL,
-		GEO_LIGHTBALL2,
+		GEO_CUBE,
 
 		GEO_BULLETS,
 
@@ -126,17 +110,8 @@ class SceneA2 : public Scene
 		GEO_BACK,
 
 		GEO_FLOOR,
+		GEO_BUILDING,
 		GEO_FENCE,
-		GEO_CHAIR,
-		GEO_WALL,
-		GEO_WATCHWALL,
-		GEO_TUNNEL,
-		GEO_BOMB,
-		GEO_TENT,
-		GEO_LAMP,
-		GEO_TANK,
-		GEO_WATCHTOWER,
-		GEO_GUY,
 
 		GEO_TEXT,
 
@@ -144,8 +119,8 @@ class SceneA2 : public Scene
 	};
 
 public:
-	SceneA2();
-	~SceneA2();
+	SceneBoss();
+	~SceneBoss();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -181,7 +156,7 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	
+
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();

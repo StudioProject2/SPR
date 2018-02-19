@@ -44,7 +44,53 @@ void bullet::updateBullet(Vector3 view, Camera3 camera, bullet &isShot)
 	}
 
 	if (throwed)
-	{	
+	{
+		if (weaponShootingTimer < PLAYER_WEAPON_RANGE)
+		{
+			//shooting process
+			throws = throws + shootTarget * PLAYER_THROWING_SPEED;
+			weaponShootingTimer += 1;
+		}
+		else
+		{
+			//checks if done shooting
+			weaponShootingTimer = 0;
+			throwed = false;
+			isShot.isShooting = false;
+		}
+	}
+	else
+	{
+		offsetY = WEAPON_OFFSET_Y;
+		throws = camera.position;
+	}
+}
+void bullet::updateBullet(Vector3 view, CameraStage2 camera, bullet &isShot)
+{
+	if (Application::IsKeyPressed(VK_LBUTTON) && !throwed && isShot.isShooting)
+	{
+		throwed = true;
+		shot = true;
+		shootTarget = view;
+		throws = camera.position;
+		offsetY = 0;
+	}
+	if (shot)
+	{
+		if (weaponTimer < 10)
+		{
+			weaponTimer += 1;
+		}
+		if (weaponTimer == 10)
+		{
+			isShooting = true;
+			shot = false;
+			weaponTimer = 0;
+		}
+	}
+
+	if (throwed)
+	{
 		if (weaponShootingTimer < PLAYER_WEAPON_RANGE)
 		{
 			//shooting process
@@ -74,4 +120,24 @@ void bullet::monsterHit(Camera3 camera, bool isHit)
 		throws = camera.position;
 		throwed = false;
 	}
+}
+void bullet::monsterHit(CameraStage2 camera, bool isHit)
+{
+	if (isHit)
+	{
+		offsetY = WEAPON_OFFSET_Y;
+		throws = camera.position;
+		throwed = false;
+	}
+}
+
+bool bullet::isBulletHit(Box *bullets, Box *monster)
+{
+	return (((bullets->maxX >= monster->minX && bullets->maxX <= monster->maxX) &&
+		(bullets->maxY >= monster->minY && bullets->maxY <= monster->maxY) &&
+		(bullets->maxZ >= monster->minZ && bullets->maxZ <= monster->maxZ))
+		||
+		((bullets->minX >= monster->minX && bullets->minX <= monster->maxX) &&
+		(bullets->minY >= monster->minY && bullets->minY <= monster->maxY) &&
+			(bullets->minZ >= monster->minZ && bullets->minZ <= monster->maxZ)));
 }

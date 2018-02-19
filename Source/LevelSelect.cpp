@@ -8,7 +8,6 @@
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
 #include "Box.h"
-#include "Var.h"
 
 using namespace std;
 
@@ -19,10 +18,12 @@ LevelSelect::LevelSelect()
 {
 
 }
+
 LevelSelect::~LevelSelect()
 {
 
 }
+
 void LevelSelect::Init()
 {
 	//Timer
@@ -34,8 +35,7 @@ void LevelSelect::Init()
 	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-	//Enable culling
-	//glEnable(GL_CULL_FACE);
+
 	//Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -261,20 +261,13 @@ void LevelSelect::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 }
+
 void LevelSelect::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime1 += dt;
 	deltaTime1 = dt;
 
-	//if (Application::IsKeyPressed('1'))
-	//{
-	//	glEnable(GL_CULL_FACE);
-	//}
-	//if (Application::IsKeyPressed('2'))
-	//{
-	//	glDisable(GL_CULL_FACE);
-	//}
 
 	if (Application::IsKeyPressed(VK_SPACE))
 	{
@@ -306,89 +299,53 @@ void LevelSelect::Update(double dt)
 	double posy;
 	Application::GetMousePosition(posx, posy);
 
-	if (posx > 245 && posx < 535)
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 270 && posy < 300)
+		if (posx > 245 && posx < 535)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 270 && posy < 300)
 			{
 				//Level 1
-				sceneChange = 2;
-				//std::cout << "you have started the game" << endl;
+				Application::sceneChange = 2;
 			}
-			//else
-			//{
-			//	sceneChange = 0;
-			//}
 		}
-
-	}
-	if (posx > 245 && posx < 535)
-	{
-		if (posy > 340 && posy < 365)
+		if (posx > 245 && posx < 535)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 340 && posy < 365)
 			{
 				//Level 2
-				//std::cout << "you have started the game" << endl;
+				Application::sceneChange = 3;
 			}
-			//else
-			//{
-			//	sceneChange = 0;
-			//}
 		}
-
-	}
-	if (posx > 245 && posx < 565)
-	{
-		if (posy > 405 && posy < 435)
+		if (posx > 245 && posx < 565)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 405 && posy < 435)
 			{
 				//Level 3
-				//sceneChange = 0;
-				//std::cout << "you have started the game" << endl;
+				Application::sceneChange = 4;
 			}
-			//else
-			//{
-			//	sceneChange = 0;
-			//}
 		}
-
-	}
-	if (posx > 300 && posx < 460)
-	{
-		if (posy > 465 && posy < 490)
+		if (posx > 300 && posx < 460)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 465 && posy < 490)
 			{
 				//BOSS
-				//sceneChange = 0;
-				//std::cout << "you have started the game" << endl;
+				Application::sceneChange = 5;
 			}
-			//else
-			//{
-			//	sceneChange = 0;
-			//}
 		}
-
-	}
-	if (posx > 300 && posx < 465)
-	{
-		if (posy > 535 && posy < 565)
+		if (posx > 300 && posx < 465)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 535 && posy < 565)
 			{
 				//Back to Main Menu
-				sceneChange = 0;
+				Application::sceneChange = 0;
 			}
-			//else
-			//{
-			//	sceneChange = 0;
-			//}
 		}
-
 	}
+
+
+
+
 
 	camera.Update(dt);
 
@@ -396,6 +353,7 @@ void LevelSelect::Update(double dt)
 	std::cout << posy << std::endl;
 	//std::cout << camera.position << std::endl;
 }
+
 void LevelSelect::Render()
 {
 	//Clear color & depth buffer every frame
@@ -565,6 +523,7 @@ void LevelSelect::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Back", Color(1, 1, 1), 5, 6.5, 1);
 	modelStack.PopMatrix();
 }
+
 void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -610,6 +569,7 @@ void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
 
 
 }
+
 void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -636,6 +596,7 @@ void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
+
 void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -679,6 +640,7 @@ void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
+
 void LevelSelect::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)

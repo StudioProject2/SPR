@@ -17,12 +17,12 @@ struct Box
 	Box()
 	{
 		position = Vector3(0, 0, 0);
-		minX = 0;
-		maxX = 0;
-		minY = 0;
-		maxY = 0;
-		minZ = 0;
-		maxZ = 0;
+		minX = position.x;
+		maxX = position.x;
+		minY = position.y;
+		maxY = position.y;
+		minZ = position.z;
+		maxZ = position.z;
 	}
 	Box(Vector3 _position, float allSize)
 	{

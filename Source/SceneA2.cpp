@@ -6,22 +6,12 @@
 #include "Utility.h"
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
-#include "Box.h"
-#include "Monster.h"
-#include "monsterBullet.h"
-#include "bullet.h"
 
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
-#define MOBNUM 10
 using namespace std;
-
-Monster *MonsterPtr[MOBNUM] = { NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, NULL };
-monsterBullet *monsterBulletPtr[25];
-bullet *bulletPtr[NO_OF_BULLETS];
-bullet start;
 
 SceneA2::SceneA2()
 {
@@ -39,15 +29,13 @@ void SceneA2::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
-	monster1BulletTime = elaspeTime + 4.0;
-	monster2BulletTime = elaspeTime + 4.0;
-	monster3BulletTime = elaspeTime + 4.0;
-	monster4BulletTime = elaspeTime + 4.0;
-	monster5BulletTime = elaspeTime + 4.0;
+
+	hitmarkerSize = 0;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterPtr[i] = NULL;
+		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -60,7 +48,7 @@ void SceneA2::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
+	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -241,7 +229,7 @@ void SceneA2::Init()
 	//Others
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -285,9 +273,21 @@ void SceneA2::Init()
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
-		//TO DO: init collision for the bullets here
-		//TO DO: add a function to detect monster hit box
+		//init collision for the bullets here
+		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 	}
+}
+
+//TO DO: add a function to detect monster hit box
+bool isBulletHit(Box *bullets, Box *monster)
+{
+	return (((bullets->maxX >= monster->minX && bullets->maxX <= monster->maxX) &&
+		(bullets->maxY >= monster->minY && bullets->maxY <= monster->maxY) &&
+		(bullets->maxZ >= monster->minZ && bullets->maxZ <= monster->maxZ))
+		||
+		((bullets->minX >= monster->minX && bullets->minX <= monster->maxX) &&
+		(bullets->minY >= monster->minY && bullets->minY <= monster->maxY) &&
+			(bullets->minZ >= monster->minZ && bullets->minZ <= monster->maxZ)));
 }
 
 void SceneA2::Update(double dt)
@@ -299,159 +299,64 @@ void SceneA2::Update(double dt)
 	start.isShooting = true;
   
   UpdateBullets();
+  UpdateMonsters();
   UpdateMonsterBullets();
-
-  if (Application::IsKeyPressed('P'))
-  {
-	  
-  }
-  //else if
-  //{
-	 // return 0;
-  //}
+  UpdateMonsterHitbox();
 	
-	if (gameOver)
+	
+	if (Application::IsKeyPressed('1'))
 	{
-		std::cout << "Game over" << std::endl;
+		glEnable(GL_CULL_FACE);
 	}
-	//if (Application::IsKeyPressed('1'))
-	//{
-	//	glEnable(GL_CULL_FACE);
-	//}
-	//if (Application::IsKeyPressed('2'))
-	//{
-	//	glDisable(GL_CULL_FACE);
-	//}
+	if (Application::IsKeyPressed('2'))
+	{
+		glDisable(GL_CULL_FACE);
+	}
 
 	camera.Update(dt);
-	//std::cout << camera.position << std::endl;
 }
 void SceneA2::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
 	
-	cout << bulletPtr[0]->weaponShootingTimer << endl;
-
 	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
 		if (i == 0)
 		{
 			bulletPtr[0]->updateBullet(view, camera, start);
-			//TO DO: update first bullet collision box
+			//update first bullet collision box
+			*bulletBoxPtr[0] = Box(bulletPtr[0]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 		}
 		else
 		{
 			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
-			//TO DO: update rest of bullets collision box
+			//update rest of bullets collision box
+			*bulletBoxPtr[i] = Box(bulletPtr[i]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 		}
 	}
 }
+
 void SceneA2::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 3,3,3 );
-
-	if (elaspeTime > monsterTime)
-	{
-		for (int i = 0; i < MOBNUM; i++)
-		{
-			if (MonsterPtr[i] == NULL)
-			{
-				MonsterPtr[i] = new Monster();
-				monsterTime = elaspeTime + 3.0;
-				break;
-			}
-		}
-	}
-
-	if (elaspeTime > monster1BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[0] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[0], camera.position);
-					monster1BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster2BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[1] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[1], camera.position);
-					monster2BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster3BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[2] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[2], camera.position);
-					monster3BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster4BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[3] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[3], camera.position);
-					monster4BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
-
-	if (elaspeTime > monster5BulletTime)
-	{
-		for (int i = 0; i < 25; i++)
-		{
-			if (MonsterPtr[4] != NULL)
-			{
-				if (monsterBulletPtr[i] == NULL)
-				{
-					monsterBulletPtr[i] = new monsterBullet(MonsterPtr[4], camera.position);
-					monster5BulletTime = elaspeTime + 4.0;
-					return;
-				}
-			}
-		}
-	}
+  Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
-			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
+			for (int j = 0; j < MOBBULLETNUM; j++)
+			{
+				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
+				{
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+					return;
+				}
+			}
 		}
 	}
 
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
@@ -469,6 +374,68 @@ void SceneA2::UpdateMonsterBullets()
 	}
 
 }
+void SceneA2::UpdateMonsters()
+{
+  
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterPtr[i] == NULL)
+			{
+				MonsterPtr[i] = new Monster();
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+}
+
+void SceneA2::UpdateMonsterHitbox()
+{
+	bool isHit = false;
+	int monNum;
+	hitmarkerSize = 0;
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		for (int mon = 0; mon < MOBNUM; mon++)
+		{
+			if (!isHit)
+			{
+				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
+				{
+					isHit = isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
+				}
+				if (isHit)
+				{
+					monNum = mon;
+					bulletPtr[bul]->monsterHit(camera, true);
+				}
+			}
+		}
+	}
+	if (isHit)
+	{
+		hitmarkerTimer = 50;
+	}
+	if (hitmarkerTimer > 0)
+	{
+		hitmarkerTimer -= 1;
+		hitmarkerSize = 5;
+	}
+}
+
 void SceneA2::Render()
 {
 	//Clear color & depth buffer every frame
@@ -623,7 +590,7 @@ void SceneA2::Render()
 		}
 	}
 
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
@@ -632,8 +599,6 @@ void SceneA2::Render()
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
-			std::cout << i << " : " << (*monsterBulletPtr[i]).pos << std::endl;
-			std::cout << i << " : " << (*monsterBulletPtr[i]).target << std::endl;
 		}
 	}
   
@@ -657,6 +622,16 @@ void SceneA2::Render()
 	//}
 
 	//FPS
+	modelStack.PushMatrix();
+	modelStack.Scale(100, 100, 100);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(100, 0, 105);
+	modelStack.Scale(3, 3, 3);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
@@ -664,11 +639,14 @@ void SceneA2::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
 
+	RenderHitmarker();
+
 	if (gameOver)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
 	}
 }
+
 void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -713,6 +691,7 @@ void SceneA2::RenderMesh(Mesh *mesh, bool enableLight)
 	}
 
 }
+
 void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -739,6 +718,7 @@ void SceneA2::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
+
 void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -782,6 +762,7 @@ void SceneA2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, floa
 
 	glEnable(GL_DEPTH_TEST);
 }
+
 void SceneA2::RenderBullets()
 {
 	for (int i = 0; i < NO_OF_BULLETS; i++)
@@ -795,6 +776,12 @@ void SceneA2::RenderBullets()
 		}
 	}
 }
+
+void SceneA2::RenderHitmarker()
+{
+	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
+}
+
 void SceneA2::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
