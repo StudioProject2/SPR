@@ -338,7 +338,7 @@ void SceneStage1::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
