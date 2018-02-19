@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <sstream>
 
+//DONT TOUCH MY SHIT
 using namespace std;
 
 SceneStage3::SceneStage3()
@@ -431,9 +432,8 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					//bulletPtr[bul]->monsterHit(camera, true);
-					delete bulletBoxPtr[bul];
-					bulletBoxPtr[bul] = NULL;
+					bulletPtr[bul]->monsterHit(camera, true);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
 					isHit = false;
 				}
 			}
