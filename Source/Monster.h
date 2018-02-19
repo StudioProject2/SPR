@@ -13,9 +13,10 @@ public:
 		LEFT,
 		RIGHT
 	};
+	int health;
 
-	void move(Vector3 view);
-	void moveRand(Vector3 view, double elaspeTime);
+	virtual void move(Vector3 view);
+	virtual void moveRand(Vector3 view, double elaspeTime);
 
 	//Vector3
 	Vector3 pos;
@@ -44,12 +45,6 @@ public:
 	void boundsCheckStage2();
 	void boundsCheckStage3();
 	void boundsCheckBoss();
-	//Fucntions Members for Spawn checking
-	void spawnCheckStage1();
-	void spawnCheckStage2();
-	void spawnCheckStage3();
-	void spawnCheckStage4();
-
 };
 
 #endif 
