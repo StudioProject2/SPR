@@ -15,9 +15,9 @@
 #include "bullet.h"
 
 
-#define NO_OF_BULLETS 20
+#define NO_OF_BULLETS 200
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 20
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
