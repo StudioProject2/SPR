@@ -11,25 +11,44 @@ bool Monster::isPointInBox(Vector3 position, Box box)
 
 Monster::Monster()
 {
-	float spawnPtX = 300;
-	float spawnPtZ = 100;
+	//float spawnPtX = 300;
+	//float spawnPtZ = 100;
 
-	spawnPtX = (rand() % 1400 - 700) + 1.0;
-	spawnPtZ = (rand() % 1400 - 700) + 1.0;
+	//spawnPtX = (rand() % 1400 - 700) + 1.0;
+	//spawnPtZ = (rand() % 1400 - 700) + 1.0;
 
-	Box cube = Box(Vector3(0, 0, 0), 120);
-	do
-	{
-		spawnPtX = (rand() % 1400 - 700) + 1.0;
-		spawnPtZ = (rand() % 1400 - 700) + 1.0;
+	//Box cube = Box(Vector3(0, 0, 0), 120);
+	//do
+	//{
+	//	spawnPtX = (rand() % 1400 - 700) + 1.0;
+	//	spawnPtZ = (rand() % 1400 - 700) + 1.0;
 
-		pos = Vector3(spawnPtX, 0, spawnPtZ);
-		dirChanger = 0;
-		moveRight = true;
-		monsterDirTime = 0.0;
+	//	pos = Vector3(spawnPtX, 0, spawnPtZ);
+	//	dirChanger = 0;
+	//	moveRight = true;
+	//	monsterDirTime = 0.0;
+	//} while (isPointInBox(pos, cube));
 
+	//Vector3
+	Vector3 pos;
+	Vector3 target;
+	Vector3 view;
 
-	} while (isPointInBox(pos, cube));
+	//Movement 
+	firstSpawn = true;
+	dirChanger = 0;
+	moveRight = false;
+	monsterDirTime = 0.0;
+
+	//Collision for mob
+	prevPosX = 0.0;
+	prevPosY = 0.0;
+	prevPosZ = 0.0;
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+	 
+	
 }
 
 Monster::~Monster()
@@ -156,6 +175,28 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 void Monster::boundsCheckStage1()
 {
 	Box cube = Box(Vector3(0, 0, 0), 120);
+
+	//Spawn Check, so mob wont spawn in objects
+	if (firstSpawn == true)
+	{
+		float spawnPtX;
+		float spawnPtZ;
+
+		do
+		{
+			spawnPtX = (rand() % 1400 - 700) + 1.0;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+
+			pos = Vector3(spawnPtX, 0, spawnPtZ);
+			dirChanger = 0;
+			moveRight = true;
+			monsterDirTime = 0.0;
+
+		} while (isPointInBox(pos, cube));
+
+		firstSpawn = false;
+	}
+
 	_collidedX = false;
 	_collidedY = false;
 	_collidedZ = false;
@@ -194,6 +235,28 @@ void Monster::boundsCheckStage1()
 void Monster::boundsCheckStage2()
 {
 	Box cube = Box(Vector3(0, 0, 0), 120);
+
+	//Spawn Check, so mob wont spawn in objects
+	if (firstSpawn == true)
+	{
+		float spawnPtX;
+		float spawnPtZ;
+
+		do
+		{
+			spawnPtX = (rand() % 1400 - 700) + 1.0;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+
+			pos = Vector3(spawnPtX, 0, spawnPtZ);
+			dirChanger = 0;
+			moveRight = true;
+			monsterDirTime = 0.0;
+
+		} while (isPointInBox(pos, cube));
+
+		firstSpawn = false;
+	}
+
 	_collidedX = false;
 	_collidedY = false;
 	_collidedZ = false;
@@ -232,6 +295,28 @@ void Monster::boundsCheckStage2()
 void Monster::boundsCheckStage3()
 {
 	Box cube = Box(Vector3(0, 0, 0), 120);
+
+	//Spawn Check, so mob wont spawn in objects
+	if (firstSpawn == true)
+	{
+		float spawnPtX;
+		float spawnPtZ;
+
+		do
+		{
+			spawnPtX = (rand() % 1400 - 700) + 1.0;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+
+			pos = Vector3(spawnPtX, 0, spawnPtZ);
+			dirChanger = 0;
+			moveRight = true;
+			monsterDirTime = 0.0;
+
+		} while (isPointInBox(pos, cube));
+
+		firstSpawn = false;
+	}
+
 	_collidedX = false;
 	_collidedY = false;
 	_collidedZ = false;
@@ -270,6 +355,28 @@ void Monster::boundsCheckStage3()
 void Monster::boundsCheckBoss()
 {
 	Box cube = Box(Vector3(0, 0, 0), 120);
+
+	//Spawn Check, so mob wont spawn in objects
+	if (firstSpawn == true)
+	{
+		float spawnPtX;
+		float spawnPtZ;
+
+		do
+		{
+			spawnPtX = (rand() % 1400 - 700) + 1.0;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+
+			pos = Vector3(spawnPtX, 0, spawnPtZ);
+			dirChanger = 0;
+			moveRight = true;
+			monsterDirTime = 0.0;
+
+		} while (isPointInBox(pos, cube));
+
+		firstSpawn = false;
+	}
+
 	_collidedX = false;
 	_collidedY = false;
 	_collidedZ = false;
@@ -303,6 +410,26 @@ void Monster::boundsCheckBoss()
 		pos.z = prevPosZ;
 		target = pos + view;
 	}
+}
+
+void Monster::spawnCheckStage1()
+{
+
+}
+
+void Monster::spawnCheckStage2()
+{
+
+}
+
+void Monster::spawnCheckStage3()
+{
+
+}
+
+void Monster::spawnCheckStage4()
+{
+
 }
 
 
