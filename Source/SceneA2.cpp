@@ -348,7 +348,7 @@ void SceneA2::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
@@ -420,7 +420,7 @@ void SceneA2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
 				}
 			}
 		}
