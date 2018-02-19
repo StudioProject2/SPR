@@ -29,6 +29,8 @@ Monster::Monster()
 	//	monsterDirTime = 0.0;
 	//} while (isPointInBox(pos, cube));
 
+	health = 100;
+
 	//Vector3
 	Vector3 pos;
 	Vector3 target;
@@ -410,26 +412,6 @@ void Monster::boundsCheckBoss()
 		pos.z = prevPosZ;
 		target = pos + view;
 	}
-}
-
-void Monster::spawnCheckStage1()
-{
-
-}
-
-void Monster::spawnCheckStage2()
-{
-
-}
-
-void Monster::spawnCheckStage3()
-{
-
-}
-
-void Monster::spawnCheckStage4()
-{
-
 }
 
 
