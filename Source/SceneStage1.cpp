@@ -1,4 +1,4 @@
-#include "SceneBoss.h"
+#include "SceneStage1.h"
 #include "GL\glew.h"
 #include "shader.hpp"
 #include "Mtx44.h"
@@ -6,22 +6,22 @@
 #include "Utility.h"
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
-
+#include "bullet.h"
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
 using namespace std;
 
-SceneBoss::SceneBoss()
+SceneStage1::SceneStage1()
 {
 }
 
-SceneBoss::~SceneBoss()
+SceneStage1::~SceneStage1()
 {
 }
 
-void SceneBoss::Init()
+void SceneStage1::Init()
 {
 	//Monster spawn
 	srand((unsigned int)time(NULL));
@@ -48,7 +48,7 @@ void SceneBoss::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
+	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -227,21 +227,23 @@ void SceneBoss::Init()
 	}
 
 	//Others
+	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
+	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage 2/skybox_front.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage 2/skybox_back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage 2/skybox_right.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage 2/skybox_left.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage 2/skybox_top.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage 2/skybox_bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
 	//FLOOR
 	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
 	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
@@ -249,13 +251,6 @@ void SceneBoss::Init()
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.f;
-
-	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
-	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
-
-	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Fence.obj");
-	meshList[GEO_FENCE]->textureID = LoadTGA("Image//Boss Stage/Fence.tga");
-
 	//Bullet
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 
@@ -283,7 +278,9 @@ void SceneBoss::Init()
 	}
 }
 
-void SceneBoss::Update(double dt)
+//TO DO: add a function to detect monster hit box
+
+void SceneStage1::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
@@ -308,7 +305,7 @@ void SceneBoss::Update(double dt)
 
 	camera.Update(dt);
 }
-void SceneBoss::UpdateBullets()
+void SceneStage1::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
 
@@ -329,7 +326,7 @@ void SceneBoss::UpdateBullets()
 	}
 }
 
-void SceneBoss::UpdateMonsterBullets()
+void SceneStage1::UpdateMonsterBullets()
 {
 	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
@@ -367,7 +364,7 @@ void SceneBoss::UpdateMonsterBullets()
 	}
 
 }
-void SceneBoss::UpdateMonsters()
+void SceneStage1::UpdateMonsters()
 {
 
 	if (elaspeTime > monsterTime)
@@ -394,7 +391,7 @@ void SceneBoss::UpdateMonsters()
 	}
 }
 
-void SceneBoss::UpdateMonsterHitbox()
+void SceneStage1::UpdateMonsterHitbox()
 {
 	bool isHit = false;
 	int monNum;
@@ -429,7 +426,7 @@ void SceneBoss::UpdateMonsterHitbox()
 	}
 }
 
-void SceneBoss::Render()
+void SceneStage1::Render()
 {
 	//Clear color & depth buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -544,88 +541,34 @@ void SceneBoss::Render()
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
+	modelStack.Translate(0, -1000, 0);
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
-	/*modelStack.PushMatrix();
+	modelStack.PushMatrix();
 	modelStack.Translate(0, -10, 0);
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_FLOOR], true);
-	modelStack.PopMatrix();*/
-
-	modelStack.PushMatrix();
-	modelStack.Translate(200, -10, 0);
-	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
 	modelStack.PopMatrix();
 
+	//LIGHTBALLS
 	modelStack.PushMatrix();
-	modelStack.Translate(200, -10, 200);
-	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
-
 	modelStack.PushMatrix();
-	modelStack.Translate(200, -10, -200);
-	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
-
 	modelStack.PushMatrix();
-	modelStack.Translate(-200, -10, 0);
-	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(-200, -10, 200);
-	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(-200, -10, -200);
-	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
-	modelStack.PopMatrix();
-
-	for (int i = 0; i < 1800; i += 30)
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(-300, -10, -900 + i);
-		modelStack.Rotate(90, 0, 1, 0);
-		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(300, -10, -900 + i);
-		modelStack.Rotate(270, 0, 1, 0);
-		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
-		modelStack.PopMatrix();
-	}
-
-	for (int i = 0; i < 660; i += 30)
-	{
-		modelStack.PushMatrix();
-		modelStack.Translate(300 - i, -10, 890);
-		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(300 - i, -10, -910);
-		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
-		modelStack.PopMatrix();
-	}
 
 	//SPAWN MOBS
-	/*for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -647,13 +590,35 @@ void SceneBoss::Render()
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
-	}*/
+	}
 
 	RenderBullets();
+
+	//if (MonsterPtr[0] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[0]).pos.x, 0, (*MonsterPtr[0]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
+	//if (MonsterPtr[1] != NULL)
+	//{
+	//	modelStack.PushMatrix();
+	//	modelStack.Translate((*MonsterPtr[1]).pos.x, 0, (*MonsterPtr[1]).pos.z);
+	//	modelStack.Scale(10, 10, 10);
+	//	RenderMesh(meshList[GEO_CUBE], false);
+	//	modelStack.PopMatrix();
+	//}
 
 	//FPS
 	modelStack.PushMatrix();
 	modelStack.Scale(100, 100, 100);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(100, 0, 105);
+	modelStack.Scale(3, 3, 3);
 	RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
 
@@ -672,7 +637,7 @@ void SceneBoss::Render()
 	}
 }
 
-void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
+void SceneStage1::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
 
@@ -717,7 +682,7 @@ void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
 
 }
 
-void SceneBoss::RenderText(Mesh* mesh, std::string text, Color color)
+void SceneStage1::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -744,7 +709,7 @@ void SceneBoss::RenderText(Mesh* mesh, std::string text, Color color)
 	glEnable(GL_DEPTH_TEST);
 }
 
-void SceneBoss::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+void SceneStage1::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -788,7 +753,7 @@ void SceneBoss::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, fl
 	glEnable(GL_DEPTH_TEST);
 }
 
-void SceneBoss::RenderBullets()
+void SceneStage1::RenderBullets()
 {
 	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
@@ -802,13 +767,12 @@ void SceneBoss::RenderBullets()
 	}
 }
 
-void SceneBoss::RenderHitmarker()
+void SceneStage1::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
 }
 
-void SceneBoss::Exit()
+void SceneStage1::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{

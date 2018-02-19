@@ -251,7 +251,7 @@ void SceneStage2::Init()
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage2//skybox_top.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage2//skybox_bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGAR("Image//Stage2//skybox_bottom.tga");
 	meshList[GEO_BOTTOM]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BOTTOM]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_BOTTOM]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
@@ -264,9 +264,16 @@ void SceneStage2::Init()
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
 	meshList[GEO_TREE]->textureID = LoadTGA("Image//stage2//objtextures//Tree2.tga");
 
-	//grass
-	meshList[GEO_GRASS] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Patch.obj");
-	meshList[GEO_GRASS]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+	//grass, flower and rocks
+	meshList[GEO_GRASS_PATCH] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Patch.obj");
+	meshList[GEO_GRASS_PATCH]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+	meshList[GEO_GRASS_LINE] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Line.obj");
+	meshList[GEO_GRASS_LINE]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+	meshList[GEO_FLOWER] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//flowerOBJ.obj");
+	meshList[GEO_FLOWER]->textureID = LoadTGA("Image//stage2//objtextures//flowerTextured.tga");
+	meshList[GEO_ROCK] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//rockOBJ.obj");
+	meshList[GEO_ROCK]->textureID = LoadTGA("Image//stage2//objtextures//gray.tga");
+
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -302,7 +309,7 @@ void SceneStage2::Update(double dt)
 
 	UpdateBullets();
 	UpdateMonsters();
-	UpdateMonsterBullets();
+	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 
 
@@ -422,14 +429,19 @@ void SceneStage2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
+					delete MonsterPtr[mon];
+					delete monsterBoxPtr[mon];
+					MonsterPtr[mon] = NULL;
+					monsterBoxPtr[mon] = NULL;
+					monsterTime = elaspeTime + 3.0;
 				}
 			}
 		}
 	}
 	if (isHit)
 	{
-		hitmarkerTimer = 50;
+		hitmarkerTimer = 30;
 	}
 	if (hitmarkerTimer > 0)
 	{
@@ -624,21 +636,137 @@ void SceneStage2::RenderSkybox()
 }
 void SceneStage2::RenderObj()
 {
-	//trees
+	//boundaries
+	for (int i = 0; i < 1401; i += 350)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(-810, -10, -700 + i);
+		modelStack.Rotate(90, 0, 1, 0);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(810, -10, -700 + i);
+		modelStack.Rotate(270, 0, 1, 0);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+	}
+	for (int i = 0; i < 1401; i += 350)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(650 - i, -10, 810);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(650 - i, -10, -810);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+	}
+
+	//tree of LIFE
 	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 100);
-	modelStack.Scale(10, 10, 10);
+	modelStack.Translate(0, -10, 0);
+	modelStack.Scale(20, 20, 20);
 	RenderMesh(meshList[GEO_TREE], false);
 	modelStack.PopMatrix();
 
 	//grass
+	for (int x = 0; x < 1351; x += 225)
+	{
+		for (int z = 0; z < 1351; z += 225)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(-675 + x, -10, -675 + z);
+			modelStack.Scale(40, 5, 40);
+			RenderMesh(meshList[GEO_GRASS_PATCH], false);
+			modelStack.PopMatrix();
+		}
+	}
+
+	//rocks
+	for (int i = 0; i < 360; i += 10)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(0, -10, 0);
+		modelStack.PushMatrix();
+		modelStack.Rotate(i, 0, 1, 0);
+		modelStack.Translate(100, 0, 0);
+		RenderMesh(meshList[GEO_ROCK], false);
+		modelStack.Scale(3, 3, 3);
+		modelStack.PopMatrix();
+		modelStack.PopMatrix();
+	}
+	RenderMisc();
+}
+void SceneStage2::RenderMisc()
+{
+	//flowers
 	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 100);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_GRASS], false);
+	modelStack.Translate(100, -10, 100);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
 	modelStack.PopMatrix();
 
+	modelStack.PushMatrix();
+	modelStack.Translate(240, -10, 500);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-530, -10, 200);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(400, -10, -350);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(750, -10, -200);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-340, -10, 305);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(100, -10, 100);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(100, -10, 100);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(100, -10, 100);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(100, -10, 100);
+	modelStack.Scale(1, 2, 1);
+	RenderMesh(meshList[GEO_FLOWER], false);
+	modelStack.PopMatrix();
 }
+
 void SceneStage2::RenderLights()
 {
 	if (light[0].type == Light::LIGHT_DIRECTIONAL)

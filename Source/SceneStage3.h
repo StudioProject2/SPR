@@ -1,5 +1,5 @@
-#ifndef SCENE_STAGE_2
-#define SCENE_STAGE_2
+#ifndef SCENE_STAGE3
+#define SCENE_STAGE3
 
 #include "Scene.h"
 #include "Camera.h"
@@ -22,7 +22,7 @@
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 
-class SceneStage2 : public Scene
+class SceneStage3 : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -138,20 +138,14 @@ class SceneStage2 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
-		GEO_TREE,
-		GEO_GRASS_PATCH,
-		GEO_GRASS_LINE,
-		GEO_FLOWER,
-		GEO_ROCK,
-
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
 	};
 
 public:
-	SceneStage2();
-	~SceneStage2();
+	SceneStage3();
+	~SceneStage3();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -195,13 +189,6 @@ private:
 
 	void RenderBullets();
 	void RenderHitmarker();
-	void RenderMonster();
-	void RednerMonsterBullets();
-	void RenderLights();
-	void RenderSkybox();
-	void RenderObj();
-	void RenderMisc();
-	void RenderUi();
 
 	int hitmarkerSize;
 	int hitmarkerTimer;
