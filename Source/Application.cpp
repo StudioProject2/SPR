@@ -14,7 +14,11 @@
 
 #include "SceneA2.h"
 #include "SceneBoss.h"
+
+#include "SceneStage1.h"
 #include "SceneStage2.h"
+#include "SceneStage3.h"
+
 #include "MainMenu.h"
 #include "LevelSelect.h"
 
@@ -120,18 +124,16 @@ void Application::Init()
 
 void Application::Run()
 {
-	//Main Loop
-	//Scene *scene = NULL;
-	//Init static variable
-	//Scene *scene = new SceneA2();
-	//scene->Init();
 
+	Scene *sceneBoss = new SceneBoss();
+	Scene *scene1 = new SceneStage1();
 	Scene *scene2 = new SceneStage2();
-	Scene *scene3 = new SceneA2();
-	Scene *scene4 = new SceneBoss();
+	Scene *scene3 = new SceneStage3();
+
 	Scene *sceneMenu = new MainMenu();
 	Scene *sceneLevel = new LevelSelect();
-	Scene *scene = scene3;
+
+	Scene *scene = scene1;
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
@@ -141,7 +143,6 @@ void Application::Run()
 			scene = sceneMenu;
 			scene->Init();
 			Application::sceneChange = 10;
-			
 		}
 		if (Application::sceneChange == 1)
 		{
@@ -164,11 +165,17 @@ void Application::Run()
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 	} //Check if the ESC key had been pressed or if the window had been closed
 
+
+	sceneBoss->Exit();
+	scene1->Exit();
 	scene2->Exit();
 	scene3->Exit();
 	sceneMenu->Exit();
 	sceneLevel->Exit();
 	
+
+	delete sceneBoss;
+	delete scene1;
 	delete scene2;
 	delete scene3;
 	delete sceneMenu;

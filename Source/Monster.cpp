@@ -24,10 +24,10 @@ Monster::Monster()
 		spawnPtZ = (rand() % 1400 - 700) + 1.0;
 
 		pos = Vector3(spawnPtX, 0, spawnPtZ);
-
 		dirChanger = 0;
 		moveRight = true;
 		monsterDirTime = 0.0;
+
 
 	} while (isPointInBox(pos, cube));
 }
@@ -104,26 +104,24 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 	prevPosZ = pos.z;
 
 	//Vector for movement
-	Vector3 up = Vector3(0, 1, 0);
-	Vector3 view = (target - pos).Normalized();
-	Vector3 right = view.Cross(up);
-
-	//Calculations
-	Vector3 temp;
 	target = camPos;
-	temp = (camPos - pos).Normalize();
+
+	Vector3 up = Vector3(0, 1, 0);
+	Vector3 right = view.Cross(up);
+	view = (target - pos).Normalized();
+
 
 	if (moveRight == true)
 	{
 		pos = pos + right;
-		pos.x = pos.x + temp.x;
-		pos.z = pos.z + temp.z;
+		pos.x = pos.x + view.x;
+		pos.z = pos.z + view.z;
 	}
 	if (moveRight == false)
 	{
 		pos = pos - right;
-		pos.x = pos.x + temp.x;
-		pos.z = pos.z + temp.z;
+		pos.x = pos.x + view.x;
+		pos.z = pos.z + view.z;
 	}
 
 	if (elaspeTime > monsterDirTime)
@@ -136,6 +134,7 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 		monsterDirTime = elaspeTime + 2.0;
 	}
 	boundsCheck();
+
 }
 
 void Monster::boundsCheck()
