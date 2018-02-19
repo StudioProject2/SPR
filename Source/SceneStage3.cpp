@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <sstream>
 
+//DONT TOUCH MY SHIT
 using namespace std;
 
 SceneStage3::SceneStage3()
@@ -422,20 +423,23 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera);
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
-          delete bulletBoxPtr[bul];
-	    		bulletBoxPtr[bul] = NULL;
-		    	isHit = false;
+					cout << "HIT " << endl;
 				}
-      }
-    }
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					bulletPtr[bul]->monsterHit(camera, true);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					isHit = false;
+				}
+			}
+		}
 	}
-	if (isHit)
-	{
-		hitmarkerTimer = 50;
-	}
+	
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -804,3 +808,4 @@ void SceneStage3::Exit()
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 }
+
