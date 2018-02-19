@@ -16,12 +16,13 @@ public:
 
 	void move(Vector3 view);
 	void moveRand(Vector3 view, double elaspeTime);
-	void boundsCheck();
 
+	//Vector3
 	Vector3 pos;
 	Vector3 target;
 	Vector3 view;
 
+	//Movement 
 	bool isAlive;
 	int dirChanger;
 	bool moveRight;
@@ -34,7 +35,15 @@ public:
 	bool _collidedX;
 	bool _collidedY;
 	bool _collidedZ;
-
+	//Function Memebers for collision
+	bool isPointInBox(Vector3 position, Box box);
+	bool isPointXInBox1(Vector3 position, Box box);
+	bool isPointYInBox1(Vector3 position, Box box);
+	bool isPointZInBox1(Vector3 position, Box box);
+	void boundsCheckStage1();
+	void boundsCheckStage2();
+	void boundsCheckStage3();
+	void boundsCheckBoss();
 };
 
 #endif 
