@@ -315,7 +315,7 @@ void LevelSelect::Update(double dt)
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
 				//Level 1
-				Application::sceneChange = 2;
+				Application::sceneChange = Application::STAGE1;
 				//std::cout << "you have started the game" << endl;
 			}
 			//else
@@ -331,13 +331,8 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				//Level 2
-				Application::sceneChange = 3;
+				Application::sceneChange = Application::STAGE2;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
 
 	}
@@ -347,13 +342,8 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				//Level 3
-				Application::sceneChange = 4;
+				Application::sceneChange = Application::STAGE3;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
 
 	}
@@ -363,13 +353,8 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				//BOSS
-				Application::sceneChange = 5;
+				Application::sceneChange = Application::STAGE4;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
 
 	}

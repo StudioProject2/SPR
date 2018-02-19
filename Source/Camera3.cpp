@@ -208,7 +208,7 @@ void Camera3::BoundsCheckStage2()
 	{
 		_collidedZ = (isPointZInBox(position, treeOfLife));
 	}
-
+  
 	if (_collidedX)
 	{
 		position.x = prevPosX;
