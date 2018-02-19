@@ -9,7 +9,7 @@ class monsterBullet
 {
 public:
 	monsterBullet();
-	monsterBullet(Monster*, Vector3);
+	monsterBullet(Vector3, Vector3);
 	~monsterBullet();
 
 	void move();
