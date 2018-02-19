@@ -808,3 +808,4 @@ void SceneStage3::Exit()
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 }
+
