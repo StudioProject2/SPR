@@ -1,8 +1,8 @@
 #include "Monster.h"
-
+#include "Application.h"
 #include <cstdlib>
 
-bool isPointInBox(Vector3 position, Box box)
+bool Monster::isPointInBox(Vector3 position, Box box)
 {
 	return (position.x >= box.minX&&position.x <= box.maxX) &&
 		(position.y >= box.minY&&position.y <= box.maxY) &&
@@ -36,7 +36,7 @@ Monster::~Monster()
 {
 }
 
-bool isPointXInBox1(Vector3 position, Box box)
+bool Monster::isPointXInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX - 1 && position.x <= box.minX + 1)
 		&& (position.y >= box.minY && position.y <= box.maxY)
@@ -53,7 +53,7 @@ bool isPointXInBox1(Vector3 position, Box box)
 	}
 }
 
-bool isPointYInBox1(Vector3 position, Box box)
+bool Monster::isPointYInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
 		&& (position.y >= box.minY - 1 && position.y <= box.minY + 1)
@@ -70,7 +70,7 @@ bool isPointYInBox1(Vector3 position, Box box)
 	}
 }
 
-bool isPointZInBox1(Vector3 position, Box box)
+bool Monster::isPointZInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
 		&& (position.y >= box.minY && position.y <= box.maxY)
@@ -133,11 +133,27 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 
 		monsterDirTime = elaspeTime + 2.0;
 	}
-	boundsCheck();
+
+	if (Application::whatScene == Application::STAGE1)
+	{
+		boundsCheckStage1();
+	}
+	if (Application::whatScene == Application::STAGE2)
+	{
+		boundsCheckStage2();
+	}
+	if (Application::whatScene == Application::STAGE3)
+	{
+		boundsCheckStage3();
+	}
+	if (Application::whatScene == Application::STAGE4)
+	{
+		boundsCheckBoss();
+	}
 
 }
 
-void Monster::boundsCheck()
+void Monster::boundsCheckStage1()
 {
 	Box cube = Box(Vector3(0, 0, 0), 120);
 	_collidedX = false;
@@ -145,7 +161,7 @@ void Monster::boundsCheck()
 	_collidedZ = false;
 
 	if (isPointXInBox1(pos, cube))
-		
+
 	{
 		_collidedX = true;
 	}
@@ -173,7 +189,120 @@ void Monster::boundsCheck()
 		pos.z = prevPosZ;
 		target = pos + view;
 	}
-
-
-
 }
+
+void Monster::boundsCheckStage2()
+{
+	Box cube = Box(Vector3(0, 0, 0), 120);
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	if (isPointXInBox1(pos, cube))
+
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox1(pos, cube))
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox1(pos, cube))
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - pos).Normalized();
+
+	if (_collidedX)
+	{
+		pos.x = prevPosX;
+		target = pos + view;
+	}
+
+	else if (_collidedZ)
+	{
+		pos.z = prevPosZ;
+		target = pos + view;
+	}
+}
+
+void Monster::boundsCheckStage3()
+{
+	Box cube = Box(Vector3(0, 0, 0), 120);
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	if (isPointXInBox1(pos, cube))
+
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox1(pos, cube))
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox1(pos, cube))
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - pos).Normalized();
+
+	if (_collidedX)
+	{
+		pos.x = prevPosX;
+		target = pos + view;
+	}
+
+	else if (_collidedZ)
+	{
+		pos.z = prevPosZ;
+		target = pos + view;
+	}
+}
+
+void Monster::boundsCheckBoss()
+{
+	Box cube = Box(Vector3(0, 0, 0), 120);
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	if (isPointXInBox1(pos, cube))
+
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox1(pos, cube))
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox1(pos, cube))
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - pos).Normalized();
+
+	if (_collidedX)
+	{
+		pos.x = prevPosX;
+		target = pos + view;
+	}
+
+	else if (_collidedZ)
+	{
+		pos.z = prevPosZ;
+		target = pos + view;
+	}
+}
+
+
