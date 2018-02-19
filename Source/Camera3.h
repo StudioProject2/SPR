@@ -26,6 +26,12 @@ private:
 	void JumpUp(double dt);
 	void JumpDown(double dt);
 	void DropDown(double dt);
+
+	void BoundsCheck();
+	void BoundsCheckStage1();
+	void BoundsCheckStage2();
+	void BoundsCheckStage3();
+	void BoundsCheckStage4();
 public:
 	//Vector3 position;
 	//Vector3 target;
@@ -54,10 +60,10 @@ public:
 
 	Camera3();
 	~Camera3();
+
 	virtual void Init(const Vector3& pos, const Vector3& target, const Vector3& up);
 	virtual void Update(double dt);
 	virtual void Reset();
-	void BoundsCheck();
 	void InteractionCheck();
 
 

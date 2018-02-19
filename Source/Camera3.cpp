@@ -2,9 +2,8 @@
 #include "Application.h"
 #include "Mtx44.h"
 #include "Box.h"
-#include "Var.h"
 
-#define FLOOR_POSITION 100
+#define FLOOR_POSITION 10
 
 Camera3::Camera3()
 {
@@ -142,11 +141,206 @@ void Camera3::BoundsCheck()
 		position.z = prevPosZ;
 		target = position + view;
 	}
+}
 
-	/*if (_collidedY)
+void Camera3::BoundsCheckStage1()
+{
+	//Collision
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	Box cube = Box(Vector3(0, 0, 0), 105);
+	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
+
+	if (isPointXInBox(position, cube)
+		|| isPointXInBox(position, cube2)
+		)
 	{
-	std::cout << "Y Collided" << std::endl;
-	}*/
+		_collidedX = true;
+	}
+
+	if (isPointYInBox(position, cube)
+		|| isPointYInBox(position, cube2)
+		)
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox(position, cube)
+		|| isPointZInBox(position, cube2)
+		)
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - position).Normalized();
+
+	if (_collidedX)
+	{
+		position.x = prevPosX;
+		target = position + view;
+	}
+
+	else if (_collidedZ)
+	{
+		position.z = prevPosZ;
+		target = position + view;
+	}
+}
+
+void Camera3::BoundsCheckStage2()
+{
+	//Collision
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	Box cube = Box(Vector3(0, 0, 0), 105);
+	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
+
+	if (isPointXInBox(position, cube)
+		|| isPointXInBox(position, cube2)
+		)
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox(position, cube)
+		|| isPointYInBox(position, cube2)
+		)
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox(position, cube)
+		|| isPointZInBox(position, cube2)
+		)
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - position).Normalized();
+
+	if (_collidedX)
+	{
+		position.x = prevPosX;
+		target = position + view;
+	}
+
+	else if (_collidedZ)
+	{
+		position.z = prevPosZ;
+		target = position + view;
+	}
+}
+
+void Camera3::BoundsCheckStage3()
+{
+	//Collision
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	Box cube = Box(Vector3(0, 0, 0), 105);
+	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
+
+	if (isPointXInBox(position, cube)
+		|| isPointXInBox(position, cube2)
+		)
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox(position, cube)
+		|| isPointYInBox(position, cube2)
+		)
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox(position, cube)
+		|| isPointZInBox(position, cube2)
+		)
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - position).Normalized();
+
+	if (_collidedX)
+	{
+		position.x = prevPosX;
+		target = position + view;
+	}
+
+	else if (_collidedZ)
+	{
+		position.z = prevPosZ;
+		target = position + view;
+	}
+}
+
+void Camera3::BoundsCheckStage4()
+{
+	//Collision
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
+
+	Box hut1 = Box(Vector3(200, -10, 0), 50);
+	Box hut2 = Box(Vector3(200, -10, 200), 50);
+	Box hut3 = Box(Vector3(200, -10, -200), 50);
+	Box hut4 = Box(Vector3(-200, -10, 0), 50);
+	Box hut5 = Box(Vector3(-200, -10, 200), 50);
+	Box hut6 = Box(Vector3(-200, -10, -200), 50);
+
+	if (isPointXInBox(position, hut1)
+		|| isPointXInBox(position, hut2)
+		|| isPointXInBox(position, hut3)
+		|| isPointXInBox(position, hut4)
+		|| isPointXInBox(position, hut5)
+		|| isPointXInBox(position, hut6)
+		)
+	{
+		_collidedX = true;
+	}
+
+	if (isPointYInBox(position, hut1)
+		|| isPointYInBox(position, hut2)
+		|| isPointYInBox(position, hut3)
+		|| isPointYInBox(position, hut4)
+		|| isPointYInBox(position, hut5)
+		|| isPointYInBox(position, hut6)
+		)
+	{
+		_collidedY = true;
+	}
+
+	if (isPointZInBox(position, hut1)
+		|| isPointZInBox(position, hut2)
+		|| isPointZInBox(position, hut3)
+		|| isPointZInBox(position, hut4)
+		|| isPointZInBox(position, hut5)
+		|| isPointZInBox(position, hut6)
+		)
+	{
+		_collidedZ = true;
+	}
+
+	Vector3 view = (target - position).Normalized();
+
+	if (_collidedX)
+	{
+		position.x = prevPosX;
+		target = position + view;
+	}
+
+	else if (_collidedZ)
+	{
+		position.z = prevPosZ;
+		target = position + view;
+	}
 }
 
 void Camera3::JumpUp(double dt)
@@ -182,7 +376,6 @@ void Camera3::JumpDown(double dt)
 	{
 		jumpSpeed = 14.0f;
 		isJumpingDown = false;
-		std::cout << "collision" << std::endl;
 	}
 	else
 	{
@@ -190,7 +383,6 @@ void Camera3::JumpDown(double dt)
 		target = position + view;
 		jumpSpeed = 14.0f;
 		isJumpingDown = false;
-		std::cout << "no collision" << std::endl;
 	}
 }
 
@@ -202,7 +394,6 @@ void Camera3::DropDown(double dt)
 		position.y = position.y - (jumpSpeed * dt);
 		target = position + view;
 		jumpSpeed += jumpOffset;
-		std::cout << "dropping" << std::endl;
 	}
 	else if (_collidedY)
 	{
@@ -253,7 +444,22 @@ void Camera3::Update(double dt)
 		target = position + view;
 	}
 
-	BoundsCheck();
+	if (Application::whatScene == Application::STAGE1)
+	{
+		BoundsCheckStage1();
+	}
+	if (Application::whatScene == Application::STAGE2)
+	{
+		BoundsCheckStage2();
+	}
+	if (Application::whatScene == Application::STAGE3)
+	{
+		BoundsCheckStage3();
+	}
+	if (Application::whatScene == Application::STAGE4)
+	{
+		BoundsCheckStage4();
+	}
 
 	if (isJumpingUp)
 	{
