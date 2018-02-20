@@ -14,13 +14,13 @@
 #include "monsterBullet.h"
 #include "bullet.h"
 
-
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
 #define MOBNUM 10
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
+#define MOBNUM_TO_KILL 5
 
 class SceneStage2 : public Scene
 {
@@ -160,39 +160,43 @@ public:
 
 private:
 	unsigned m_vertexArrayID;
-	//unsigned m_vertexBuffer[NUM_GEOMETRY];
-	//unsigned m_colorBuffer[NUM_GEOMETRY];
-	//unsigned m_indexBuffer;
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
 	MS modelStack, viewStack, projectionStack;
-
+	
+	//inits
 	Camera3 camera;
-
 	double elaspeTime;
 	double tempElaspeTime;
 	double deltaTime;
+	double bulletBounceTime;
 	double monsterTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
 	double monster4BulletTime;
 	double monster5BulletTime;
+	int monDead;
+	int monLeft;
 
+	bool nextStage;
 	bool gameOver;
 
+	//Base-Render function
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 
+	//Updates
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
 
+	//Renders
 	void RenderBullets();
 	void RenderHitmarker();
 	void RenderMonster();
@@ -203,9 +207,17 @@ private:
 	void RenderMisc();
 	void RenderUi();
 
+	//hit markers
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
+	//text size
+	int LoadingTimer;
+	int sizeDotOne;
+	int sizeDotTwo;
+	int sizeDotThree;
+
+	//bullets && monster arrays
 	Monster *MonsterPtr[MOBNUM];
 	Box *monsterBoxPtr[MOBNUM];
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];

@@ -37,8 +37,17 @@ void SceneStage2::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
-
 	hitmarkerSize = 0;
+	bulletBounceTime = 0.0;
+	LoadingTimer = 0;
+	//Sizes
+	sizeDotOne = 0;
+	sizeDotTwo = 0;
+	sizeDotThree = 0;
+	//counter
+	monDead = 0;
+	monLeft = 0;
+	nextStage = false;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -137,10 +146,10 @@ void SceneStage2::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_SPOT;
-	light[0].position.Set(-630, 50, -650);
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].position.Set(-999, 500, -619);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 4;
+	light[0].power = 1;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -242,14 +251,34 @@ void SceneStage2::Init()
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage2//skybox_front.tga");
+	meshList[GEO_FRONT]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FRONT]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FRONT]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FRONT]->material.kShininess = 1.f;
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage2//skybox_back.tga");
+	meshList[GEO_BACK]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_BACK]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BACK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_BACK]->material.kShininess = 1.f;
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage2//skybox_right.tga");
+	meshList[GEO_LEFT]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_LEFT]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_LEFT]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_LEFT]->material.kShininess = 1.f;
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage2//skybox_left.tga");
+	meshList[GEO_RIGHT]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_RIGHT]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_RIGHT]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_RIGHT]->material.kShininess = 1.f;
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage2//skybox_top.tga");
+	meshList[GEO_TOP]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_TOP]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_TOP]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_TOP]->material.kShininess = 1.f;
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_BOTTOM]->textureID = LoadTGAR("Image//Stage2//skybox_bottom.tga");
 	meshList[GEO_BOTTOM]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
@@ -263,17 +292,36 @@ void SceneStage2::Init()
 	//tree
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
 	meshList[GEO_TREE]->textureID = LoadTGA("Image//stage2//objtextures//Tree2.tga");
+	meshList[GEO_TREE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_TREE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_TREE]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_TREE]->material.kShininess = 1.f;
 
 	//grass, flower and rocks
 	meshList[GEO_GRASS_PATCH] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Patch.obj");
 	meshList[GEO_GRASS_PATCH]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+	meshList[GEO_GRASS_PATCH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_GRASS_PATCH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_GRASS_PATCH]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_GRASS_PATCH]->material.kShininess = 1.f;
 	meshList[GEO_GRASS_LINE] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Line.obj");
 	meshList[GEO_GRASS_LINE]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+	meshList[GEO_GRASS_LINE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_GRASS_LINE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_GRASS_LINE]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_GRASS_LINE]->material.kShininess = 1.f;
 	meshList[GEO_FLOWER] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//flowerOBJ.obj");
 	meshList[GEO_FLOWER]->textureID = LoadTGA("Image//stage2//objtextures//flowerTextured.tga");
+	meshList[GEO_FLOWER]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FLOWER]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FLOWER]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FLOWER]->material.kShininess = 1.f;
 	meshList[GEO_ROCK] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//rockOBJ.obj");
 	meshList[GEO_ROCK]->textureID = LoadTGA("Image//stage2//objtextures//gray.tga");
-
+	meshList[GEO_ROCK]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_ROCK]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ROCK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ROCK]->material.kShininess = 1.f;
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -294,13 +342,14 @@ void SceneStage2::Init()
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
-		//init collision for the bullets here
 		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 	}
 }
 
 void SceneStage2::Update(double dt)
 {
+	cout << camera.position << endl;
+	monLeft = MOBNUM_TO_KILL - monDead;
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
@@ -312,7 +361,7 @@ void SceneStage2::Update(double dt)
 	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 
-
+	cout << bulletBoxPtr[0]->position << endl;
 	if (Application::IsKeyPressed('1'))
 	{
 		glEnable(GL_CULL_FACE);
@@ -323,7 +372,53 @@ void SceneStage2::Update(double dt)
 	}
 
 	camera.Update(dt);
+
+	if (!nextStage)
+	{
+		if (monDead >= MOBNUM_TO_KILL)
+		{
+			nextStage = true;
+			for (int mon = 0; mon < MOBNUM; mon++)
+			{
+				if (MonsterPtr[mon] != NULL)
+				{
+					delete MonsterPtr[mon];
+					delete monsterBoxPtr[mon];
+					MonsterPtr[mon] = NULL;
+					monsterBoxPtr[mon] = NULL;
+				}
+			}
+			if (nextStage)
+			{
+				LoadingTimer = 120;
+			}
+		}
+	}
+	
+
+
+	if (LoadingTimer > 0)
+	{
+		LoadingTimer -= 1;
+		if (LoadingTimer < 90)
+		{
+			sizeDotOne = 3;
+		}
+		if (LoadingTimer < 60)
+		{
+			sizeDotTwo = 3;
+		}
+		if (LoadingTimer < 30)
+		{
+			sizeDotThree = 3;
+		}
+		if (LoadingTimer == 0)
+		{
+			Application::sceneChange = 4;
+		}
+	}
 }
+
 void SceneStage2::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -344,7 +439,6 @@ void SceneStage2::UpdateBullets()
 		}
 	}
 }
-
 void SceneStage2::UpdateMonsterBullets()
 {
 	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
@@ -357,7 +451,7 @@ void SceneStage2::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
@@ -409,40 +503,48 @@ void SceneStage2::UpdateMonsters()
 		}
 	}
 }
-
 void SceneStage2::UpdateMonsterHitbox()
 {
 	bool isHit = false;
 	int monNum;
 	hitmarkerSize = 0;
-
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		for (int mon = 0; mon < MOBNUM; mon++)
 		{
-			if (!isHit)
+			if (!isHit && elaspeTime > bulletBounceTime)
 			{
 				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
 				{
-					isHit = bulletPtr[0]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
 				}
 				if (isHit)
 				{
-					monNum = mon;
+					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
+					if (MonsterPtr[mon]->health <= 0)
+					{
+						delete MonsterPtr[mon];
+						delete monsterBoxPtr[mon];
+						MonsterPtr[mon] = NULL;
+						monsterBoxPtr[mon] = NULL;
+						monDead += 1;
+					}
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
 					bulletPtr[bul]->monsterHit(camera);
-					delete MonsterPtr[mon];
-					delete monsterBoxPtr[mon];
-					MonsterPtr[mon] = NULL;
-					monsterBoxPtr[mon] = NULL;
-					monsterTime = elaspeTime + 3.0;
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
+					isHit = false;
 				}
 			}
 		}
 	}
-	if (isHit)
-	{
-		hitmarkerTimer = 30;
-	}
+
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -481,7 +583,6 @@ void SceneStage2::Render()
 	}
 
 }
-
 void SceneStage2::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -526,7 +627,6 @@ void SceneStage2::RenderMesh(Mesh *mesh, bool enableLight)
 	}
 
 }
-
 void SceneStage2::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -553,7 +653,6 @@ void SceneStage2::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
 void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -603,34 +702,34 @@ void SceneStage2::RenderSkybox()
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, -1000);
-	RenderMesh(meshList[GEO_FRONT], false);
+	RenderMesh(meshList[GEO_FRONT], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(-1000, 0, 0);
 	modelStack.Rotate(90, 0, 1, 0);
-	RenderMesh(meshList[GEO_LEFT], false);
+	RenderMesh(meshList[GEO_LEFT], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(1000, 0, 0);
 	modelStack.Rotate(-90, 0, 1, 0);
-	RenderMesh(meshList[GEO_RIGHT], false);
+	RenderMesh(meshList[GEO_RIGHT], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, 1000);
 	modelStack.Rotate(180, 0, 1, 0);
-	RenderMesh(meshList[GEO_BACK], false);
+	RenderMesh(meshList[GEO_BACK], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(0, 1000, 0);
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(90, 1, 0, 0);
-	RenderMesh(meshList[GEO_TOP], false);
+	RenderMesh(meshList[GEO_TOP], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(0, -10, 0);
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_BOTTOM], false);
+	RenderMesh(meshList[GEO_BOTTOM], true);
 	modelStack.PopMatrix();
 
 }
@@ -643,14 +742,14 @@ void SceneStage2::RenderObj()
 		modelStack.Translate(-810, -10, -700 + i);
 		modelStack.Rotate(90, 0, 1, 0);
 		modelStack.Scale(10, 30, 10);
-		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
 		modelStack.Translate(810, -10, -700 + i);
 		modelStack.Rotate(270, 0, 1, 0);
 		modelStack.Scale(10, 30, 10);
-		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
 	}
 	for (int i = 0; i < 1401; i += 350)
@@ -658,13 +757,13 @@ void SceneStage2::RenderObj()
 		modelStack.PushMatrix();
 		modelStack.Translate(650 - i, -10, 810);
 		modelStack.Scale(10, 30, 10);
-		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
 		modelStack.Translate(650 - i, -10, -810);
 		modelStack.Scale(10, 30, 10);
-		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
 	}
 
@@ -672,7 +771,7 @@ void SceneStage2::RenderObj()
 	modelStack.PushMatrix();
 	modelStack.Translate(0, -10, 0);
 	modelStack.Scale(20, 20, 20);
-	RenderMesh(meshList[GEO_TREE], false);
+	RenderMesh(meshList[GEO_TREE], true);
 	modelStack.PopMatrix();
 
 	//grass
@@ -683,7 +782,7 @@ void SceneStage2::RenderObj()
 			modelStack.PushMatrix();
 			modelStack.Translate(-675 + x, -10, -675 + z);
 			modelStack.Scale(40, 5, 40);
-			RenderMesh(meshList[GEO_GRASS_PATCH], false);
+			RenderMesh(meshList[GEO_GRASS_PATCH], true);
 			modelStack.PopMatrix();
 		}
 	}
@@ -696,7 +795,7 @@ void SceneStage2::RenderObj()
 		modelStack.PushMatrix();
 		modelStack.Rotate(i, 0, 1, 0);
 		modelStack.Translate(100, 0, 0);
-		RenderMesh(meshList[GEO_ROCK], false);
+		RenderMesh(meshList[GEO_ROCK], true);
 		modelStack.Scale(3, 3, 3);
 		modelStack.PopMatrix();
 		modelStack.PopMatrix();
@@ -709,64 +808,63 @@ void SceneStage2::RenderMisc()
 	modelStack.PushMatrix();
 	modelStack.Translate(100, -10, 100);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(240, -10, 500);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-530, -10, 200);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(400, -10, -350);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(750, -10, -200);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-340, -10, 305);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(100, -10, 100);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(100, -10, 100);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(100, -10, 100);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(100, -10, 100);
 	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], false);
+	RenderMesh(meshList[GEO_FLOWER], true);
 	modelStack.PopMatrix();
 }
-
 void SceneStage2::RenderLights()
 {
 	if (light[0].type == Light::LIGHT_DIRECTIONAL)
@@ -845,6 +943,26 @@ void SceneStage2::RenderLights()
 		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 
+	modelStack.PushMatrix();
+	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(light[3].position.x, light[3].position.y, light[3].position.z);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
 }
 void SceneStage2::RenderBullets()
 {
@@ -898,17 +1016,25 @@ void SceneStage2::RenderUi()
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
-
-
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
 
-	std::ostringstream timePast;
-	timePast << std::fixed << std::setprecision(1);
-	timePast << elaspeTime << "time past.";
+	std::ostringstream monsLeft;
+	monsLeft << std::fixed << std::setprecision(1);
+	monsLeft << "monsters left:" << monLeft;
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], timePast.str(), Color(1, 1, 1), 2, 29, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(1, 0, 1), 2, 31, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], "==========", Color(1, 0, 1), 2, 30, 28);
+	RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(1, 0, 1), 2, 25.5, 27);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Next Stage", Color(1, 1, 1), sizeDotOne, 17, 2);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Loading", Color(1, 1, 1), sizeDotOne, 17, 1);
+	RenderTextOnScreen(meshList[GEO_TEXT], ".", Color(1, 1, 1), sizeDotOne, 24, 1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "..", Color(1, 1, 1), sizeDotTwo, 24, 1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "...", Color(1, 1, 1), sizeDotThree, 24, 1);
 	modelStack.PopMatrix();
 
 }
