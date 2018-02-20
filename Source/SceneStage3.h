@@ -15,6 +15,7 @@
 #include "MonsterArcher.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Player.h"
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
@@ -139,6 +140,8 @@ class SceneStage3 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_GRASS_LINE,
+
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
@@ -204,6 +207,7 @@ private:
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+	Player *player;
 };
 
 #endif

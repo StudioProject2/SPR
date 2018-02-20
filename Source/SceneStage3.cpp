@@ -51,6 +51,9 @@ void SceneStage3::Init()
 		//monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 
+	player = Player::getInstance();
+	player->health -= 10;
+
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
@@ -246,17 +249,18 @@ void SceneStage3::Init()
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage2//skybox_front.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage2//skybox_back.tga");
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage2//skybox_right.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage2//skybox_left.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage2//skybox_top.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage2//skybox_bottom.tga");
+
 	//FLOOR
 	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
 	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
@@ -274,8 +278,15 @@ void SceneStage3::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
-	//Monsters
+	//FENCE
+	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Fence.obj");
+	meshList[GEO_FENCE]->textureID = LoadTGA("Image//Boss Stage/Fence.tga");
 
+	//GRASS
+	meshList[GEO_GRASS_LINE] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Line.obj");
+	meshList[GEO_GRASS_LINE]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+
+	//Monsters
 	for (int i = 0; i < 25; i++)
 	{
 		monsterBulletPtr[i] = NULL;
@@ -304,7 +315,7 @@ void SceneStage3::Update(double dt)
 	UpdateMonsters();
 	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
-
+	cout << player->health << endl;
 
 	if (Application::IsKeyPressed('1'))
 	{
@@ -313,6 +324,10 @@ void SceneStage3::Update(double dt)
 	if (Application::IsKeyPressed('2'))
 	{
 		glDisable(GL_CULL_FACE);
+	}
+	if (Application::IsKeyPressed('3'))
+	{
+		Application::sceneChange = Application::STAGE2;
 	}
 
 	camera.Update(dt);
@@ -416,6 +431,7 @@ void SceneStage3::UpdateMonsters()
 			}
 		}
 	}
+	/*
 	//Monster Fodder
 	if (elaspeTime > monsterTime)
 	{
@@ -457,7 +473,7 @@ void SceneStage3::UpdateMonsters()
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
 		}
 	}
-
+	*/
 
 }
 
@@ -591,7 +607,7 @@ void SceneStage3::Render()
 
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
-	//RenderMesh(meshList[GEO_AXES], false);
+	RenderMesh(meshList[GEO_AXES], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, -1000);
@@ -624,12 +640,14 @@ void SceneStage3::Render()
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
+	
 	modelStack.PushMatrix();
 	modelStack.Translate(0, -10, 0);
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_FLOOR], true);
 	modelStack.PopMatrix();
+
 
 	//LIGHTBALLS
 	modelStack.PushMatrix();
@@ -645,29 +663,40 @@ void SceneStage3::Render()
 	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
-	Vector3 defaultView = Vector3(0, 0, 10);
-	defaultView.Normalize();
+	Vector3 defaultView = Vector3(0, 0, 1);
+	Vector3 dir = Vector3(0, 0, 0);
+	double coolrot;
 
 	//RENDER ALL MOBS
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
-			float ans = acos(defaultView.Dot((*MonsterPtr[i]).view) / (defaultView.Length() * (*MonsterPtr[i]).view).Length());
-			ans = ans * (180.0 / 3.141592653589793238462643383279502884197169399375105820974944592307816406286);
-			if (camera.position.x < (*MonsterPtr[i]).pos.x)
-			{
-				ans = ans * -1;
-			}
+
+			Vector3 B = MonsterPtr[i]->pos - camera.position;
+			B.y = MonsterPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				coolrot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				coolrot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				coolrot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				coolrot = 180 - rotation;
+
+			cout << rotation << endl;
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
-			modelStack.Rotate(ans, 0, 1, 0);
+			modelStack.Rotate(coolrot, 0, 1, 0);
 			modelStack.Scale(10, 10, 10);
 			RenderMesh(meshList[GEO_CUBE], false);
 			modelStack.PopMatrix();
 		}
 	}
-
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
@@ -725,18 +754,68 @@ void SceneStage3::Render()
 
 	RenderBullets();
 
+	//FENCES
+
+	for (int i = 0; i < 1800; i += 30)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(-600, -10, -1400 + i);
+		modelStack.Rotate(90, 0, 1, 0);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_FENCE], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(600, -10, -1400 + i);
+		modelStack.Rotate(270, 0, 1, 0);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_FENCE], false);
+		modelStack.PopMatrix();
+	}
+	for (int i = 0; i < 570; i += 30)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(600 - i, -10, 390);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_FENCE], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(600 - i, -10, -390);
+		modelStack.Scale(20, 20, 20);
+		//RenderMesh(meshList[GEO_FENCE], false);
+		modelStack.PopMatrix();
+	}
+
+	//RENDER GRASSES
+	for (int i = 0; i < 1401; i += 350)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(-610, -10, -700 + i);
+		modelStack.Rotate(90, 0, 1, 0);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(610, -10, -700 + i);
+		modelStack.Rotate(270, 0, 1, 0);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+	}
+	for (int i = 0; i < 1401; i += 350)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(650 - i, -10, 810);
+		modelStack.Scale(10, 30, 10);
+		RenderMesh(meshList[GEO_GRASS_LINE], false);
+		modelStack.PopMatrix();
+
+	}
+
 
 	//FPS
-	modelStack.PushMatrix();
-	modelStack.Scale(100, 100, 100);
-	//RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(100, 0, 105);
-	modelStack.Scale(3, 3, 3);
-	//RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
