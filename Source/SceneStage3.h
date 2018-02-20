@@ -195,7 +195,9 @@ private:
 	int hitmarkerTimer;
 
 	Monster *MonsterPtr[MOBNUM];
-	//Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterArcherPtr[MOBNUM];
+
 	Box *monsterBoxPtr[MOBNUM];
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
