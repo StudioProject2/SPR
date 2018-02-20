@@ -12,13 +12,13 @@
 #include "Box.h"
 #include "Monster.h"
 #include "MonsterFodder.h"
+#include "MonsterArcher.h"
 #include "monsterBullet.h"
 #include "bullet.h"
 
-
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 1
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0

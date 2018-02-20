@@ -14,6 +14,8 @@
 //DONT TOUCH MY SHIT
 using namespace std;
 
+double bulletBounceTime = 0.0;
+
 SceneStage3::SceneStage3()
 {
 }
@@ -338,7 +340,7 @@ void SceneStage3::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
@@ -373,7 +375,7 @@ void SceneStage3::UpdateMonsters()
 		{
 			if (MonsterPtr[i] == NULL)
 			{
-				MonsterPtr[i] = new MonsterFodder();
+				MonsterPtr[i] = new MonsterArcher();
 				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 				monsterTime = elaspeTime + 3.0;
 				break;
@@ -415,7 +417,7 @@ void SceneStage3::UpdateMonsterHitbox()
 	{
 		for (int mon = 0; mon < MOBNUM; mon++)
 		{
-			if (!isHit)
+			if (!isHit && elaspeTime > bulletBounceTime)
 			{
 				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
 				{
@@ -432,8 +434,9 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
 					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
 					isHit = false;
 				}
 			}
