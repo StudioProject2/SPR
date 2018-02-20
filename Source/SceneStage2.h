@@ -99,22 +99,10 @@ class SceneStage2 : public Scene
 	{
 		GEO_AXES,
 		GEO_QUAD,
-		GEO_QUAD1,
 		GEO_CUBE,
-		GEO_CIRCLE,
-		GEO_RING,
-		GEO_HEM,
 		GEO_SPHERE,
-		GEO_SPHERE1,
-		GEO_SPHERE2,
-		GEO_SPHERE3,
-		GEO_SPHERE4,
-		GEO_SPHERE5,
-		GEO_SPHERE6,
-		GEO_SPHERE7,
-		GEO_SPHERE8,
+		GEO_TEST,
 		GEO_LIGHTBALL,
-		GEO_LIGHTBALL2,
 
 		GEO_BULLETS,
 
@@ -124,19 +112,6 @@ class SceneStage2 : public Scene
 		GEO_BOTTOM,
 		GEO_FRONT,
 		GEO_BACK,
-
-		GEO_FLOOR,
-		GEO_FENCE,
-		GEO_CHAIR,
-		GEO_WALL,
-		GEO_WATCHWALL,
-		GEO_TUNNEL,
-		GEO_BOMB,
-		GEO_TENT,
-		GEO_LAMP,
-		GEO_TANK,
-		GEO_WATCHTOWER,
-		GEO_GUY,
 
 		GEO_TREE,
 		GEO_GRASS_PATCH,
@@ -195,6 +170,7 @@ private:
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateInteractions();
 
 	//Renders
 	void RenderBullets();
@@ -206,6 +182,7 @@ private:
 	void RenderObj();
 	void RenderMisc();
 	void RenderUi();
+	void RenderPickups();
 
 	//hit markers
 	int hitmarkerSize;
@@ -216,6 +193,24 @@ private:
 	int sizeDotOne;
 	int sizeDotTwo;
 	int sizeDotThree;
+	int interactionSize;
+
+	//tree and flowers logic
+	bool flowerOneLife;
+	bool flowerTwoLife;
+	bool flowerThreeLife;
+	bool treeLifeOne;
+	bool treeLifeTwo;
+	bool treeLifeThree;
+	double treeY;
+	double treeRotate;
+	int treeFallTimer;
+	int fallingStage;
+
+	//pickups logic
+	int pickupsY;
+	int pickupsZ;
+
 
 	//bullets && monster arrays
 	Monster *MonsterPtr[MOBNUM];

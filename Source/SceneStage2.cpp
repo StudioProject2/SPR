@@ -44,10 +44,25 @@ void SceneStage2::Init()
 	sizeDotOne = 0;
 	sizeDotTwo = 0;
 	sizeDotThree = 0;
+	interactionSize = 0;
 	//counter
 	monDead = 0;
 	monLeft = 0;
 	nextStage = false;
+	//tree and flower
+	flowerOneLife = true;
+	flowerTwoLife = true;
+	flowerThreeLife = true;
+	treeLifeOne = true;
+	treeLifeTwo = true;
+	treeLifeThree = true;
+	treeY = -10;
+	treeRotate = 0;
+	treeFallTimer = 0;
+	fallingStage = 0;
+	//pickups
+	pickupsY = 10;
+	pickupsZ = 0;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -146,10 +161,10 @@ void SceneStage2::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_DIRECTIONAL;
-	light[0].position.Set(-999, 500, -619);
-	light[0].color.Set(1, 1, 1);
-	light[0].power = 1;
+	light[0].type = Light::LIGHT_POINT;
+	light[0].position.Set(0, 150, 0);
+	light[0].color.Set(0, 1, 0);
+	light[0].power = 100;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -170,16 +185,16 @@ void SceneStage2::Init()
 
 	//***************************************Second Light*****************************************
 	light[1].type = Light::LIGHT_POINT;
-	light[1].position.Set(720, 150, 720);
-	light[1].color.Set(1, 1, 1);
-	light[1].power = 20;
+	light[1].position.Set(240, 0, 500);
+	light[1].color.Set(0, 1, 0);
+	light[1].power = 2;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
 	light[1].cosCutoff = cos(Math::DegreeToRadian(10));
 	light[1].cosInner = cos(Math::DegreeToRadian(5));
 	light[1].exponent = 3.0f;
-	light[1].spotDirection.Set(0.f, 1.f, 0.f);
+	light[1].spotDirection.Set(0.f, 0.f, 0.f);
 
 	glUniform1i(m_parameters[U_LIGHT1_TYPE], light[1].type);
 	glUniform3fv(m_parameters[U_LIGHT1_COLOR], 1, &light[1].color.r);
@@ -193,9 +208,9 @@ void SceneStage2::Init()
 
 	//***************************************Third Light*****************************************
 	light[2].type = Light::LIGHT_POINT;
-	light[2].position.Set(-720, 150, 720);
-	light[2].color.Set(1, 1, 1);
-	light[2].power = 20;
+	light[2].position.Set(750, 0, -200);
+	light[2].color.Set(0, 1, 0);
+	light[2].power = 2;
 	light[2].kC = 1.f;
 	light[2].kL = 0.01f;
 	light[2].kQ = 0.001f;
@@ -216,9 +231,9 @@ void SceneStage2::Init()
 
 	//***************************************Fourth Light*****************************************
 	light[3].type = Light::LIGHT_POINT;
-	light[3].position.Set(720, 150, -720);
-	light[3].color.Set(1, 1, 1);
-	light[3].power = 20;
+	light[3].position.Set(-530, 0, 200);
+	light[3].color.Set(0, 1, 0);
+	light[3].power = 2;
 	light[3].kC = 1.f;
 	light[3].kL = 0.01f;
 	light[3].kQ = 0.001f;
@@ -244,7 +259,6 @@ void SceneStage2::Init()
 	}
 
 	//Others
-	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
@@ -253,38 +267,38 @@ void SceneStage2::Init()
 	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage2//skybox_front.tga");
 	meshList[GEO_FRONT]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_FRONT]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_FRONT]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_FRONT]->material.kShininess = 1.f;
+	meshList[GEO_FRONT]->material.kSpecular.Set(0.1f, 0.1f, 0.1f);
+	meshList[GEO_FRONT]->material.kShininess = 0.9f;
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage2//skybox_back.tga");
 	meshList[GEO_BACK]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BACK]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_BACK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_BACK]->material.kShininess = 1.f;
+	meshList[GEO_BACK]->material.kSpecular.Set(0.1f, 0.1f, 0.1f);
+	meshList[GEO_BACK]->material.kShininess = 0.9f;
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage2//skybox_right.tga");
 	meshList[GEO_LEFT]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_LEFT]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_LEFT]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_LEFT]->material.kShininess = 1.f;
+	meshList[GEO_LEFT]->material.kSpecular.Set(0.1f, 0.1f, 0.1f);
+	meshList[GEO_LEFT]->material.kShininess = 0.9f;
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage2//skybox_left.tga");
 	meshList[GEO_RIGHT]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_RIGHT]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_RIGHT]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_RIGHT]->material.kShininess = 1.f;
+	meshList[GEO_RIGHT]->material.kSpecular.Set(0.1f, 0.1f, 0.1f);
+	meshList[GEO_RIGHT]->material.kShininess = 0.9f;
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage2//skybox_top.tga");
 	meshList[GEO_TOP]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_TOP]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_TOP]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_TOP]->material.kShininess = 1.f;
+	meshList[GEO_TOP]->material.kSpecular.Set(0.1f, 0.1f, 0.1f);
+	meshList[GEO_TOP]->material.kShininess = 0.9f;
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_BOTTOM]->textureID = LoadTGAR("Image//Stage2//skybox_bottom.tga");
 	meshList[GEO_BOTTOM]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BOTTOM]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_BOTTOM]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_BOTTOM]->material.kShininess = 1.f;
+	meshList[GEO_BOTTOM]->material.kShininess = 0.9f;
 	
 	//Bullet
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
@@ -294,8 +308,8 @@ void SceneStage2::Init()
 	meshList[GEO_TREE]->textureID = LoadTGA("Image//stage2//objtextures//Tree2.tga");
 	meshList[GEO_TREE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_TREE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_TREE]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_TREE]->material.kShininess = 1.f;
+	meshList[GEO_TREE]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_TREE]->material.kShininess = 0.01f;
 
 	//grass, flower and rocks
 	meshList[GEO_GRASS_PATCH] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Patch.obj");
@@ -323,8 +337,8 @@ void SceneStage2::Init()
 	meshList[GEO_ROCK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_ROCK]->material.kShininess = 1.f;
 
-	//Debuggging Cube
-	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
+	//Debuggging
+	meshList[GEO_TEST] = MeshBuilder::GenerateHem("test", Color(1.0f, 1.0f, 1.0f), 10, 10, 1); 
 
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -343,12 +357,19 @@ void SceneStage2::Init()
 	{
 		bulletPtr[bul] = new bullet();
 		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+		bulletBoxPtr[bul]->position.y += bulletPtr[bul]->offsetY;
 	}
+}
+
+bool isNearObject(Camera3 camera, Box object)
+{
+	return ((camera.position.x >= object.minX && camera.position.x <= object.maxX) &&
+			(camera.position.y >= object.minY && camera.position.y <= object.maxY) &&
+			(camera.position.z >= object.minZ && camera.position.z <= object.maxZ));
 }
 
 void SceneStage2::Update(double dt)
 {
-	cout << camera.position << endl;
 	monLeft = MOBNUM_TO_KILL - monDead;
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
@@ -357,11 +378,11 @@ void SceneStage2::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	UpdateMonsters();
+	//UpdateMonsters();
 	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
+	UpdateInteractions();
 
-	cout << bulletBoxPtr[0]->position << endl;
 	if (Application::IsKeyPressed('1'))
 	{
 		glEnable(GL_CULL_FACE);
@@ -388,6 +409,16 @@ void SceneStage2::Update(double dt)
 					monsterBoxPtr[mon] = NULL;
 				}
 			}
+			for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+			{
+				if (bulletPtr[bul] != NULL)
+				{
+					delete bulletPtr[bul];
+					delete bulletBoxPtr[bul];
+					bulletPtr[bul] = NULL;
+					bulletBoxPtr[bul] = NULL;
+				}
+			}
 			if (nextStage)
 			{
 				LoadingTimer = 120;
@@ -395,8 +426,6 @@ void SceneStage2::Update(double dt)
 		}
 	}
 	
-
-
 	if (LoadingTimer > 0)
 	{
 		LoadingTimer -= 1;
@@ -422,20 +451,22 @@ void SceneStage2::Update(double dt)
 void SceneStage2::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
-
 	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
-		if (i == 0)
+		if (bulletPtr[i] != NULL)
 		{
-			bulletPtr[0]->updateBullet(view, camera, start);
-			//update first bullet collision box
-			*bulletBoxPtr[0] = Box(bulletPtr[0]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
-		}
-		else
-		{
-			bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
-			//update rest of bullets collision box
-			*bulletBoxPtr[i] = Box(bulletPtr[i]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+			if (i == 0)
+			{
+				bulletPtr[0]->updateBullet(view, camera, start);
+				//update first bullet collision box
+				*bulletBoxPtr[0] = Box(bulletPtr[0]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+			}
+			else
+			{
+				bulletPtr[i]->updateBullet(view, camera, *bulletPtr[i - 1]);
+				//update rest of bullets collision box
+				*bulletBoxPtr[i] = Box(bulletPtr[i]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+			}
 		}
 	}
 }
@@ -551,6 +582,139 @@ void SceneStage2::UpdateMonsterHitbox()
 		hitmarkerSize = 5;
 	}
 }
+void SceneStage2::UpdateInteractions()
+{
+	Box flowerOfLifeThree;
+	Box flowerOfLifeTwo;
+	Box flowerOfLifeOne;
+	Box treeOfLife;
+	Box healthPack;
+
+	interactionSize = 0;
+	bool inRange = false;
+
+	healthPack = Box(Vector3(-10, pickupsY, pickupsZ), 10, 10);
+
+	if (treeLifeThree)
+	{
+		treeOfLife = Box(Vector3(-10, 0, 10), 50, 50);
+	}
+	if (flowerOneLife)
+	{
+		flowerOfLifeOne = Box(Vector3(240, 0, 500), 10); 
+	}
+	if (flowerTwoLife)
+	{
+		flowerOfLifeTwo = Box(Vector3(750, 0, -200), 10);  
+	}
+	if (flowerThreeLife)
+	{
+		flowerOfLifeThree = Box(Vector3(-530, 0, 200), 10); 
+	}
+
+	if (!inRange)
+	{
+		inRange = isNearObject(camera, treeOfLife);
+	}
+	if (!inRange)
+	{
+		inRange = isNearObject(camera, flowerOfLifeOne);
+	}
+	if (!inRange)
+	{
+		inRange = isNearObject(camera, flowerOfLifeTwo);
+	}
+	if (!inRange)
+	{
+		inRange = isNearObject(camera, flowerOfLifeThree);
+	}
+	if (Application::IsKeyPressed('E'))
+	{
+		if (treeFallTimer == 0)
+		{
+			if (isNearObject(camera, treeOfLife))
+			{
+				if (treeLifeOne)
+				{
+					treeFallTimer = 60;
+					fallingStage = 1;
+				}
+				else if (treeLifeTwo && !treeLifeOne)
+				{
+					treeFallTimer = 60;
+					fallingStage = 2;
+				}
+				else if (treeLifeThree && !treeLifeTwo)
+				{
+					treeFallTimer = 60;
+					fallingStage = 3;
+				}
+			}
+		}
+		if (isNearObject(camera, flowerOfLifeOne))
+		{
+			flowerOneLife = false;
+			light[1].power = 0;
+			glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+		}
+		if (isNearObject(camera, flowerOfLifeTwo))
+		{
+			flowerTwoLife = false;
+			light[2].power = 0;
+			glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
+		}
+		if (isNearObject(camera, flowerOfLifeThree))
+		{
+			flowerThreeLife = false;
+			light[3].power = 0;
+			glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
+		}
+	}
+
+	if (inRange)
+	{
+		interactionSize = 4;
+	}
+
+	if (treeFallTimer > 0 && fallingStage == 1)
+	{
+		treeFallTimer -= 1;
+		treeY -= 0.2;
+		interactionSize = 0;
+		if (treeFallTimer == 0)
+		{
+			treeLifeOne = false;
+			light[0].power = 66;
+			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+		}
+	}
+	else if (treeFallTimer > 0 && fallingStage == 2)
+	{
+		treeFallTimer -= 1;
+		treeY -= 0.4;
+		treeRotate -= 0.4;
+		interactionSize = 0;
+		light[0].position.Set(0 + treeY, 150, 0);
+		if (treeFallTimer == 0)
+		{
+			treeLifeTwo = false;
+			light[0].power = 33;
+			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+		}
+	}
+	else if (treeFallTimer > 0 && fallingStage == 3)
+	{
+		treeFallTimer -= 1;
+		treeRotate -= 0.8;
+		interactionSize = 0;
+		if (treeFallTimer == 0)
+		{
+			treeLifeThree = false;
+			light[0].power = 0;
+			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
+		}
+	}
+}
 
 void SceneStage2::Render()
 {
@@ -567,7 +731,8 @@ void SceneStage2::Render()
 
 	//World Objs
 	RenderObj();
-	
+	RenderPickups();
+
 	//MOBS
 	RenderMonster();
 	RednerMonsterBullets();
@@ -769,7 +934,8 @@ void SceneStage2::RenderObj()
 
 	//tree of LIFE
 	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
+	modelStack.Translate(0, treeY, 0);
+	modelStack.Rotate(treeRotate, 1, 0, 1);
 	modelStack.Scale(20, 20, 20);
 	RenderMesh(meshList[GEO_TREE], true);
 	modelStack.PopMatrix();
@@ -781,7 +947,7 @@ void SceneStage2::RenderObj()
 		{
 			modelStack.PushMatrix();
 			modelStack.Translate(-675 + x, -10, -675 + z);
-			modelStack.Scale(40, 5, 40);
+			modelStack.Scale(40, 7, 40);
 			RenderMesh(meshList[GEO_GRASS_PATCH], true);
 			modelStack.PopMatrix();
 		}
@@ -794,9 +960,9 @@ void SceneStage2::RenderObj()
 		modelStack.Translate(0, -10, 0);
 		modelStack.PushMatrix();
 		modelStack.Rotate(i, 0, 1, 0);
-		modelStack.Translate(100, 0, 0);
-		RenderMesh(meshList[GEO_ROCK], true);
-		modelStack.Scale(3, 3, 3);
+		modelStack.Translate(150, 0, 0);
+		modelStack.Scale(1.5, 1.5, 1.5);
+		RenderMesh(meshList[GEO_ROCK], false);
 		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 	}
@@ -805,164 +971,53 @@ void SceneStage2::RenderObj()
 void SceneStage2::RenderMisc()
 {
 	//flowers
-	modelStack.PushMatrix();
-	modelStack.Translate(100, -10, 100);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(240, -10, 500);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(-530, -10, 200);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(400, -10, -350);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(750, -10, -200);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(-340, -10, 305);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(100, -10, 100);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(100, -10, 100);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(100, -10, 100);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	modelStack.Translate(100, -10, 100);
-	modelStack.Scale(1, 2, 1);
-	RenderMesh(meshList[GEO_FLOWER], true);
-	modelStack.PopMatrix();
+	if (flowerOneLife)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(240, -10, 500);
+		modelStack.Scale(1, 2, 1);
+		RenderMesh(meshList[GEO_FLOWER], true);
+		modelStack.PopMatrix();
+	}
+	if (flowerTwoLife)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(750, -10, -200);
+		modelStack.Scale(1, 2, 1);
+		RenderMesh(meshList[GEO_FLOWER], true);
+		modelStack.PopMatrix();
+	}
+	if (flowerThreeLife)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(-530, -10, 200);
+		modelStack.Scale(1, 2, 1);
+		RenderMesh(meshList[GEO_FLOWER], true);
+		modelStack.PopMatrix();
+	}
 }
 void SceneStage2::RenderLights()
 {
-	if (light[0].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[0].position.x, light[0].position.y, light[0].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[0].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[0].position;
-		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[0].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT0_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
 	{
 		Position lightPosition_cameraspace = viewStack.Top() * light[0].position;
 		glUniform3fv(m_parameters[U_LIGHT0_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 	//********************SECOND LIGHT***************************
-	if (light[1].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[1].position.x, light[1].position.y, light[1].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[1].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[1].position;
-		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[1].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT1_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
 	{
 		Position lightPosition_cameraspace = viewStack.Top() * light[1].position;
 		glUniform3fv(m_parameters[U_LIGHT1_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 	//*******************THIRD LIGHT******************************
-	if (light[2].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[2].position.x, light[2].position.y, light[2].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[2].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[2].position;
-		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[2].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT2_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
 	{
 		Position lightPosition_cameraspace = viewStack.Top() * light[2].position;
 		glUniform3fv(m_parameters[U_LIGHT2_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 	//*******************FOURTH LIGHT******************************
-	if (light[3].type == Light::LIGHT_DIRECTIONAL)
-	{
-		Vector3 lightDir(light[3].position.x, light[3].position.y, light[3].position.z);
-		Vector3 lightDirection_cameraspace = viewStack.Top() * lightDir;
-		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightDirection_cameraspace.x);
-	}
-	else if (light[3].type == Light::LIGHT_SPOT)
-	{
-		Position lightPosition_cameraspace = viewStack.Top() * light[3].position;
-		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
-		Vector3 spotDirection_cameraspace = viewStack.Top() * light[3].spotDirection;
-		glUniform3fv(m_parameters[U_LIGHT3_SPOTDIRECTION], 1, &spotDirection_cameraspace.x);
-	}
-	else
 	{
 		Position lightPosition_cameraspace = viewStack.Top() * light[3].position;
 		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 
-	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[3].position.x, light[3].position.y, light[3].position.z);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
 }
 void SceneStage2::RenderBullets()
 {
@@ -971,7 +1026,7 @@ void SceneStage2::RenderBullets()
 		if (bulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
 			RenderMesh(meshList[GEO_BULLETS], false);
 			modelStack.PopMatrix();
 		}
@@ -1037,6 +1092,18 @@ void SceneStage2::RenderUi()
 	RenderTextOnScreen(meshList[GEO_TEXT], "...", Color(1, 1, 1), sizeDotThree, 24, 1);
 	modelStack.PopMatrix();
 
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to", Color(1, 1, 1), interactionSize, 6, 7);
+	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
+	modelStack.PopMatrix();
+}
+void SceneStage2::RenderPickups()
+{
+	modelStack.PushMatrix();
+	modelStack.Translate(100, pickupsY, pickupsZ);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_TEST], false);
+	modelStack.PopMatrix();
 }
 
 void SceneStage2::Exit()
