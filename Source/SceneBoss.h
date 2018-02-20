@@ -13,6 +13,7 @@
 #include "Monster.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Boss.h"
 
 
 #define NO_OF_BULLETS 20
@@ -21,6 +22,7 @@
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
+#define BOSSBULLETNUM 1000
 
 class SceneBoss : public Scene
 {
@@ -109,6 +111,8 @@ class SceneBoss : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
+		GEO_GROUNDSIGNAL,
+
 		GEO_FLOOR,
 		GEO_BUILDING,
 		GEO_FENCE,
@@ -144,12 +148,15 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double monsterTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
+	double bossPlayerShootTime;
+	double bossRingShootTime;
+	double bossMovementChangeTime;
+	double bossGroundAttackTime;
+	double bossChangeGroundTargetTime;
+	double bossGroundAttackDelayTime;
+	double groundSignalBlinkTime;
 
+	bool printGroundSignal;
 	bool gameOver;
 
 	Light light[4];
@@ -161,6 +168,9 @@ private:
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateBossMovement();
+	void UpdateBossHitbox();
+	void UpdateBossBullets();
 
 	void RenderBullets();
 	void RenderHitmarker();
@@ -168,13 +178,26 @@ private:
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
+	Boss boss;
 	Monster *MonsterPtr[MOBNUM];
 	Box *monsterBoxPtr[MOBNUM];
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
+	monsterBullet *bossBulletPtr[BOSSBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+	Box *bossBox;
+	Vector3 groundAreaCenter;
+
+	int bossMovement;
+	enum bossMovementState
+	{
+		STRAIGHT,
+		ZIGZAG,
+		ASCEND,
+		CHARGE
+	};
 };
 
 #endif
