@@ -196,7 +196,7 @@ void Camera3::BoundsCheckStage2()
 	_collidedY = false;
 	_collidedZ = false;
 
-	Box treeOfLife = Box(Vector3(-10, 0, 10), 20, 20);
+	Box treeOfLife = Box(Vector3(-10, 0, 9), 20, 20);
 
 	Vector3 view = (target - position).Normalized();
 

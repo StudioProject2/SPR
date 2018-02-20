@@ -236,7 +236,7 @@ void Monster::boundsCheckStage1()
 
 void Monster::boundsCheckStage2()
 {
-	Box cube = Box(Vector3(0, 0, 0), 120);
+	Box tree = Box(Vector3(0, 0, 0), 20, 20);
 
 	//Spawn Check, so mob wont spawn in objects
 	if (firstSpawn == true)
@@ -254,7 +254,7 @@ void Monster::boundsCheckStage2()
 			moveRight = true;
 			monsterDirTime = 0.0;
 
-		} while (isPointInBox(pos, cube));
+		} while (isPointInBox(pos, tree));
 
 		firstSpawn = false;
 	}
@@ -263,18 +263,18 @@ void Monster::boundsCheckStage2()
 	_collidedY = false;
 	_collidedZ = false;
 
-	if (isPointXInBox1(pos, cube))
+	if (isPointXInBox1(pos, tree))
 
 	{
 		_collidedX = true;
 	}
 
-	if (isPointYInBox1(pos, cube))
+	if (isPointYInBox1(pos, tree))
 	{
 		_collidedY = true;
 	}
 
-	if (isPointZInBox1(pos, cube))
+	if (isPointZInBox1(pos, tree))
 	{
 		_collidedZ = true;
 	}
