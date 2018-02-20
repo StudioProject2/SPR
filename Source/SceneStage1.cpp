@@ -14,10 +14,7 @@
 using namespace std;
 
 bool singleLoop = false;
-
 int HP;
-
-
 
 SceneStage1::SceneStage1()
 {
@@ -29,7 +26,7 @@ SceneStage1::~SceneStage1()
 
 void SceneStage1::Init()
 {
-	HP = 100;
+	HP = 100;//sets player health to 100 upon start of scene
 	//Monster spawn
 	srand((unsigned int)time(NULL));
 	//Timer
@@ -136,10 +133,10 @@ void SceneStage1::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_DIRECTIONAL;
-	light[0].position.Set(-1000, 450, 300);
+	light[0].type = Light::LIGHT_SPOT;
+	light[0].position.Set(-630, 50, -650);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 1;
+	light[0].power = 4;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -240,24 +237,24 @@ void SceneStage1::Init()
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage1//hills_ft.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage1//hills_bk.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage1//hills_rt.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage1//hills_lf.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage1//hills_up.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage1//hills_dn.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
 	//FLOOR
 	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
-	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Stage1//grassy.tga");
+	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
 	meshList[GEO_FLOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_FLOOR]->material.kShininess = 1.0f;
+	meshList[GEO_FLOOR]->material.kShininess = 1.f;
 	//Bullet
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 
@@ -305,6 +302,14 @@ void SceneStage1::Update(double dt)
 		gameOver = true;
 	}
 
+	//if (Application::IsKeyPressed('1'))
+	//{
+	//	glEnable(GL_CULL_FACE);
+	//}
+	//if (Application::IsKeyPressed('2'))
+	//{
+	//	glDisable(GL_CULL_FACE);
+	//}
 
 	camera.Update(dt);
 }
@@ -341,7 +346,7 @@ void SceneStage1::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
@@ -356,7 +361,6 @@ void SceneStage1::UpdateMonsterBullets()
 			monsterBulletPtr[i]->move();
 			if (monsterBulletPtr[i]->isBulletInBox(player))
 			{
-				
 				HP -= 10;
 			}
 			if (monsterBulletPtr[i]->bulletCollide())
@@ -414,7 +418,7 @@ void SceneStage1::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
 				}
 			}
 		}
@@ -558,19 +562,18 @@ void SceneStage1::Render()
 	modelStack.PopMatrix();
 
 	//LIGHTBALLS
-	//modelStack.PushMatrix();
-	//modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	//modelStack.Scale(5, 5, 5);
-	//RenderMesh(meshList[GEO_LIGHTBALL], false);
-	//modelStack.PopMatrix();
-	//modelStack.PushMatrix();
-	//modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	//RenderMesh(meshList[GEO_LIGHTBALL], false);
-	//modelStack.PopMatrix();
-	//modelStack.PushMatrix();
-	//modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	//RenderMesh(meshList[GEO_LIGHTBALL], false);
-	//modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
+	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	modelStack.PopMatrix();
 
 	//SPAWN MOBS
 	for (int i = 0; i < MOBNUM; i++)
@@ -615,15 +618,24 @@ void SceneStage1::Render()
 	//	RenderMesh(meshList[GEO_CUBE], false);
 	//	modelStack.PopMatrix();
 	//}
-	string hpText;
-	hpText = to_string(HP);
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], hpText, Color(0, 1, 0), 3, 1, 1);
-	modelStack.PopMatrix();
-
 
 	//FPS
-	
+	modelStack.PushMatrix();
+	modelStack.Scale(100, 100, 100);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(100, 0, 105);
+	modelStack.Scale(3, 3, 3);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
+	string hptext;
+	hptext = to_string(HP);
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], hptext, Color(0, 1, 0), 3, 1, 1);
+	modelStack.PopMatrix();
+
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
@@ -641,7 +653,6 @@ void SceneStage1::Render()
 			pauseTime = elaspeTime + 3.0;
 			singleLoop = true;
 		}
-
 		if (elaspeTime > pauseTime)
 		{
 			Application::sceneChange = 0;

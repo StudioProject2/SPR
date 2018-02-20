@@ -35,7 +35,8 @@ void MainMenu::Init()
 	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-
+	//Enable culling
+	//glEnable(GL_CULL_FACE);
 	//Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -313,8 +314,7 @@ void MainMenu::Update(double dt)
 		{
 			if (posy > 330 && posy < 370)
 			{
-				//move to level selector
-				Application::sceneChange = 1;
+				Application::sceneChange = Application::LEVELMENU;
 				std::cout << "you have started the game" << endl;
 			}
 		}
@@ -322,7 +322,6 @@ void MainMenu::Update(double dt)
 		{
 			if (posy > 435 && posy < 470)
 			{
-				//disable the sound for the game
 				std::cout << "you have muted the game" << endl;
 			}
 		}
@@ -330,11 +329,11 @@ void MainMenu::Update(double dt)
 		{
 			if (posy > 535 && posy < 565)
 			{
-				//Exit game
 				exit(EXIT_FAILURE);
 			}
-		}	
+		}
 	}
+
 
 	camera.Update(dt);
 	

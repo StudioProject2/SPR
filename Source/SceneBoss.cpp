@@ -331,7 +331,7 @@ void SceneBoss::UpdateBullets()
 
 void SceneBoss::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 10);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -341,9 +341,40 @@ void SceneBoss::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
-					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
-					return;
+					if (i == 0)//bullet fire all around
+					{
+						if (monsterBulletPtr[j + 1] == NULL
+							&& monsterBulletPtr[j + 2] == NULL
+							&& monsterBulletPtr[j + 3] == NULL)
+						{
+							Vector3 bullet1 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
+							Vector3 bullet2 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+							Vector3 bullet3 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
+							Vector3 bullet4 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+							Vector3 bullet5 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+							Vector3 bullet6 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+							Vector3 bullet7 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+							Vector3 bullet8 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+
+							monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, bullet1);
+							monsterBulletPtr[j + 1] = new monsterBullet(MonsterPtr[i]->pos, bullet2);
+							monsterBulletPtr[j + 2] = new monsterBullet(MonsterPtr[i]->pos, bullet3);
+							monsterBulletPtr[j + 3] = new monsterBullet(MonsterPtr[i]->pos, bullet4);
+							monsterBulletPtr[j + 4] = new monsterBullet(MonsterPtr[i]->pos, bullet5);
+							monsterBulletPtr[j + 5] = new monsterBullet(MonsterPtr[i]->pos, bullet6);
+							monsterBulletPtr[j + 6] = new monsterBullet(MonsterPtr[i]->pos, bullet7);
+							monsterBulletPtr[j + 7] = new monsterBullet(MonsterPtr[i]->pos, bullet8);
+
+							monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+							return;
+						}
+					}
+					else//bullet fires towards player
+					{
+						monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
+						monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+						return;
+					}
 				}
 			}
 		}
@@ -413,7 +444,7 @@ void SceneBoss::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					bulletPtr[bul]->monsterHit(camera);
 				}
 			}
 		}
@@ -625,7 +656,7 @@ void SceneBoss::Render()
 	}
 
 	//SPAWN MOBS
-	/*for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -647,16 +678,11 @@ void SceneBoss::Render()
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
-	}*/
+	}
 
 	RenderBullets();
 
 	//FPS
-	modelStack.PushMatrix();
-	modelStack.Scale(100, 100, 100);
-	RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";

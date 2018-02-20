@@ -11,7 +11,10 @@
 #include <iomanip>
 #include <sstream>
 
+//DONT TOUCH MY SHIT
 using namespace std;
+
+double bulletBounceTime = 0.0;
 
 SceneStage3::SceneStage3()
 {
@@ -36,6 +39,16 @@ void SceneStage3::Init()
 	{
 		MonsterPtr[i] = NULL;
 		monsterBulletDelay[i] = elaspeTime + 4.0;
+	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		MonsterFodderPtr[i] = NULL;
+		//monsterBulletDelay[i] = elaspeTime + 4.0;
+	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		MonsterArcherPtr[i] = NULL;
+		//monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -285,12 +298,11 @@ void SceneStage3::Update(double dt)
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
-	deltaTime = dt;
 	start.isShooting = true;
 
 	UpdateBullets();
 	UpdateMonsters();
-	UpdateMonsterBullets();
+	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 
 
@@ -338,7 +350,7 @@ void SceneStage3::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
@@ -366,7 +378,8 @@ void SceneStage3::UpdateMonsterBullets()
 }
 void SceneStage3::UpdateMonsters()
 {
-
+	//Monster Normal
+	
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
@@ -389,6 +402,63 @@ void SceneStage3::UpdateMonsters()
 			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		}
 	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			if ((*MonsterPtr[i]).health <= 0)
+			{
+				delete MonsterPtr[i];
+				delete monsterBoxPtr[i];
+				MonsterPtr[i] = NULL;
+				monsterBoxPtr[i] = NULL; 
+			}
+		}
+	}
+	//Monster Fodder
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterFodderPtr[i] == NULL)
+			{
+				MonsterFodderPtr[i] = new MonsterFodder();
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterFodderPtr[i] != NULL)
+		{
+			(*MonsterFodderPtr[i]).moveRand(camera.position, elaspeTime);
+		}
+	}
+	
+	//Monster Archer
+	if (elaspeTime > monsterTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterArcherPtr[i] == NULL)
+			{
+				MonsterArcherPtr[i] = new MonsterArcher();
+				monsterTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterArcherPtr[i] != NULL)
+		{
+			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
+		}
+	}
+
+
 }
 
 void SceneStage3::UpdateMonsterHitbox()
@@ -401,24 +471,32 @@ void SceneStage3::UpdateMonsterHitbox()
 	{
 		for (int mon = 0; mon < MOBNUM; mon++)
 		{
-			if (!isHit)
+			if (!isHit && elaspeTime > bulletBounceTime)
 			{
 				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
 				{
-					isHit = bulletPtr[0]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
 				}
 				if (isHit)
 				{
-					monNum = mon;
-					bulletPtr[bul]->monsterHit(camera, true);
+					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
+					cout << "HIT " << endl;
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					bulletPtr[bul]->monsterHit(camera);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
+					isHit = false;
 				}
 			}
 		}
 	}
-	if (isHit)
-	{
-		hitmarkerTimer = 50;
-	}
+	
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -567,18 +645,71 @@ void SceneStage3::Render()
 	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
-	//SPAWN MOBS
+	Vector3 defaultView = Vector3(0, 0, 10);
+	defaultView.Normalize();
+
+	//RENDER ALL MOBS
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
+			float ans = acos(defaultView.Dot((*MonsterPtr[i]).view) / (defaultView.Length() * (*MonsterPtr[i]).view).Length());
+			ans = ans * (180.0 / 3.141592653589793238462643383279502884197169399375105820974944592307816406286);
+			if (camera.position.x < (*MonsterPtr[i]).pos.x)
+			{
+				ans = ans * -1;
+			}
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+			modelStack.Rotate(ans, 0, 1, 0);
 			modelStack.Scale(10, 10, 10);
 			RenderMesh(meshList[GEO_CUBE], false);
 			modelStack.PopMatrix();
 		}
 	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterFodderPtr[i] != NULL)
+		{
+			float ans = acos(defaultView.Dot((*MonsterFodderPtr[i]).view) / (defaultView.Length() * (*MonsterFodderPtr[i]).view).Length());
+			ans = ans * (180.0 / 3.141592653589793238462643383279502884197169399375105820974944592307816406286);
+
+			if (camera.position.x < (*MonsterFodderPtr[i]).pos.x)
+			{
+				ans = ans * -1;
+			}
+
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Rotate(ans, 0, 1, 0);
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_CUBE], false);
+			modelStack.PopMatrix();
+		}
+	}
+
+		for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterArcherPtr[i] != NULL)
+		{
+			float ans = acos(defaultView.Dot((*MonsterArcherPtr[i]).view) / (defaultView.Length() * (*MonsterArcherPtr[i]).view).Length());
+			ans = ans * (180.0 / 3.141592653589793238462643383279502884197169399375105820974944592307816406286);
+
+			if (camera.position.x < (*MonsterArcherPtr[i]).pos.x)
+			{
+				ans = ans * -1;
+			}
+
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Rotate(ans, 0, 1, 0); 
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_CUBE], false);
+			modelStack.PopMatrix();
+		}
+	}
+
 
 	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
@@ -594,32 +725,16 @@ void SceneStage3::Render()
 
 	RenderBullets();
 
-	//if (MonsterPtr[0] != NULL)
-	//{
-	//	modelStack.PushMatrix();
-	//	modelStack.Translate((*MonsterPtr[0]).pos.x, 0, (*MonsterPtr[0]).pos.z);
-	//	modelStack.Scale(10, 10, 10);
-	//	RenderMesh(meshList[GEO_CUBE], false);
-	//	modelStack.PopMatrix();
-	//}
-	//if (MonsterPtr[1] != NULL)
-	//{
-	//	modelStack.PushMatrix();
-	//	modelStack.Translate((*MonsterPtr[1]).pos.x, 0, (*MonsterPtr[1]).pos.z);
-	//	modelStack.Scale(10, 10, 10);
-	//	RenderMesh(meshList[GEO_CUBE], false);
-	//	modelStack.PopMatrix();
-	//}
 
 	//FPS
 	modelStack.PushMatrix();
 	modelStack.Scale(100, 100, 100);
-	RenderMesh(meshList[GEO_CUBE], true);
+	//RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	modelStack.Translate(100, 0, 105);
 	modelStack.Scale(3, 3, 3);
-	RenderMesh(meshList[GEO_CUBE], true);
+	//RenderMesh(meshList[GEO_CUBE], true);
 	modelStack.PopMatrix();
 
 	std::ostringstream sFps;
@@ -787,3 +902,4 @@ void SceneStage3::Exit()
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 }
+

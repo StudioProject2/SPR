@@ -12,9 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "SceneA2.h"
 #include "SceneBoss.h"
-
 #include "SceneStage1.h"
 #include "SceneStage2.h"
 #include "SceneStage3.h"
@@ -26,6 +24,7 @@ GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
 int Application::sceneChange = 0;
+int Application::whatScene = 0;
 //init watscene;
 
 //Define an error callback
@@ -133,45 +132,52 @@ void Application::Run()
 	Scene *sceneMenu = new MainMenu();
 	Scene *sceneLevel = new LevelSelect();
 
-	Scene *scene = scene1;
+	Scene *scene = sceneMenu;
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
-		if (Application::sceneChange == 0)
+		if (Application::sceneChange == MAINMENU)
 		{
 			scene = sceneMenu;
 			scene->Init();
+			whatScene = MAINMENU;
 			Application::sceneChange = 10;
+			
 		}
-		if (Application::sceneChange == 1)
+		if (Application::sceneChange == LEVELMENU)
 		{
 			scene = sceneLevel;
 			scene->Init();
+			whatScene = LEVELMENU;
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == 2)
+		if (Application::sceneChange == STAGE1)
 		{
 			scene = scene1;
 			scene->Init();
+			whatScene = STAGE1;
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == 3)
+		if (Application::sceneChange == STAGE2)
 		{
 			scene = scene2;
 			scene->Init();
+			whatScene = STAGE2;
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == 4)
+		if (Application::sceneChange == STAGE3)
 		{
 			scene = scene3;
 			scene->Init();
+			whatScene = STAGE3;
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == 5)
+		if (Application::sceneChange == STAGE4)
 		{
 			scene = sceneBoss;
 			scene->Init();
+			whatScene = STAGE4;
 			Application::sceneChange = 10;
 		}
 		scene->Update(m_timer.getElapsedTime());
@@ -183,14 +189,12 @@ void Application::Run()
         m_timer.waitUntil(frameTime);       // Frame rate limiter. Limits each frame to a specified time in ms.   
 	} //Check if the ESC key had been pressed or if the window had been closed
 
-
 	sceneBoss->Exit();
 	scene1->Exit();
 	scene2->Exit();
 	scene3->Exit();
 	sceneMenu->Exit();
 	sceneLevel->Exit();
-	
 
 	delete sceneBoss;
 	delete scene1;

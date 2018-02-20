@@ -35,7 +35,8 @@ void LevelSelect::Init()
 	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-
+	//Enable culling
+	//glEnable(GL_CULL_FACE);
 	//Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -268,6 +269,14 @@ void LevelSelect::Update(double dt)
 	elaspeTime1 += dt;
 	deltaTime1 = dt;
 
+	//if (Application::IsKeyPressed('1'))
+	//{
+	//	glEnable(GL_CULL_FACE);
+	//}
+	//if (Application::IsKeyPressed('2'))
+	//{
+	//	glDisable(GL_CULL_FACE);
+	//}
 
 	if (Application::IsKeyPressed(VK_SPACE))
 	{
@@ -301,36 +310,37 @@ void LevelSelect::Update(double dt)
 
 	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posx > 245 && posx < 535)
+		if (posy > 270 && posy < 300)
 		{
-			if (posy > 270 && posy < 300)
+			if (posx > 245 && posx < 535)
 			{
 				//Level 1
-				Application::sceneChange = 2;
+				Application::sceneChange = Application::STAGE1;
+				//std::cout << "you have started the game" << endl;
 			}
 		}
 		if (posx > 245 && posx < 535)
 		{
 			if (posy > 340 && posy < 365)
 			{
-				//Level 2
-				Application::sceneChange = 3;
+				//Stage 3
+				Application::sceneChange = Application::STAGE2;
 			}
 		}
 		if (posx > 245 && posx < 565)
 		{
 			if (posy > 405 && posy < 435)
 			{
-				//Level 3
-				Application::sceneChange = 4;
+				//Stage 3
+				Application::sceneChange = Application::STAGE3;
 			}
 		}
 		if (posx > 300 && posx < 460)
 		{
 			if (posy > 465 && posy < 490)
 			{
-				//BOSS
-				Application::sceneChange = 5;
+				//Boss Level
+				Application::sceneChange = Application::STAGE4;
 			}
 		}
 		if (posx > 300 && posx < 465)
@@ -338,7 +348,7 @@ void LevelSelect::Update(double dt)
 			if (posy > 535 && posy < 565)
 			{
 				//Back to Main Menu
-				Application::sceneChange = 0;
+				Application::sceneChange = Application::MAINMENU;
 			}
 		}
 	}

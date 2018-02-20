@@ -168,8 +168,8 @@ private:
 	double elaspeTime;
 	double tempElaspeTime;
 	double deltaTime;
-	double monsterTime;
 	double pauseTime;
+	double monsterTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
