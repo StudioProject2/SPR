@@ -11,6 +11,8 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
+#include "MonsterArcher.h"
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Boss.h"
@@ -19,7 +21,7 @@
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 2
 #define MOB_SIZE 10
 #define MOBBULLETDELAY 2.0
 
@@ -198,6 +200,19 @@ private:
 	Box *bulletBoxPtr[NO_OF_BULLETS];
 	Box *bossBox;
 	Vector3 groundAreaCenter;
+
+	//STUFF THEO ADDED
+	int monDead;
+	double bulletBounceTime;
+	//MonsterArcher and MonsterFodder
+	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterArcherPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+	Box *monsterArcherBoxPtr[MOBNUM];
+	monsterBullet *monsterArcherBulletPtr[DIRECTBULLETNUM];
+	double monsterArcherBulletDelay[MOBNUM];
+	double monsterFodderTime;
+	double monsterArcherTime;
 
 	int bossMovement;
 	enum bossMovementState
