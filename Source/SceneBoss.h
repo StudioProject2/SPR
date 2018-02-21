@@ -14,15 +14,22 @@
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Boss.h"
+#include "Player.h"
 
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
 #define MOBNUM 10
 #define MOB_SIZE 10
-#define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
-#define BOSSBULLETNUM 1000
+
+#define DIRECTBULLETNUM 100
+#define RINGBULLETNUM 100
+#define GROUNDBULLETNUM 1000
+
+#define DIRECTBULLETDMG 10
+#define RINGBULLETDMG 10
+#define GROUNDBULLETDMG 20
 
 class SceneBoss : public Scene
 {
@@ -158,6 +165,7 @@ private:
 
 	bool printGroundSignal;
 	bool gameOver;
+	bool win;
 
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
@@ -181,8 +189,9 @@ private:
 	Boss boss;
 	Monster *MonsterPtr[MOBNUM];
 	Box *monsterBoxPtr[MOBNUM];
-	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-	monsterBullet *bossBulletPtr[BOSSBULLETNUM];
+	monsterBullet *directBulletPtr[DIRECTBULLETNUM];
+	monsterBullet *ringBulletPtr[RINGBULLETNUM];
+	monsterBullet *groundBulletPtr[GROUNDBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
@@ -198,6 +207,8 @@ private:
 		ASCEND,
 		CHARGE
 	};
+
+	Player *player;
 };
 
 #endif

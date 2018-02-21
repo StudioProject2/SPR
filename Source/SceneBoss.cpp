@@ -39,7 +39,9 @@ void SceneBoss::Init()
 	bossChangeGroundTargetTime = elaspeTime + 5.0;
 	bossGroundAttackDelayTime = elaspeTime + 1.0;
 	printGroundSignal = true;
+	win = false;
 
+	player = Player::getInstance();
 	hitmarkerSize = 0;
 
 	for (int i = 0; i < MOBNUM; i++)
@@ -241,17 +243,17 @@ void SceneBoss::Init()
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Stage 2/skybox_front.tga");
+	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Boss Stage/skybox_front.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//Stage 2/skybox_back.tga");
+	meshList[GEO_BACK]->textureID = LoadTGA("Image//Boss Stage/skybox_back.tga");
 	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Stage 2/skybox_right.tga");
+	meshList[GEO_LEFT]->textureID = LoadTGA("Image//Boss Stage/skybox_right.tga");
 	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Stage 2/skybox_left.tga");
+	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//Boss Stage/skybox_left.tga");
 	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage 2/skybox_top.tga");
+	meshList[GEO_TOP]->textureID = LoadTGA("Image//Boss Stage/skybox_top.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage 2/skybox_bottom.tga");
+	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Boss Stage/skybox_bottom.tga");
 	meshList[GEO_BOTTOM]->material.kAmbient.Set(0.7f, 0.7f, 0.7f);
 	meshList[GEO_BOTTOM]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_BOTTOM]->material.kSpecular.Set(0.f, 0.f, 0.f);
@@ -277,14 +279,19 @@ void SceneBoss::Init()
 
 	//Monsters
 
-	for (int i = 0; i < MOBBULLETNUM; i++)
+	for (int i = 0; i < DIRECTBULLETNUM; i++)
 	{
-		monsterBulletPtr[i] = NULL;
+		directBulletPtr[i] = NULL;
 	}
 
-	for (int i = 0; i < BOSSBULLETNUM; i++)
+	for (int i = 0; i < RINGBULLETNUM; i++)
 	{
-		bossBulletPtr[i] = NULL;
+		ringBulletPtr[i] = NULL;
+	}
+
+	for (int i = 0; i < GROUNDBULLETNUM; i++)
+	{
+		groundBulletPtr[i] = NULL;
 	}
 
 	gameOver = false;
@@ -306,47 +313,95 @@ void SceneBoss::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	//UpdateMonsters();
-	UpdateMonsterBullets();
-	UpdateMonsterHitbox();
-	UpdateBossMovement();
-	UpdateBossBullets();
-	UpdateBossHitbox();
-
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 10);
-
-	for (int i = 0; i < MOBBULLETNUM; i++)
+	if (boss.getHealth() <= 500 && (!win || !gameOver))
 	{
-		if (monsterBulletPtr[i] != NULL)
+		UpdateMonsters();
+		UpdateMonsterBullets();
+		UpdateMonsterHitbox();
+	}
+	if (boss.getHealth() > 0 && (!win || !gameOver))
+	{
+		UpdateBossMovement();
+		UpdateBossBullets();
+		UpdateBossHitbox();
+	}
+
+	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
+
+	for (int i = 0; i < DIRECTBULLETNUM; i++)
+	{
+		if (directBulletPtr[i] != NULL)
 		{
-			monsterBulletPtr[i]->move();
-			if (monsterBulletPtr[i]->isBulletInBox(player))
+			directBulletPtr[i]->move();
+			if (directBulletPtr[i]->isBulletInBox(playerBox))
 			{
-				gameOver = true;
+				player->health -= DIRECTBULLETDMG;
+				delete directBulletPtr[i];
+				directBulletPtr[i] = NULL;
 			}
-			if (monsterBulletPtr[i]->bulletCollideStage4())
+			if (directBulletPtr[i] != NULL)
 			{
-				monsterBulletPtr[i] = NULL;
-				delete monsterBulletPtr[i];
+				if (directBulletPtr[i]->bulletCollideStage4())
+				{
+					delete directBulletPtr[i];
+					directBulletPtr[i] = NULL;
+				}
 			}
 		}
 	}
 
-	for (int i = 0; i < BOSSBULLETNUM; i++)
+	for (int i = 0; i < RINGBULLETNUM; i++)
 	{
-		if (bossBulletPtr[i] != NULL)
+		if (ringBulletPtr[i] != NULL)
 		{
-			bossBulletPtr[i]->move();
-			if (bossBulletPtr[i]->isBulletInBox(player))
+			ringBulletPtr[i]->move();
+			if (ringBulletPtr[i]->isBulletInBox(playerBox))
 			{
-				gameOver = true;
+				player->health -= RINGBULLETDMG;
+				delete ringBulletPtr[i];
+				ringBulletPtr[i] = NULL;
 			}
-			if (bossBulletPtr[i]->bulletCollide())
+			if (ringBulletPtr[i] != NULL)
 			{
-				bossBulletPtr[i] = NULL;
-				delete bossBulletPtr[i];
+				if (ringBulletPtr[i]->bulletCollide())
+				{
+					delete ringBulletPtr[i];
+					ringBulletPtr[i] = NULL;
+				}
 			}
 		}
+	}
+
+	for (int i = 0; i < GROUNDBULLETNUM; i++)
+	{
+		if (groundBulletPtr[i] != NULL)
+		{
+			groundBulletPtr[i]->move();
+			if (groundBulletPtr[i]->isBulletInBox(playerBox))
+			{
+				player->health -= GROUNDBULLETDMG;
+				delete groundBulletPtr[i];
+				groundBulletPtr[i] = NULL;
+			}
+			if (groundBulletPtr[i] != NULL)
+			{
+				if (groundBulletPtr[i]->bulletCollide())
+				{
+					delete groundBulletPtr[i];
+					groundBulletPtr[i] = NULL;
+				}
+			}
+		}
+	}
+
+	if (player->health <= 0)
+	{
+		gameOver = true;
+	}
+
+	if (boss.getHealth() <= 0)
+	{
+		win = true;
 	}
 
 	if (elaspeTime > groundSignalBlinkTime)
@@ -402,44 +457,55 @@ void SceneBoss::UpdateMonsterBullets()
 	{
 		if (MonsterPtr[i] != NULL)
 		{
-			for (int j = 0; j < MOBBULLETNUM; j++)
+			for (int j = 0; j < RINGBULLETNUM; j++)
 			{
-				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
+				if (elaspeTime > monsterBulletDelay[i] && ringBulletPtr[j] == NULL && i == 0)
 				{
-					if (i == 0)//bullet fire all around
+					if (ringBulletPtr[j + 1] == NULL
+					&& ringBulletPtr[j + 2] == NULL
+					&& ringBulletPtr[j + 3] == NULL
+					&& ringBulletPtr[j + 4] == NULL
+					&& ringBulletPtr[j + 5] == NULL
+					&& ringBulletPtr[j + 6] == NULL
+					&& ringBulletPtr[j + 7] == NULL)
 					{
-						if (monsterBulletPtr[j + 1] == NULL
-							&& monsterBulletPtr[j + 2] == NULL
-							&& monsterBulletPtr[j + 3] == NULL)
-						{
-							Vector3 bullet1 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
-							Vector3 bullet2 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
-							Vector3 bullet3 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
-							Vector3 bullet4 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
-							Vector3 bullet5 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
-							Vector3 bullet6 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
-							Vector3 bullet7 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
-							Vector3 bullet8 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+						Vector3 bullet1 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
+						Vector3 bullet2 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+						Vector3 bullet3 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
+						Vector3 bullet4 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+						Vector3 bullet5 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+						Vector3 bullet6 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+						Vector3 bullet7 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+						Vector3 bullet8 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
 
-							monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, bullet1);
-							monsterBulletPtr[j + 1] = new monsterBullet(MonsterPtr[i]->pos, bullet2);
-							monsterBulletPtr[j + 2] = new monsterBullet(MonsterPtr[i]->pos, bullet3);
-							monsterBulletPtr[j + 3] = new monsterBullet(MonsterPtr[i]->pos, bullet4);
-							monsterBulletPtr[j + 4] = new monsterBullet(MonsterPtr[i]->pos, bullet5);
-							monsterBulletPtr[j + 5] = new monsterBullet(MonsterPtr[i]->pos, bullet6);
-							monsterBulletPtr[j + 6] = new monsterBullet(MonsterPtr[i]->pos, bullet7);
-							monsterBulletPtr[j + 7] = new monsterBullet(MonsterPtr[i]->pos, bullet8);
+						ringBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, bullet1);
+						ringBulletPtr[j + 1] = new monsterBullet(MonsterPtr[i]->pos, bullet2);
+						ringBulletPtr[j + 2] = new monsterBullet(MonsterPtr[i]->pos, bullet3);
+						ringBulletPtr[j + 3] = new monsterBullet(MonsterPtr[i]->pos, bullet4);
+						ringBulletPtr[j + 4] = new monsterBullet(MonsterPtr[i]->pos, bullet5);
+						ringBulletPtr[j + 5] = new monsterBullet(MonsterPtr[i]->pos, bullet6);
+						ringBulletPtr[j + 6] = new monsterBullet(MonsterPtr[i]->pos, bullet7);
+						ringBulletPtr[j + 7] = new monsterBullet(MonsterPtr[i]->pos, bullet8);
 
-							monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
-							return;
-						}
-					}
-					else//bullet fires towards player
-					{
-						monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 						monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 						return;
 					}
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			for (int j = 0; j < RINGBULLETNUM; j++)
+			{
+				if (elaspeTime > monsterBulletDelay[i] && directBulletPtr[j] == NULL && i != 0)
+				{
+					directBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
+					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+					return;
 				}
 			}
 		}
@@ -472,6 +538,20 @@ void SceneBoss::UpdateMonsters()
 			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		}
 	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			if ((*MonsterPtr[i]).health <= 0)
+			{
+				delete MonsterPtr[i];
+				delete monsterBoxPtr[i];
+				MonsterPtr[i] = NULL;
+				monsterBoxPtr[i] = NULL;
+			}
+		}
+	}
 }
 
 void SceneBoss::UpdateBossMovement()
@@ -484,6 +564,7 @@ void SceneBoss::UpdateBossMovement()
 		}
 		else
 		{
+			boss.resetY();
 			bossMovement++;
 		}
 		bossMovementChangeTime = elaspeTime + 15.0;
@@ -512,7 +593,7 @@ void SceneBoss::UpdateBossHitbox()
 	bool isHit = false;
 	int monNum;
 	hitmarkerSize = 0;
-	*bossBox = Box(Vector3(boss.pos), 10);
+	*bossBox = Box(Vector3(boss.getPos()), 10);
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
@@ -527,6 +608,7 @@ void SceneBoss::UpdateBossHitbox()
 
 	if (isHit)
 	{
+		boss.setHealth(boss.getHealth() - 1);
 		hitmarkerTimer = 50;
 	}
 	if (hitmarkerTimer > 0)
@@ -540,11 +622,11 @@ void SceneBoss::UpdateBossBullets()
 {
 	if (elaspeTime > bossPlayerShootTime && bossMovement != ASCEND) //shoot at player
 	{
-		for (int i = 0; i < BOSSBULLETNUM; i++)
+		for (int i = 0; i < DIRECTBULLETNUM; i++)
 		{
-			if (bossBulletPtr[i] == NULL)
+			if (directBulletPtr[i] == NULL)
 			{
-				bossBulletPtr[i] = new monsterBullet(boss.pos, camera.position);
+				directBulletPtr[i] = new monsterBullet(boss.getPos(), camera.position);
 				bossPlayerShootTime = elaspeTime + 2.0;
 				return;
 			}
@@ -553,34 +635,34 @@ void SceneBoss::UpdateBossBullets()
 
 	if (elaspeTime > bossRingShootTime) //shoot in ring
 	{
-		for (int i = 0; i < BOSSBULLETNUM; i++)
+		for (int i = 0; i < RINGBULLETNUM; i++)
 		{
-			if (bossBulletPtr[i] == NULL
-				&& bossBulletPtr[i + 1] == NULL
-				&& bossBulletPtr[i + 2] == NULL
-				&& bossBulletPtr[i + 3] == NULL
-				&& bossBulletPtr[i + 4] == NULL
-				&& bossBulletPtr[i + 5] == NULL
-				&& bossBulletPtr[i + 6] == NULL
-				&& bossBulletPtr[i + 7] == NULL)
+			if (ringBulletPtr[i] == NULL
+				&& ringBulletPtr[i + 1] == NULL
+				&& ringBulletPtr[i + 2] == NULL
+				&& ringBulletPtr[i + 3] == NULL
+				&& ringBulletPtr[i + 4] == NULL
+				&& ringBulletPtr[i + 5] == NULL
+				&& ringBulletPtr[i + 6] == NULL
+				&& ringBulletPtr[i + 7] == NULL)
 			{
-				Vector3 bullet1 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z);
-				Vector3 bullet2 = Vector3(boss.pos.x, boss.pos.y, boss.pos.z + 1);
-				Vector3 bullet3 = Vector3(boss.pos.x - 1, boss.pos.y, boss.pos.z);
-				Vector3 bullet4 = Vector3(boss.pos.x, boss.pos.y, boss.pos.z - 1);
-				Vector3 bullet5 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z + 1);
-				Vector3 bullet6 = Vector3(boss.pos.x - 1, boss.pos.y, boss.pos.z + 1);
-				Vector3 bullet7 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z - 1);
-				Vector3 bullet8 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z - 1);
+				Vector3 bullet1 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z);
+				Vector3 bullet2 = Vector3(boss.getPos().x, boss.getPos().y, boss.getPos().z + 1);
+				Vector3 bullet3 = Vector3(boss.getPos().x - 1, boss.getPos().y, boss.getPos().z);
+				Vector3 bullet4 = Vector3(boss.getPos().x, boss.getPos().y, boss.getPos().z - 1);
+				Vector3 bullet5 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z + 1);
+				Vector3 bullet6 = Vector3(boss.getPos().x - 1, boss.getPos().y, boss.getPos().z + 1);
+				Vector3 bullet7 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z - 1);
+				Vector3 bullet8 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z - 1);
 
-				bossBulletPtr[i] = new monsterBullet(boss.pos, bullet1);
-				bossBulletPtr[i + 1] = new monsterBullet(boss.pos, bullet2);
-				bossBulletPtr[i + 2] = new monsterBullet(boss.pos, bullet3);
-				bossBulletPtr[i + 3] = new monsterBullet(boss.pos, bullet4);
-				bossBulletPtr[i + 4] = new monsterBullet(boss.pos, bullet5);
-				bossBulletPtr[i + 5] = new monsterBullet(boss.pos, bullet6);
-				bossBulletPtr[i + 6] = new monsterBullet(boss.pos, bullet7);
-				bossBulletPtr[i + 7] = new monsterBullet(boss.pos, bullet8);
+				ringBulletPtr[i] = new monsterBullet(boss.getPos(), bullet1);
+				ringBulletPtr[i + 1] = new monsterBullet(boss.getPos(), bullet2);
+				ringBulletPtr[i + 2] = new monsterBullet(boss.getPos(), bullet3);
+				ringBulletPtr[i + 3] = new monsterBullet(boss.getPos(), bullet4);
+				ringBulletPtr[i + 4] = new monsterBullet(boss.getPos(), bullet5);
+				ringBulletPtr[i + 5] = new monsterBullet(boss.getPos(), bullet6);
+				ringBulletPtr[i + 6] = new monsterBullet(boss.getPos(), bullet7);
+				ringBulletPtr[i + 7] = new monsterBullet(boss.getPos(), bullet8);
 
 				bossRingShootTime = elaspeTime + 1.0;
 				return;
@@ -604,11 +686,11 @@ void SceneBoss::UpdateBossBullets()
 			Vector3 randomGroundBullet = Vector3(randomGroundBulletX, -5, randomGroundBulletZ);
 			Vector3 randomGroundBulletTarget = Vector3(randomGroundBulletX, 1, randomGroundBulletZ);
 
-			for (int i = 0; i < BOSSBULLETNUM; i++)
+			for (int i = 0; i < GROUNDBULLETNUM; i++)
 			{
-				if (bossBulletPtr[i] == NULL)
+				if (groundBulletPtr[i] == NULL)
 				{
-					bossBulletPtr[i] = new monsterBullet(randomGroundBullet, randomGroundBulletTarget);
+					groundBulletPtr[i] = new monsterBullet(randomGroundBullet, randomGroundBulletTarget);
 					//bossGroundAttackTime = elaspeTime + 0.0000001;
 					return;
 				}
@@ -620,7 +702,6 @@ void SceneBoss::UpdateBossBullets()
 void SceneBoss::UpdateMonsterHitbox()
 {
 	bool isHit = false;
-	int monNum;
 	hitmarkerSize = 0;
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
@@ -635,17 +716,16 @@ void SceneBoss::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					monNum = mon;
+					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
+					hitmarkerTimer = 50;
 					bulletPtr[bul]->monsterHit(camera);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					isHit = false;
 				}
 			}
 		}
 	}
 
-	if (isHit)
-	{
-		hitmarkerTimer = 50;
-	}
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -863,24 +943,36 @@ void SceneBoss::Render()
 		}
 	}
 
-	for (int i = 0; i < MOBBULLETNUM; i++)
+	for (int i = 0; i < DIRECTBULLETNUM; i++)
 	{
-		if (monsterBulletPtr[i] != NULL)
+		if (directBulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Translate((*directBulletPtr[i]).pos.x, (*directBulletPtr[i]).pos.y, (*directBulletPtr[i]).pos.z);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
 		}
 	}
 
-	for (int i = 0; i < BOSSBULLETNUM; i++)
+	for (int i = 0; i < RINGBULLETNUM; i++)
 	{
-		if (bossBulletPtr[i] != NULL)
+		if (ringBulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate((*bossBulletPtr[i]).pos.x, (*bossBulletPtr[i]).pos.y, (*bossBulletPtr[i]).pos.z);
+			modelStack.Translate((*ringBulletPtr[i]).pos.x, (*ringBulletPtr[i]).pos.y, (*ringBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
+	}
+
+	for (int i = 0; i < GROUNDBULLETNUM; i++)
+	{
+		if (groundBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*groundBulletPtr[i]).pos.x, (*groundBulletPtr[i]).pos.y, (*groundBulletPtr[i]).pos.z);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
@@ -888,9 +980,9 @@ void SceneBoss::Render()
 	}
 
 	modelStack.PushMatrix();
-	modelStack.Translate(boss.pos.x, boss.pos.y, boss.pos.z);
+	modelStack.Translate(boss.getPos().x, boss.getPos().y, boss.getPos().z);
 	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_CUBE], true);
+	RenderMesh(meshList[GEO_SPHERE], true);
 	modelStack.PopMatrix();
 
 	if (printGroundSignal && groundAreaCenter != NULL)
@@ -909,7 +1001,15 @@ void SceneBoss::Render()
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(0, 0, 0), 2, 1, 29);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Boss Health:" + to_string(boss.getHealth()), Color(1, 0, 0), 2.5, 9, 23);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Player Health:" + to_string(player->health), Color(0, 1, 1), 2.5, 8, 1);
 	modelStack.PopMatrix();
 
 	RenderHitmarker();
@@ -917,6 +1017,11 @@ void SceneBoss::Render()
 	if (gameOver)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
+	}
+
+	if (win)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON!", Color(1, 1, 1), 5, 4, 5);
 	}
 }
 
