@@ -63,6 +63,12 @@ void SceneStage2::Init()
 	//pickups
 	pickupsY = 10;
 	pickupsZ = 0;
+	//player
+	player = Player::getInstance();
+	//objectives
+	objectiveOne = false;
+	objectiveTwo = false;
+	objectiveThree = false;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -339,7 +345,8 @@ void SceneStage2::Init()
 
 	//Debuggging
 	meshList[GEO_TEST] = MeshBuilder::GenerateHem("test", Color(1.0f, 1.0f, 1.0f), 10, 10, 1); 
-
+	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
+	
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
@@ -367,6 +374,34 @@ bool isNearObject(Camera3 camera, Box object)
 			(camera.position.y >= object.minY && camera.position.y <= object.maxY) &&
 			(camera.position.z >= object.minZ && camera.position.z <= object.maxZ));
 }
+bool isInObjectX(Camera3 camera, Box object)
+{
+	return (((camera.position.x >= object.minX - 1 && camera.position.x <= object.minX + 1)
+		&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
+		&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ))
+		|| ((camera.position.x >= object.maxX - 1 && camera.position.x <= object.maxX + 1)
+			&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
+			&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ)));
+}
+bool isInObjectY(Camera3 camera, Box object)
+{
+	return (((camera.position.x >= object.minX && camera.position.x <= object.maxX)
+		&& (camera.position.y >= object.minY - 1 && camera.position.y <= object.minY + 1)
+		&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ))
+		|| ((camera.position.x >= object.minX && camera.position.x <= object.maxX)
+			&& (camera.position.y >= object.maxY - 1 && camera.position.y <= object.maxY + 1)
+			&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ)));
+	
+}
+bool isInObjectZ(Camera3 camera, Box object)
+{
+	return (((camera.position.x >= object.minX && camera.position.x <= object.maxX)
+		&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
+		&& (camera.position.z >= object.minZ - 1 && camera.position.z <= object.minZ + 1))
+		|| ((camera.position.x >= object.minX && camera.position.x <= object.maxX)
+			&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
+			&& (camera.position.z >= object.maxZ - 1 && camera.position.z <= object.maxZ + 1)));
+}
 
 void SceneStage2::Update(double dt)
 {
@@ -378,10 +413,15 @@ void SceneStage2::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	//UpdateMonsters();
-	//UpdateMonsterBullets();
+	UpdateMonsters();
+	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 	UpdateInteractions();
+
+	if (player->health <= 0)
+	{
+		gameOver = true;
+	}
 
 	if (Application::IsKeyPressed('1'))
 	{
@@ -392,39 +432,13 @@ void SceneStage2::Update(double dt)
 		glDisable(GL_CULL_FACE);
 	}
 
-	camera.Update(dt);
-
-	if (!nextStage)
+	if (!objectiveThree)
 	{
-		if (monDead >= MOBNUM_TO_KILL)
-		{
-			nextStage = true;
-			for (int mon = 0; mon < MOBNUM; mon++)
-			{
-				if (MonsterPtr[mon] != NULL)
-				{
-					delete MonsterPtr[mon];
-					delete monsterBoxPtr[mon];
-					MonsterPtr[mon] = NULL;
-					monsterBoxPtr[mon] = NULL;
-				}
-			}
-			for (int bul = 0; bul < NO_OF_BULLETS; bul++)
-			{
-				if (bulletPtr[bul] != NULL)
-				{
-					delete bulletPtr[bul];
-					delete bulletBoxPtr[bul];
-					bulletPtr[bul] = NULL;
-					bulletBoxPtr[bul] = NULL;
-				}
-			}
-			if (nextStage)
-			{
-				LoadingTimer = 120;
-			}
-		}
+		camera.Update(dt);
+		UpdateCollision();
 	}
+
+	UpdateObjective();
 	
 	if (LoadingTimer > 0)
 	{
@@ -448,6 +462,105 @@ void SceneStage2::Update(double dt)
 	}
 }
 
+void SceneStage2::UpdateObjective()
+{
+	if (monDead >= MOBNUM_TO_KILL)
+	{	
+		objectiveOne = true;
+	}
+	if (objectiveOne)
+	{
+		if (!flowerOneLife && !flowerTwoLife && !flowerThreeLife)
+		{
+			objectiveTwo = true;
+		}
+	}
+	if (objectiveTwo)
+	{
+		if (!treeLifeThree)
+		{
+			objectiveThree = true;
+		}
+	}
+	if (!nextStage && objectiveThree)
+	{
+		nextStage = true;
+		if (nextStage)
+		{
+			LoadingTimer = 120;
+			for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+			{
+				if (bulletPtr[bul] != NULL)
+				{
+					delete bulletPtr[bul];
+					delete bulletBoxPtr[bul];
+					bulletPtr[bul] = NULL;
+					bulletBoxPtr[bul] = NULL;
+				}
+			}
+		}
+	}
+
+}
+void SceneStage2::UpdateCollision()
+{
+	bool hitX = false;
+	bool hitY = false;
+	bool hitZ = false;
+	Vector3 view = (camera.target - camera.position).Normalized();
+	Box treeOfLife;
+	Box treeBarrier;
+	if (!objectiveThree)
+	{
+		treeOfLife = Box(Vector3(-10, 0, 10), 25, 25);
+	}
+	if (!objectiveTwo)
+	{
+		treeBarrier = Box(Vector3(-10, 0, 10), 70, 70);
+	}
+
+	if (!hitX)
+	{
+		hitX = isInObjectX(camera, treeOfLife);
+	}
+	if (!hitY)
+	{
+		hitY = isInObjectY(camera, treeOfLife);
+	}
+	if (!hitZ)
+	{
+		hitZ = isInObjectZ(camera, treeOfLife);
+	}
+	if (!hitX)
+	{
+		hitX = isInObjectX(camera, treeBarrier);
+	}
+	if (!hitY)
+	{
+		hitY = isInObjectY(camera, treeBarrier);
+	}
+	if (!hitZ)
+	{
+		hitZ = isInObjectZ(camera, treeBarrier);
+	}
+
+	if (hitX)
+	{
+		camera.position.x = camera.prevPosX;
+		camera.target = camera.position + view;
+	}
+	if (hitY)
+	{
+		camera.position.y = camera.prevPosY;
+		camera.target = camera.position + view;
+	}
+	if (hitZ)
+	{
+		camera.position.z = camera.prevPosZ;
+		camera.target = camera.position + view;
+	}
+
+}
 void SceneStage2::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -472,7 +585,7 @@ void SceneStage2::UpdateBullets()
 }
 void SceneStage2::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -495,14 +608,19 @@ void SceneStage2::UpdateMonsterBullets()
 		if (monsterBulletPtr[i] != NULL)
 		{
 			monsterBulletPtr[i]->move();
-			if (monsterBulletPtr[i]->isBulletInBox(player))
+			if (monsterBulletPtr[i]->isBulletInBox(playerBox))
 			{
-				gameOver = true;
-			}
-			if (monsterBulletPtr[i]->bulletCollide())
-			{
-				monsterBulletPtr[i] = NULL;
+				player->health -= 10;
 				delete monsterBulletPtr[i];
+				monsterBulletPtr[i] = NULL;
+			}
+			if (monsterBulletPtr[i] != NULL)
+			{
+				if (monsterBulletPtr[i]->bulletCollide())
+				{
+					delete monsterBulletPtr[i];
+					monsterBulletPtr[i] = NULL;
+				}
 			}
 		}
 	}
@@ -595,23 +713,25 @@ void SceneStage2::UpdateInteractions()
 
 	healthPack = Box(Vector3(-10, pickupsY, pickupsZ), 10, 10);
 
-	if (treeLifeThree)
+	if (treeLifeThree && objectiveTwo)
 	{
 		treeOfLife = Box(Vector3(-10, 0, 10), 50, 50);
 	}
-	if (flowerOneLife)
+	if (objectiveOne)
 	{
-		flowerOfLifeOne = Box(Vector3(240, 0, 500), 10); 
+		if (flowerOneLife)
+		{
+			flowerOfLifeOne = Box(Vector3(240, 0, 500), 15);
+		}
+		if (flowerTwoLife)
+		{
+			flowerOfLifeTwo = Box(Vector3(750, 0, -200), 15);
+		}
+		if (flowerThreeLife)
+		{
+			flowerOfLifeThree = Box(Vector3(-530, 0, 200), 15);
+		}
 	}
-	if (flowerTwoLife)
-	{
-		flowerOfLifeTwo = Box(Vector3(750, 0, -200), 10);  
-	}
-	if (flowerThreeLife)
-	{
-		flowerOfLifeThree = Box(Vector3(-530, 0, 200), 10); 
-	}
-
 	if (!inRange)
 	{
 		inRange = isNearObject(camera, treeOfLife);
@@ -628,9 +748,14 @@ void SceneStage2::UpdateInteractions()
 	{
 		inRange = isNearObject(camera, flowerOfLifeThree);
 	}
+
+	if (inRange)
+	{
+		interactionSize = 4;
+	}
 	if (Application::IsKeyPressed('E'))
 	{
-		if (treeFallTimer == 0)
+		if (treeFallTimer == 0 && objectiveTwo)
 		{
 			if (isNearObject(camera, treeOfLife))
 			{
@@ -651,30 +776,30 @@ void SceneStage2::UpdateInteractions()
 				}
 			}
 		}
-		if (isNearObject(camera, flowerOfLifeOne))
+		if (objectiveOne)
 		{
-			flowerOneLife = false;
-			light[1].power = 0;
-			glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
-		}
-		if (isNearObject(camera, flowerOfLifeTwo))
-		{
-			flowerTwoLife = false;
-			light[2].power = 0;
-			glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
-		}
-		if (isNearObject(camera, flowerOfLifeThree))
-		{
-			flowerThreeLife = false;
-			light[3].power = 0;
-			glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
+			if (isNearObject(camera, flowerOfLifeOne))
+			{
+				flowerOneLife = false;
+				light[1].power = 0;
+				glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+			}
+			if (isNearObject(camera, flowerOfLifeTwo))
+			{
+				flowerTwoLife = false;
+				light[2].power = 0;
+				glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
+			}
+			if (isNearObject(camera, flowerOfLifeThree))
+			{
+				flowerThreeLife = false;
+				light[3].power = 0;
+				glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
+			}
 		}
 	}
 
-	if (inRange)
-	{
-		interactionSize = 4;
-	}
+	
 
 	if (treeFallTimer > 0 && fallingStage == 1)
 	{
@@ -735,7 +860,7 @@ void SceneStage2::Render()
 
 	//MOBS
 	RenderMonster();
-	RednerMonsterBullets();
+	RenderMonsterBullets();
 	
 	//Player
 	RenderBullets();
@@ -937,7 +1062,7 @@ void SceneStage2::RenderObj()
 	modelStack.Translate(0, treeY, 0);
 	modelStack.Rotate(treeRotate, 1, 0, 1);
 	modelStack.Scale(20, 20, 20);
-	RenderMesh(meshList[GEO_TREE], true);
+	RenderMesh(meshList[GEO_TREE], false);
 	modelStack.PopMatrix();
 
 	//grass
@@ -1046,7 +1171,7 @@ void SceneStage2::RenderMonster()
 		}
 	}
 }
-void SceneStage2::RednerMonsterBullets()
+void SceneStage2::RenderMonsterBullets()
 {
 	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
@@ -1075,15 +1200,6 @@ void SceneStage2::RenderUi()
 	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
 
-	std::ostringstream monsLeft;
-	monsLeft << std::fixed << std::setprecision(1);
-	monsLeft << "monsters left:" << monLeft;
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(1, 0, 1), 2, 31, 29);
-	RenderTextOnScreen(meshList[GEO_TEXT], "==========", Color(1, 0, 1), 2, 30, 28);
-	RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(1, 0, 1), 2, 25.5, 27);
-	modelStack.PopMatrix();
-
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Next Stage", Color(1, 1, 1), sizeDotOne, 17, 2);
 	RenderTextOnScreen(meshList[GEO_TEXT], "Loading", Color(1, 1, 1), sizeDotOne, 17, 1);
@@ -1103,6 +1219,20 @@ void SceneStage2::RenderPickups()
 	modelStack.Translate(100, pickupsY, pickupsZ);
 	modelStack.Scale(10, 10, 10);
 	RenderMesh(meshList[GEO_TEST], false);
+	modelStack.PopMatrix();
+}
+void SceneStage2::RenderObjectives()
+{
+	std::ostringstream monsLeft;
+	monsLeft << std::fixed << std::setprecision(1);
+	monsLeft << "monsters left:" << monLeft;
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(1, 0, 1), 2, 31, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], "==========", Color(1, 0, 1), 2, 30, 28);
+	if (!objectiveOne)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(1, 0, 1), 2, 25.5, 27);
+	}
 	modelStack.PopMatrix();
 }
 

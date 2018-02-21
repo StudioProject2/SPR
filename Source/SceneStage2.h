@@ -13,6 +13,7 @@
 #include "Monster.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Player.h"
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
@@ -171,18 +172,21 @@ private:
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
 	void UpdateInteractions();
+	void UpdateCollision();
+	void UpdateObjective();
 
 	//Renders
 	void RenderBullets();
 	void RenderHitmarker();
 	void RenderMonster();
-	void RednerMonsterBullets();
+	void RenderMonsterBullets();
 	void RenderLights();
 	void RenderSkybox();
 	void RenderObj();
 	void RenderMisc();
 	void RenderUi();
 	void RenderPickups();
+	void RenderObjectives();
 
 	//hit markers
 	int hitmarkerSize;
@@ -211,6 +215,13 @@ private:
 	int pickupsY;
 	int pickupsZ;
 
+	//player
+	Player* player;
+
+	//objectives
+	bool objectiveOne;
+	bool objectiveTwo;
+	bool objectiveThree;
 
 	//bullets && monster arrays
 	Monster *MonsterPtr[MOBNUM];

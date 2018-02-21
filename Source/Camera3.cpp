@@ -217,18 +217,7 @@ void Camera3::BoundsCheckStage2()
 	_collidedY = false;
 	_collidedZ = false;
 
-	Box treeOfLife = Box(Vector3(-10, 0, 9), 20, 20);
-
 	Vector3 view = (target - position).Normalized();
-
-	if (!_collidedX)
-	{
-		_collidedX = (isPointXInBox(position, treeOfLife));
-	}
-	if (!_collidedZ)
-	{
-		_collidedZ = (isPointZInBox(position, treeOfLife));
-	}
   
 	if (_collidedX)
 	{
