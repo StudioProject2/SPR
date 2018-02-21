@@ -12,13 +12,14 @@
 #include "Box.h"
 #include "Monster.h"
 #include "MonsterFodder.h"
+#include "MonsterArcher.h"
 #include "monsterBullet.h"
 #include "bullet.h"
-
+#include "Player.h"
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 1
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
@@ -139,6 +140,8 @@ class SceneStage3 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_GRASS_LINE,
+
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
@@ -169,7 +172,6 @@ private:
 	double elaspeTime;
 	double tempElaspeTime;
 	double deltaTime;
-	double monsterTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
@@ -183,25 +185,44 @@ private:
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 
+	//SP2 Stuff
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
-
+	//void UpdatePlayerMonsterCol();
 	void RenderBullets();
 	void RenderHitmarker();
+	//Times 
+	double bulletBounceTime;
+	double playerHurtBounceTime;
+	double monsterTime;
+	double monsterFodderTime;
+	double monsterArcherTime;
 
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
+	//Monsters
 	Monster *MonsterPtr[MOBNUM];
-	//Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterArcherPtr[MOBNUM];
+	//Monter Hitboxes
 	Box *monsterBoxPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+	Box *monsterArcherBoxPtr[MOBNUM];
+
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
+	monsterBullet *monsterArcherBulletPtr[MOBBULLETNUM];
+
 	double monsterBulletDelay[MOBNUM];
+	double monsterArcherBulletDelay[MOBNUM];
+
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+	Player *player;
+
 };
 
 #endif

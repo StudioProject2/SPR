@@ -20,7 +20,7 @@
 
 #define PLAYER_WEAPON_RANGE 100
 #define PLAYER_THROWING_SPEED 10
-#define WEAPON_OFFSET_Y -10
+#define WEAPON_OFFSET_Y -50
 
 class bullet
 {

@@ -760,7 +760,7 @@ void SceneStage1::RenderBullets()
 		if (bulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
 			RenderMesh(meshList[GEO_BULLETS], false);
 			modelStack.PopMatrix();
 		}

@@ -61,8 +61,9 @@ void bullet::updateBullet(Vector3 view, Camera3 camera, bullet &isShot)
 	}
 	else
 	{
-		offsetY = WEAPON_OFFSET_Y;
 		throws = camera.position;
+		offsetY = WEAPON_OFFSET_Y;
+		throws.y += offsetY;
 	}
 }
 
@@ -70,6 +71,7 @@ void bullet::monsterHit(Camera3 camera)
 {
 	offsetY = WEAPON_OFFSET_Y;
 	throws = camera.position;
+	throws.y += offsetY;
 	throwed = false;
 }
 

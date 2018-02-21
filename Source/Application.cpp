@@ -139,6 +139,7 @@ void Application::Run()
 	{
 		if (Application::sceneChange == MAINMENU)
 		{
+			ShowCursor(true);
 			scene = sceneMenu;
 			scene->Init();
 			whatScene = MAINMENU;
@@ -147,6 +148,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == LEVELMENU)
 		{
+			ShowCursor(true);
 			scene = sceneLevel;
 			scene->Init();
 			whatScene = LEVELMENU;

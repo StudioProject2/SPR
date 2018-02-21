@@ -11,24 +11,6 @@ bool Monster::isPointInBox(Vector3 position, Box box)
 
 Monster::Monster()
 {
-	//float spawnPtX = 300;
-	//float spawnPtZ = 100;
-
-	//spawnPtX = (rand() % 1400 - 700) + 1.0;
-	//spawnPtZ = (rand() % 1400 - 700) + 1.0;
-
-	//Box cube = Box(Vector3(0, 0, 0), 120);
-	//do
-	//{
-	//	spawnPtX = (rand() % 1400 - 700) + 1.0;
-	//	spawnPtZ = (rand() % 1400 - 700) + 1.0;
-
-	//	pos = Vector3(spawnPtX, 0, spawnPtZ);
-	//	dirChanger = 0;
-	//	moveRight = true;
-	//	monsterDirTime = 0.0;
-	//} while (isPointInBox(pos, cube));
-
 	health = 100;
 
 	//Vector3
@@ -59,10 +41,10 @@ Monster::~Monster()
 
 bool Monster::isPointXInBox1(Vector3 position, Box box)
 {
-	if (((position.x >= box.minX - 1 && position.x <= box.minX + 1)
+	if (((position.x >= box.minX - 2 && position.x <= box.minX + 2)
 		&& (position.y >= box.minY && position.y <= box.maxY)
 		&& (position.z >= box.minZ && position.z <= box.maxZ))
-		|| ((position.x >= box.maxX - 1 && position.x <= box.maxX + 1)
+		|| ((position.x >= box.maxX - 2 && position.x <= box.maxX + 2)
 			&& (position.y >= box.minY && position.y <= box.maxY)
 			&& (position.z >= box.minZ && position.z <= box.maxZ)))
 	{
@@ -77,10 +59,10 @@ bool Monster::isPointXInBox1(Vector3 position, Box box)
 bool Monster::isPointYInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
-		&& (position.y >= box.minY - 1 && position.y <= box.minY + 1)
+		&& (position.y >= box.minY - 2 && position.y <= box.minY + 2)
 		&& (position.z >= box.minZ && position.z <= box.maxZ))
 		|| ((position.x >= box.minX && position.x <= box.maxX)
-			&& (position.y >= box.maxY - 1 && position.y <= box.maxY + 1)
+			&& (position.y >= box.maxY - 2 && position.y <= box.maxY + 2)
 			&& (position.z >= box.minZ && position.z <= box.maxZ)))
 	{
 		return true;
@@ -95,10 +77,10 @@ bool Monster::isPointZInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
 		&& (position.y >= box.minY && position.y <= box.maxY)
-		&& (position.z >= box.minZ - 1 && position.z <= box.minZ + 1))
+		&& (position.z >= box.minZ - 2 && position.z <= box.minZ + 2))
 		|| ((position.x >= box.minX && position.x <= box.maxX)
 			&& (position.y >= box.minY && position.y <= box.maxY)
-			&& (position.z >= box.maxZ - 1 && position.z <= box.maxZ + 1)))
+			&& (position.z >= box.maxZ - 2 && position.z <= box.maxZ + 2)))
 	{
 		return true;
 	}
@@ -127,10 +109,9 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 	//Vector for movement
 	target = camPos;
 
+	view = (target - pos).Normalized();
 	Vector3 up = Vector3(0, 1, 0);
 	Vector3 right = view.Cross(up);
-	view = (target - pos).Normalized();
-
 
 	if (moveRight == true)
 	{
@@ -189,7 +170,7 @@ void Monster::boundsCheckStage1()
 			spawnPtX = (rand() % 1400 - 700) + 1.0;
 			spawnPtZ = (rand() % 1400 - 700) + 1.0;
 
-			pos = Vector3(spawnPtX, 0, spawnPtZ);
+			pos = Vector3(spawnPtX, 10, spawnPtZ);
 			dirChanger = 0;
 			moveRight = true;
 			monsterDirTime = 0.0;
@@ -236,7 +217,7 @@ void Monster::boundsCheckStage1()
 
 void Monster::boundsCheckStage2()
 {
-	Box cube = Box(Vector3(0, 0, 0), 120);
+	Box tree = Box(Vector3(-10, 0, 10), 170, 170);
 
 	//Spawn Check, so mob wont spawn in objects
 	if (firstSpawn == true)
@@ -254,7 +235,7 @@ void Monster::boundsCheckStage2()
 			moveRight = true;
 			monsterDirTime = 0.0;
 
-		} while (isPointInBox(pos, cube));
+		} while (isPointInBox(pos, tree));
 
 		firstSpawn = false;
 	}
@@ -263,18 +244,18 @@ void Monster::boundsCheckStage2()
 	_collidedY = false;
 	_collidedZ = false;
 
-	if (isPointXInBox1(pos, cube))
+	if (isPointXInBox1(pos, tree))
 
 	{
 		_collidedX = true;
 	}
 
-	if (isPointYInBox1(pos, cube))
+	if (isPointYInBox1(pos, tree))
 	{
 		_collidedY = true;
 	}
 
-	if (isPointZInBox1(pos, cube))
+	if (isPointZInBox1(pos, tree))
 	{
 		_collidedZ = true;
 	}
@@ -296,7 +277,7 @@ void Monster::boundsCheckStage2()
 
 void Monster::boundsCheckStage3()
 {
-	Box cube = Box(Vector3(0, 0, 0), 120);
+	Box cube = Box(Vector3(0, 0, 0), 0);
 
 	//Spawn Check, so mob wont spawn in objects
 	if (firstSpawn == true)
@@ -339,7 +320,7 @@ void Monster::boundsCheckStage3()
 		_collidedZ = true;
 	}
 
-	Vector3 view = (target - pos).Normalized();
+	//Vector3 view = (target - pos).Normalized();
 
 	if (_collidedX)
 	{
