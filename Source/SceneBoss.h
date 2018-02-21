@@ -17,7 +17,11 @@
 #include "bullet.h"
 #include "Boss.h"
 #include "Player.h"
+#include "irrKlang.h"
 
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
@@ -224,6 +228,7 @@ private:
 	};
 
 	Player *player;
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif
