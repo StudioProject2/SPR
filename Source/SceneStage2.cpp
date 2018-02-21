@@ -325,6 +325,10 @@ void SceneStage2::Init()
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
 	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
+	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_PLAYER_TEETH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PLAYER_TEETH]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_PLAYER_TEETH]->material.kShininess = 1.0f;
 
 	//tree
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
@@ -359,6 +363,13 @@ void SceneStage2::Init()
 	meshList[GEO_ROCK]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_ROCK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_ROCK]->material.kShininess = 1.f;
+
+	//monster
+	meshList[GEO_FODDER] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
+	meshList[GEO_FODDER]->textureID = LoadTGA("Image//MonsterTextures//FodderBodyTexture.tga");
+	meshList[GEO_FODDER_HAND] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderHandOBJ.obj");
+	meshList[GEO_FODDER_HAND]->textureID = LoadTGA("Image//MonsterTextures//FodderHandTexture.tga");
+
 
 	//Debuggging
 	meshList[GEO_TEST] = MeshBuilder::GenerateHem("test", Color(1.0f, 1.0f, 1.0f), 10, 10, 1); 
@@ -1125,7 +1136,7 @@ void SceneStage2::RenderTopTeeth()
 	modelStack.Rotate(180, 0, 1, 0);
 	modelStack.Scale(1.5, 1, 1);
 
-	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
@@ -1146,7 +1157,7 @@ void SceneStage2::RenderBottomTeeth()
 	modelStack.Translate(1.3, -8, -20);
 	modelStack.Scale(1.5, 1, 1);
 
-	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
@@ -1362,6 +1373,7 @@ void SceneStage2::RenderMonster()
 			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
 			modelStack.Scale(10, 10, 10);
 			RenderMesh(meshList[GEO_CUBE], false);
+			
 			modelStack.PopMatrix();
 		}
 	}
@@ -1372,7 +1384,16 @@ void SceneStage2::RenderMonster()
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y, (*MonsterFodderPtr[i]).pos.z);
 			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
+			RenderMesh(meshList[GEO_FODDER], false);
+			modelStack.PushMatrix();
+			modelStack.Translate(0.1, 0, 0.05);
+			RenderMesh(meshList[GEO_FODDER_HAND], false);
+			modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(0.1, 0, -0.05);
+			modelStack.Rotate(180, 0, 1, 0);
+			RenderMesh(meshList[GEO_FODDER_HAND], false);
+			modelStack.PopMatrix();
 			modelStack.PopMatrix();
 		}
 	}
