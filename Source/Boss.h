@@ -7,21 +7,14 @@
 
 class Boss
 {
-public:
-	Boss();
-	~Boss();
+private:
 	enum direction
 	{
 		LEFT,
 		RIGHT
 	};
-	int health;
 
-	//Moveset
-	void move(Vector3 camPos);
-	void moveZigZag(Vector3 camPos, double elaspeTime);
-	void charge(Vector3 camPos, double elaspeTime);
-	void leap(Vector3 camPos);
+	int health;
 
 	//for leap
 	bool rising;
@@ -59,6 +52,19 @@ public:
 	bool isPointYInBox1(Vector3 position, Box box);
 	bool isPointZInBox1(Vector3 position, Box box);
 	void boundsCheck();
+public:
+	Boss();
+	~Boss();
+
+	//Moveset
+	void move(Vector3 camPos);
+	void moveZigZag(Vector3 camPos, double elaspeTime);
+	void charge(Vector3 camPos, double elaspeTime);
+	void leap(Vector3 camPos);
+	int getHealth();
+	Vector3 getPos();
+	void setHealth(int x);
+	void resetY();
 };
 
 #endif 

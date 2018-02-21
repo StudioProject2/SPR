@@ -6,10 +6,6 @@
 class Camera3 : public Camera
 {
 private:
-	double prevPosX;
-	double prevPosY;
-	double prevPosZ;
-
 	bool isJumpingUp;
 	bool isJumpingDown;
 	bool isDropping;
@@ -33,9 +29,9 @@ private:
 	void BoundsCheckStage3();
 	void BoundsCheckStage4();
 public:
-	//Vector3 position;
-	//Vector3 target;
-	//Vector3 up;
+	double prevPosX;
+	double prevPosY;
+	double prevPosZ;
 	enum direction
 	{
 		UP,

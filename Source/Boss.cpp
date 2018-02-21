@@ -318,4 +318,24 @@ void Boss::boundsCheck()
 	}
 }
 
+int Boss::getHealth()
+{
+	return health;
+}
+
+Vector3 Boss::getPos()
+{
+	return pos;
+}
+
+void Boss::setHealth(int x)
+{
+	health = x;
+}
+
+void Boss::resetY()
+{
+	pos.y = 0;
+}
+
 

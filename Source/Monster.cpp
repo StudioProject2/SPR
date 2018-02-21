@@ -41,10 +41,10 @@ Monster::~Monster()
 
 bool Monster::isPointXInBox1(Vector3 position, Box box)
 {
-	if (((position.x >= box.minX - 1 && position.x <= box.minX + 1)
+	if (((position.x >= box.minX - 2 && position.x <= box.minX + 2)
 		&& (position.y >= box.minY && position.y <= box.maxY)
 		&& (position.z >= box.minZ && position.z <= box.maxZ))
-		|| ((position.x >= box.maxX - 1 && position.x <= box.maxX + 1)
+		|| ((position.x >= box.maxX - 2 && position.x <= box.maxX + 2)
 			&& (position.y >= box.minY && position.y <= box.maxY)
 			&& (position.z >= box.minZ && position.z <= box.maxZ)))
 	{
@@ -59,10 +59,10 @@ bool Monster::isPointXInBox1(Vector3 position, Box box)
 bool Monster::isPointYInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
-		&& (position.y >= box.minY - 1 && position.y <= box.minY + 1)
+		&& (position.y >= box.minY - 2 && position.y <= box.minY + 2)
 		&& (position.z >= box.minZ && position.z <= box.maxZ))
 		|| ((position.x >= box.minX && position.x <= box.maxX)
-			&& (position.y >= box.maxY - 1 && position.y <= box.maxY + 1)
+			&& (position.y >= box.maxY - 2 && position.y <= box.maxY + 2)
 			&& (position.z >= box.minZ && position.z <= box.maxZ)))
 	{
 		return true;
@@ -77,10 +77,10 @@ bool Monster::isPointZInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
 		&& (position.y >= box.minY && position.y <= box.maxY)
-		&& (position.z >= box.minZ - 1 && position.z <= box.minZ + 1))
+		&& (position.z >= box.minZ - 2 && position.z <= box.minZ + 2))
 		|| ((position.x >= box.minX && position.x <= box.maxX)
 			&& (position.y >= box.minY && position.y <= box.maxY)
-			&& (position.z >= box.maxZ - 1 && position.z <= box.maxZ + 1)))
+			&& (position.z >= box.maxZ - 2 && position.z <= box.maxZ + 2)))
 	{
 		return true;
 	}
@@ -217,7 +217,7 @@ void Monster::boundsCheckStage1()
 
 void Monster::boundsCheckStage2()
 {
-	Box tree = Box(Vector3(0, 0, 0), 20, 20);
+	Box tree = Box(Vector3(-10, 0, 10), 170, 170);
 
 	//Spawn Check, so mob wont spawn in objects
 	if (firstSpawn == true)

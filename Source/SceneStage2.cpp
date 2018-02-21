@@ -71,6 +71,7 @@ void SceneStage2::Init()
 	objectiveTwo = false;
 	objectiveThree = false;
 
+
 	//INIT monsters
 	for (int i = 0; i < MOBNUM; i++)
 	{
