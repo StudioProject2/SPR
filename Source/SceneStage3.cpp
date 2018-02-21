@@ -14,8 +14,6 @@
 //DONT TOUCH MY SHIT
 using namespace std;
 
-double bulletBounceTime = 0.0;
-
 SceneStage3::SceneStage3()
 {
 }
@@ -32,27 +30,35 @@ void SceneStage3::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
+	monsterFodderTime = elaspeTime + 3.0;
+	monsterArcherTime = elaspeTime + 3.0;
 
 	hitmarkerSize = 0;
+
+	//Player
+	player = Player::getInstance();
+
+	bulletBounceTime = 0.0;
+	playerHurtBounceTime = 0.0;
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterPtr[i] = NULL;
+		monsterBoxPtr[i] = NULL;
 		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterFodderPtr[i] = NULL;
+		monsterFodderBoxPtr[i] = NULL;
 		//monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterArcherPtr[i] = NULL;
-		//monsterBulletDelay[i] = elaspeTime + 4.0;
+		monsterArcherBoxPtr[i] = NULL;
+		monsterArcherBulletDelay[i] = elaspeTime + 4.0;
 	}
-
-	player = Player::getInstance();
-	player->health -= 10;
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
@@ -291,7 +297,10 @@ void SceneStage3::Init()
 	{
 		monsterBulletPtr[i] = NULL;
 	}
-
+	for (int i = 0; i < 25; i++)
+	{
+		monsterArcherBulletPtr[i] = NULL;
+	}
 	gameOver = false;
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
@@ -313,9 +322,13 @@ void SceneStage3::Update(double dt)
 
 	UpdateBullets();
 	UpdateMonsters();
-	//UpdateMonsterBullets();
+	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 	cout << player->health << endl;
+	if (player->health <= 0)
+	{
+		gameOver = true;
+	}
 
 	if (Application::IsKeyPressed('1'))
 	{
@@ -355,7 +368,7 @@ void SceneStage3::UpdateBullets()
 
 void SceneStage3::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -378,14 +391,60 @@ void SceneStage3::UpdateMonsterBullets()
 		if (monsterBulletPtr[i] != NULL)
 		{
 			monsterBulletPtr[i]->move();
-			if (monsterBulletPtr[i]->isBulletInBox(player))
+			if (monsterBulletPtr[i]->isBulletInBox(playerBox))
 			{
-				gameOver = true;
-			}
-			if (monsterBulletPtr[i]->bulletCollide())
-			{
-				monsterBulletPtr[i] = NULL;
+				player->health -= 10;
 				delete monsterBulletPtr[i];
+				monsterBulletPtr[i] = NULL;
+				
+			}
+			if (monsterBulletPtr[i] != NULL)
+			{
+				if (monsterBulletPtr[i]->bulletCollide())
+				{
+					delete monsterBulletPtr[i];
+					monsterBulletPtr[i] = NULL;
+				}
+			}
+		}
+	}
+
+	//Monster Archer
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterArcherPtr[i] != NULL)
+		{
+			for (int j = 0; j < MOBBULLETNUM; j++)
+			{
+				if (elaspeTime > monsterArcherBulletDelay[i] && monsterArcherBulletPtr[j] == NULL)
+				{
+					monsterArcherBulletPtr[j] = new monsterBullet(MonsterArcherPtr[i]->pos, camera.position);
+					monsterArcherBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+					return;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < MOBBULLETNUM; i++)
+	{
+		if (monsterArcherBulletPtr[i] != NULL)
+		{
+			monsterArcherBulletPtr[i]->move();
+			if (monsterArcherBulletPtr[i]->isBulletInBox(playerBox))
+			{
+				player->health -= 10;
+				delete monsterArcherBulletPtr[i];
+				monsterArcherBulletPtr[i] = NULL;
+
+			}
+			if (monsterArcherBulletPtr[i] != NULL)
+			{
+				if (monsterArcherBulletPtr[i]->bulletCollide())
+				{
+					delete monsterArcherBulletPtr[i];
+					monsterArcherBulletPtr[i] = NULL;
+				}
 			}
 		}
 	}
@@ -394,7 +453,6 @@ void SceneStage3::UpdateMonsterBullets()
 void SceneStage3::UpdateMonsters()
 {
 	//Monster Normal
-	
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
@@ -431,16 +489,17 @@ void SceneStage3::UpdateMonsters()
 			}
 		}
 	}
-	/*
+
 	//Monster Fodder
-	if (elaspeTime > monsterTime)
+	if (elaspeTime > monsterFodderTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
 		{
 			if (MonsterFodderPtr[i] == NULL)
 			{
 				MonsterFodderPtr[i] = new MonsterFodder();
-				monsterTime = elaspeTime + 3.0;
+				monsterFodderBoxPtr[i] = new Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterFodderTime = elaspeTime + 3.0;
 				break;
 			}
 		}
@@ -450,18 +509,34 @@ void SceneStage3::UpdateMonsters()
 		if (MonsterFodderPtr[i] != NULL)
 		{
 			(*MonsterFodderPtr[i]).moveRand(camera.position, elaspeTime);
+			*monsterFodderBoxPtr[i] = Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterFodderPtr[i] != NULL)
+		{
+			if ((*MonsterFodderPtr[i]).health <= 0)
+			{
+				delete MonsterFodderPtr[i];
+				delete monsterFodderBoxPtr[i];
+				MonsterFodderPtr[i] = NULL;
+				monsterFodderBoxPtr[i] = NULL;
+			}
 		}
 	}
 	
 	//Monster Archer
-	if (elaspeTime > monsterTime)
+	if (elaspeTime > monsterArcherTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
 		{
 			if (MonsterArcherPtr[i] == NULL)
 			{
 				MonsterArcherPtr[i] = new MonsterArcher();
-				monsterTime = elaspeTime + 3.0;
+				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterArcherTime = elaspeTime + 3.0;
 				break;
 			}
 		}
@@ -471,18 +546,34 @@ void SceneStage3::UpdateMonsters()
 		if (MonsterArcherPtr[i] != NULL)
 		{
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
+			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		}
 	}
-	*/
 
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterArcherPtr[i] != NULL)
+		{
+			if ((*MonsterArcherPtr[i]).health <= 0)
+			{
+				delete MonsterArcherPtr[i];
+				delete monsterArcherBoxPtr[i];
+				MonsterArcherPtr[i] = NULL;
+				monsterArcherBoxPtr[i] = NULL;
+			}
+		}
+	}
+	
 }
 
 void SceneStage3::UpdateMonsterHitbox()
 {
 	bool isHit = false;
+	Box *playerBox =new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 	int monNum;
 	hitmarkerSize = 0;
 
+	//Normal Monster
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		for (int mon = 0; mon < MOBNUM; mon++)
@@ -512,12 +603,107 @@ void SceneStage3::UpdateMonsterHitbox()
 			}
 		}
 	}
-	
+
+	//Montser Fodder
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		for (int mon = 0; mon < MOBNUM; mon++)
+		{
+			if (!isHit && elaspeTime > bulletBounceTime)
+			{
+				if (bulletBoxPtr[bul] != NULL && monsterFodderBoxPtr[mon] != NULL)
+				{
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterFodderBoxPtr[mon]);
+				}
+				if (isHit)
+				{
+					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - 10;
+					cout << "HIT " << endl;
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					bulletPtr[bul]->monsterHit(camera);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
+					isHit = false;
+				}
+			}
+		}
+	}
+
+	//Monster Archer
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		for (int mon = 0; mon < MOBNUM; mon++)
+		{
+			if (!isHit && elaspeTime > bulletBounceTime)
+			{
+				if (bulletBoxPtr[bul] != NULL && monsterArcherBoxPtr[mon] != NULL)
+				{
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterArcherBoxPtr[mon]);
+				}
+				if (isHit)
+				{
+					(*MonsterArcherPtr[mon]).health = (*MonsterArcherPtr[mon]).health - 10;
+					cout << "HIT " << endl;
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					bulletPtr[bul]->monsterHit(camera);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
+					isHit = false;
+				}
+			}
+		}
+	}
+
+	//FULL ON CHEESE
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (monsterBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterBoxPtr[i]))
+			{
+				player->health -= 10;
+				playerHurtBounceTime = elaspeTime + 0.5;
+			}
+		}
+
+		if (monsterFodderBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
+			{
+				player->health -= 10;
+				playerHurtBounceTime = elaspeTime + 0.5;
+			}
+		}
+
+		if (monsterArcherBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterArcherBoxPtr[i]))
+			{
+				player->health -= 10;
+				playerHurtBounceTime = elaspeTime + 0.5;
+			}
+		}
+	}
+
+
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
 		hitmarkerSize = 5;
 	}
+
 }
 
 void SceneStage3::Render()
@@ -687,8 +873,9 @@ void SceneStage3::Render()
 				coolrot = 180 - rotation;
 			else if (B.x < 0 && B.z < 0)
 				coolrot = 180 - rotation;
-
-			cout << rotation << endl;
+			else
+				coolrot = rotation;
+			//cout << rotation << endl;
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
 			modelStack.Rotate(coolrot, 0, 1, 0);
@@ -746,6 +933,18 @@ void SceneStage3::Render()
 		{
 			modelStack.PushMatrix();
 			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], false);
+			modelStack.PopMatrix();
+		}
+	}
+
+	for (int i = 0; i < MOBBULLETNUM; i++)
+	{
+		if (monsterArcherBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*monsterArcherBulletPtr[i]).pos.x, (*monsterArcherBulletPtr[i]).pos.y, (*monsterArcherBulletPtr[i]).pos.z);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
@@ -954,7 +1153,7 @@ void SceneStage3::RenderBullets()
 		if (bulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
 			RenderMesh(meshList[GEO_BULLETS], false);
 			modelStack.PopMatrix();
 		}

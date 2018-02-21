@@ -9,12 +9,16 @@ class monsterBullet
 {
 public:
 	monsterBullet();
-	monsterBullet(Monster*, Vector3);
+	monsterBullet(Vector3, Vector3);
 	~monsterBullet();
 
 	void move();
 	bool isBulletInBox(Box box);
 	bool bulletCollide();
+	bool bulletCollideStage1();
+	bool bulletCollideStage2();
+	bool bulletCollideStage3();
+	bool bulletCollideStage4();
 
 	Vector3 pos;
 	Vector3 target;

@@ -29,6 +29,16 @@ void SceneBoss::Init()
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
+	bossMovementChangeTime = elaspeTime + 10.0;
+	bossMovement = STRAIGHT;
+	bossPlayerShootTime = elaspeTime + 3.0;
+	bossRingShootTime = elaspeTime + 3.0;
+	bossGroundAttackTime = elaspeTime + 0.001;
+	bossBox = new Box;
+	groundSignalBlinkTime = elaspeTime + 0.5;
+	bossChangeGroundTargetTime = elaspeTime + 5.0;
+	bossGroundAttackDelayTime = elaspeTime + 1.0;
+	printGroundSignal = true;
 
 	hitmarkerSize = 0;
 
@@ -48,7 +58,7 @@ void SceneBoss::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
+	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -152,10 +162,10 @@ void SceneBoss::Init()
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
 	//***************************************Second Light*****************************************
-	light[1].type = Light::LIGHT_POINT;
+	light[1].type = Light::LIGHT_DIRECTIONAL;
 	light[1].position.Set(720, 150, 720);
 	light[1].color.Set(1, 1, 1);
-	light[1].power = 20;
+	light[1].power = 1;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -242,13 +252,10 @@ void SceneBoss::Init()
 	meshList[GEO_TOP]->textureID = LoadTGA("Image//Stage 2/skybox_top.tga");
 	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//Stage 2/skybox_bottom.tga");
-	//FLOOR
-	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
-	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
-	meshList[GEO_FLOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_FLOOR]->material.kShininess = 1.f;
+	meshList[GEO_BOTTOM]->material.kAmbient.Set(0.7f, 0.7f, 0.7f);
+	meshList[GEO_BOTTOM]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BOTTOM]->material.kSpecular.Set(0.f, 0.f, 0.f);
+	meshList[GEO_BOTTOM]->material.kShininess = 1.f;
 
 	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
 	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
@@ -262,15 +269,22 @@ void SceneBoss::Init()
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
 
+	meshList[GEO_GROUNDSIGNAL] = MeshBuilder::GenerateQuad("ground signal", Color(1.0f, 0.0f, 0.0f), 100, 100);
+
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
 	//Monsters
 
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		monsterBulletPtr[i] = NULL;
+	}
+
+	for (int i = 0; i < BOSSBULLETNUM; i++)
+	{
+		bossBulletPtr[i] = NULL;
 	}
 
 	gameOver = false;
@@ -292,10 +306,61 @@ void SceneBoss::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	UpdateMonsters();
+	//UpdateMonsters();
 	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
+	UpdateBossMovement();
+	UpdateBossBullets();
+	UpdateBossHitbox();
 
+	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 10);
+
+	for (int i = 0; i < MOBBULLETNUM; i++)
+	{
+		if (monsterBulletPtr[i] != NULL)
+		{
+			monsterBulletPtr[i]->move();
+			if (monsterBulletPtr[i]->isBulletInBox(player))
+			{
+				gameOver = true;
+			}
+			if (monsterBulletPtr[i]->bulletCollideStage4())
+			{
+				monsterBulletPtr[i] = NULL;
+				delete monsterBulletPtr[i];
+			}
+		}
+	}
+
+	for (int i = 0; i < BOSSBULLETNUM; i++)
+	{
+		if (bossBulletPtr[i] != NULL)
+		{
+			bossBulletPtr[i]->move();
+			if (bossBulletPtr[i]->isBulletInBox(player))
+			{
+				gameOver = true;
+			}
+			if (bossBulletPtr[i]->bulletCollide())
+			{
+				bossBulletPtr[i] = NULL;
+				delete bossBulletPtr[i];
+			}
+		}
+	}
+
+	if (elaspeTime > groundSignalBlinkTime)
+	{
+		if (printGroundSignal)
+		{
+			printGroundSignal = false;
+		}
+		else if (!printGroundSignal)
+		{
+			printGroundSignal = true;
+		}
+		groundSignalBlinkTime = elaspeTime + 0.5;
+	}
 
 	if (Application::IsKeyPressed('1'))
 	{
@@ -308,6 +373,7 @@ void SceneBoss::Update(double dt)
 
 	camera.Update(dt);
 }
+
 void SceneBoss::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -331,7 +397,6 @@ void SceneBoss::UpdateBullets()
 
 void SceneBoss::UpdateMonsterBullets()
 {
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -341,32 +406,47 @@ void SceneBoss::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
-					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
-					return;
+					if (i == 0)//bullet fire all around
+					{
+						if (monsterBulletPtr[j + 1] == NULL
+							&& monsterBulletPtr[j + 2] == NULL
+							&& monsterBulletPtr[j + 3] == NULL)
+						{
+							Vector3 bullet1 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
+							Vector3 bullet2 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+							Vector3 bullet3 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
+							Vector3 bullet4 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+							Vector3 bullet5 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+							Vector3 bullet6 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
+							Vector3 bullet7 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+							Vector3 bullet8 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
+
+							monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, bullet1);
+							monsterBulletPtr[j + 1] = new monsterBullet(MonsterPtr[i]->pos, bullet2);
+							monsterBulletPtr[j + 2] = new monsterBullet(MonsterPtr[i]->pos, bullet3);
+							monsterBulletPtr[j + 3] = new monsterBullet(MonsterPtr[i]->pos, bullet4);
+							monsterBulletPtr[j + 4] = new monsterBullet(MonsterPtr[i]->pos, bullet5);
+							monsterBulletPtr[j + 5] = new monsterBullet(MonsterPtr[i]->pos, bullet6);
+							monsterBulletPtr[j + 6] = new monsterBullet(MonsterPtr[i]->pos, bullet7);
+							monsterBulletPtr[j + 7] = new monsterBullet(MonsterPtr[i]->pos, bullet8);
+
+							monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+							return;
+						}
+					}
+					else//bullet fires towards player
+					{
+						monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
+						monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
+						return;
+					}
 				}
 			}
 		}
 	}
 
-	for (int i = 0; i < MOBBULLETNUM; i++)
-	{
-		if (monsterBulletPtr[i] != NULL)
-		{
-			monsterBulletPtr[i]->move();
-			if (monsterBulletPtr[i]->isBulletInBox(player))
-			{
-				gameOver = true;
-			}
-			if (monsterBulletPtr[i]->bulletCollide())
-			{
-				monsterBulletPtr[i] = NULL;
-				delete monsterBulletPtr[i];
-			}
-		}
-	}
-
 }
+
 void SceneBoss::UpdateMonsters()
 {
 
@@ -390,6 +470,149 @@ void SceneBoss::UpdateMonsters()
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
 			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+}
+
+void SceneBoss::UpdateBossMovement()
+{
+	if (elaspeTime > bossMovementChangeTime)
+	{
+		if (bossMovement == CHARGE)
+		{
+			bossMovement = STRAIGHT;
+		}
+		else
+		{
+			bossMovement++;
+		}
+		bossMovementChangeTime = elaspeTime + 15.0;
+	}
+
+	if (bossMovement == STRAIGHT)
+	{
+		boss.move(camera.position);
+	}
+	else if (bossMovement == ZIGZAG)
+	{
+		boss.moveZigZag(camera.position, elaspeTime);
+	}
+	else if (bossMovement == ASCEND)
+	{
+		boss.leap(camera.position);
+	}
+	else if (bossMovement == CHARGE)
+	{
+		boss.charge(camera.position, elaspeTime);
+	}
+}
+
+void SceneBoss::UpdateBossHitbox()
+{
+	bool isHit = false;
+	int monNum;
+	hitmarkerSize = 0;
+	*bossBox = Box(Vector3(boss.pos), 10);
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		if (!isHit)
+		{
+			if (bulletBoxPtr[bul] != NULL)
+			{
+				isHit = bulletPtr[0]->isBulletHit(bulletBoxPtr[bul], bossBox);
+			}
+		}
+	}
+
+	if (isHit)
+	{
+		hitmarkerTimer = 50;
+	}
+	if (hitmarkerTimer > 0)
+	{
+		hitmarkerTimer -= 1;
+		hitmarkerSize = 5;
+	}
+}
+
+void SceneBoss::UpdateBossBullets()
+{
+	if (elaspeTime > bossPlayerShootTime && bossMovement != ASCEND) //shoot at player
+	{
+		for (int i = 0; i < BOSSBULLETNUM; i++)
+		{
+			if (bossBulletPtr[i] == NULL)
+			{
+				bossBulletPtr[i] = new monsterBullet(boss.pos, camera.position);
+				bossPlayerShootTime = elaspeTime + 2.0;
+				return;
+			}
+		}
+	}
+
+	if (elaspeTime > bossRingShootTime) //shoot in ring
+	{
+		for (int i = 0; i < BOSSBULLETNUM; i++)
+		{
+			if (bossBulletPtr[i] == NULL
+				&& bossBulletPtr[i + 1] == NULL
+				&& bossBulletPtr[i + 2] == NULL
+				&& bossBulletPtr[i + 3] == NULL
+				&& bossBulletPtr[i + 4] == NULL
+				&& bossBulletPtr[i + 5] == NULL
+				&& bossBulletPtr[i + 6] == NULL
+				&& bossBulletPtr[i + 7] == NULL)
+			{
+				Vector3 bullet1 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z);
+				Vector3 bullet2 = Vector3(boss.pos.x, boss.pos.y, boss.pos.z + 1);
+				Vector3 bullet3 = Vector3(boss.pos.x - 1, boss.pos.y, boss.pos.z);
+				Vector3 bullet4 = Vector3(boss.pos.x, boss.pos.y, boss.pos.z - 1);
+				Vector3 bullet5 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z + 1);
+				Vector3 bullet6 = Vector3(boss.pos.x - 1, boss.pos.y, boss.pos.z + 1);
+				Vector3 bullet7 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z - 1);
+				Vector3 bullet8 = Vector3(boss.pos.x + 1, boss.pos.y, boss.pos.z - 1);
+
+				bossBulletPtr[i] = new monsterBullet(boss.pos, bullet1);
+				bossBulletPtr[i + 1] = new monsterBullet(boss.pos, bullet2);
+				bossBulletPtr[i + 2] = new monsterBullet(boss.pos, bullet3);
+				bossBulletPtr[i + 3] = new monsterBullet(boss.pos, bullet4);
+				bossBulletPtr[i + 4] = new monsterBullet(boss.pos, bullet5);
+				bossBulletPtr[i + 5] = new monsterBullet(boss.pos, bullet6);
+				bossBulletPtr[i + 6] = new monsterBullet(boss.pos, bullet7);
+				bossBulletPtr[i + 7] = new monsterBullet(boss.pos, bullet8);
+
+				bossRingShootTime = elaspeTime + 1.0;
+				return;
+			}
+		}
+	}
+
+	if (elaspeTime > bossChangeGroundTargetTime)
+	{
+		groundAreaCenter = Vector3(((rand() % 500) - 250), 0, ((rand() % 1700) - 850));
+		bossChangeGroundTargetTime = elaspeTime + 7.0;
+		bossGroundAttackDelayTime = elaspeTime + 2.0;
+		return;
+	}
+	if (elaspeTime > bossGroundAttackTime && elaspeTime > bossGroundAttackDelayTime) // shoot from ground up
+	{
+		if (groundAreaCenter != NULL)
+		{
+			float randomGroundBulletX = ((rand() % 201) - 100 + groundAreaCenter.x);
+			float randomGroundBulletZ = ((rand() % 201) - 100 + groundAreaCenter.z);
+			Vector3 randomGroundBullet = Vector3(randomGroundBulletX, -5, randomGroundBulletZ);
+			Vector3 randomGroundBulletTarget = Vector3(randomGroundBulletX, 1, randomGroundBulletZ);
+
+			for (int i = 0; i < BOSSBULLETNUM; i++)
+			{
+				if (bossBulletPtr[i] == NULL)
+				{
+					bossBulletPtr[i] = new monsterBullet(randomGroundBullet, randomGroundBulletTarget);
+					//bossGroundAttackTime = elaspeTime + 0.0000001;
+					return;
+				}
+			}
 		}
 	}
 }
@@ -418,6 +641,7 @@ void SceneBoss::UpdateMonsterHitbox()
 			}
 		}
 	}
+
 	if (isHit)
 	{
 		hitmarkerTimer = 50;
@@ -547,49 +771,43 @@ void SceneBoss::Render()
 	modelStack.Translate(0, -10, 0);
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_BOTTOM], false);
+	RenderMesh(meshList[GEO_BOTTOM], true);
 	modelStack.PopMatrix();
-	/*modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_FLOOR], true);
-	modelStack.PopMatrix();*/
 
 	modelStack.PushMatrix();
 	modelStack.Translate(200, -10, 0);
 	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(200, -10, 200);
 	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(200, -10, -200);
 	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-200, -10, 0);
 	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-200, -10, 200);
 	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
 	modelStack.Translate(-200, -10, -200);
 	modelStack.Scale(8, 8, 8);
-	RenderMesh(meshList[GEO_BUILDING], false);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	for (int i = 0; i < 1800; i += 30)
@@ -598,14 +816,14 @@ void SceneBoss::Render()
 		modelStack.Translate(-300, -10, -900 + i);
 		modelStack.Rotate(90, 0, 1, 0);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
 		modelStack.Translate(300, -10, -900 + i);
 		modelStack.Rotate(270, 0, 1, 0);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 	}
 
@@ -614,25 +832,33 @@ void SceneBoss::Render()
 		modelStack.PushMatrix();
 		modelStack.Translate(300 - i, -10, 890);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
 		modelStack.Translate(300 - i, -10, -910);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 	}
 
 	//SPAWN MOBS
-	/*for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
+			if (i == 0)
+			{
+				modelStack.PushMatrix();
+				modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+				modelStack.Scale(12, 12, 12);
+				RenderMesh(meshList[GEO_SPHERE], true);
+				modelStack.PopMatrix();
+			}
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
 			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
+			RenderMesh(meshList[GEO_CUBE], true);
 			modelStack.PopMatrix();
 		}
 	}
@@ -644,19 +870,41 @@ void SceneBoss::Render()
 			modelStack.PushMatrix();
 			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
 			modelStack.Scale(2, 2, 2);
-			RenderMesh(meshList[GEO_SPHERE], false);
+			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
 		}
-	}*/
+	}
+
+	for (int i = 0; i < BOSSBULLETNUM; i++)
+	{
+		if (bossBulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*bossBulletPtr[i]).pos.x, (*bossBulletPtr[i]).pos.y, (*bossBulletPtr[i]).pos.z);
+			modelStack.Scale(2, 2, 2);
+			RenderMesh(meshList[GEO_SPHERE], true);
+			modelStack.PopMatrix();
+		}
+	}
+
+	modelStack.PushMatrix();
+	modelStack.Translate(boss.pos.x, boss.pos.y, boss.pos.z);
+	modelStack.Scale(10, 10, 10);
+	RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
+	if (printGroundSignal && groundAreaCenter != NULL)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(groundAreaCenter.x, groundAreaCenter.y - 9.9, groundAreaCenter.z);
+		modelStack.Rotate(90, 1, 0, 0);
+		RenderMesh(meshList[GEO_GROUNDSIGNAL], false);
+		modelStack.PopMatrix();
+	}
 
 	RenderBullets();
 
 	//FPS
-	modelStack.PushMatrix();
-	modelStack.Scale(100, 100, 100);
-	RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-
 	std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
@@ -795,7 +1043,7 @@ void SceneBoss::RenderBullets()
 		if (bulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
 			RenderMesh(meshList[GEO_BULLETS], false);
 			modelStack.PopMatrix();
 		}

@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "SceneA2.h"
 #include "SceneBoss.h"
 #include "SceneStage1.h"
 #include "SceneStage2.h"
@@ -74,7 +73,7 @@ void resize_callback(GLFWwindow* window, int w, int h)
 void Application::Init()
 {
 	//Disable Cursor
-	//ShowCursor(false);
+	
 
 	//Set the error callback
 	glfwSetErrorCallback(error_callback);
@@ -162,6 +161,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == STAGE2)
 		{
+			ShowCursor(false);
 			scene = scene2;
 			scene->Init();
 			whatScene = STAGE2;
@@ -177,6 +177,7 @@ void Application::Run()
 		if (Application::sceneChange == STAGE4)
 		{
 			scene = sceneBoss;
+			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE4;
 			Application::sceneChange = 10;
