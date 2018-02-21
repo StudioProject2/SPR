@@ -11,12 +11,14 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Player.h"
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 5
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
@@ -113,6 +115,7 @@ class SceneStage2 : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
+		GEO_BARRIER,
 		GEO_TREE,
 		GEO_GRASS_PATCH,
 		GEO_GRASS_LINE,
@@ -147,7 +150,6 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double bulletBounceTime;
-	double monsterTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
@@ -171,18 +173,21 @@ private:
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
 	void UpdateInteractions();
+	void UpdateCollision();
+	void UpdateObjective();
 
 	//Renders
 	void RenderBullets();
 	void RenderHitmarker();
 	void RenderMonster();
-	void RednerMonsterBullets();
+	void RenderMonsterBullets();
 	void RenderLights();
 	void RenderSkybox();
 	void RenderObj();
 	void RenderMisc();
 	void RenderUi();
 	void RenderPickups();
+	void RenderObjectives();
 
 	//hit markers
 	int hitmarkerSize;
@@ -196,6 +201,7 @@ private:
 	int interactionSize;
 
 	//tree and flowers logic
+	int flowersAmt;
 	bool flowerOneLife;
 	bool flowerTwoLife;
 	bool flowerThreeLife;
@@ -211,12 +217,30 @@ private:
 	int pickupsY;
 	int pickupsZ;
 
+	//player
+	Player* player;
 
-	//bullets && monster arrays
+	//objectives
+	bool objectiveOne;
+	bool objectiveTwo;
+	bool objectiveThree;
+
+	//Monster Arrays
 	Monster *MonsterPtr[MOBNUM];
+	Monster *MonsterFodderPtr[MOBNUM];
+
+	//MonsterHitBoxes
 	Box *monsterBoxPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+
+	//Monster Bullets
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
+
+	//Monster Times
+	double monsterFodderTime;
+	double monsterTime;
+
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
