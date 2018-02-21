@@ -187,6 +187,27 @@ void Camera3::BoundsCheckStage1()
 		position.z = prevPosZ;
 		target = position + view;
 	}
+
+	if (position.x > 790)
+	{
+		position.x = 790;
+		target = position + view;
+	}
+	if (position.x < -790)
+	{
+		position.x = -790;
+		target = position + view;
+	}
+	if (position.z > 790)
+	{
+		position.z = 790;
+		target = position + view;
+	}
+	if (position.z < -790)
+	{
+		position.z = -790;
+		target = position + view;
+	}
 }
 
 void Camera3::BoundsCheckStage2()
@@ -196,18 +217,7 @@ void Camera3::BoundsCheckStage2()
 	_collidedY = false;
 	_collidedZ = false;
 
-	Box treeOfLife = Box(Vector3(-10, 0, 9), 20, 20);
-
 	Vector3 view = (target - position).Normalized();
-
-	if (!_collidedX)
-	{
-		_collidedX = (isPointXInBox(position, treeOfLife));
-	}
-	if (!_collidedZ)
-	{
-		_collidedZ = (isPointZInBox(position, treeOfLife));
-	}
   
 	if (_collidedX)
 	{
@@ -218,6 +228,27 @@ void Camera3::BoundsCheckStage2()
 	else if (_collidedZ)
 	{
 		position.z = prevPosZ;
+		target = position + view;
+	}
+
+	if (position.x > 790)
+	{
+		position.x = 790;
+		target = position + view;
+	}
+	if (position.x < -790)
+	{
+		position.x = -790;
+		target = position + view;
+	}
+	if (position.z > 790)
+	{
+		position.z = 790;
+		target = position + view;
+	}
+	if (position.z < -790)
+	{
+		position.z = -790;
 		target = position + view;
 	}
 }
@@ -264,6 +295,27 @@ void Camera3::BoundsCheckStage3()
 	else if (_collidedZ)
 	{
 		position.z = prevPosZ;
+		target = position + view;
+	}
+
+	if (position.x > 790)
+	{
+		position.x = 790;
+		target = position + view;
+	}
+	if (position.x < -790)
+	{
+		position.x = -790;
+		target = position + view;
+	}
+	if (position.z > 790)
+	{
+		position.z = 790;
+		target = position + view;
+	}
+	if (position.z < -790)
+	{
+		position.z = -790;
 		target = position + view;
 	}
 }
@@ -326,6 +378,27 @@ void Camera3::BoundsCheckStage4()
 	else if (_collidedZ)
 	{
 		position.z = prevPosZ;
+		target = position + view;
+	}
+
+	if (position.x > 290)
+	{
+		position.x = 290;
+		target = position + view;
+	}
+	if (position.x < -290)
+	{
+		position.x = -290;
+		target = position + view;
+	}
+	if (position.z > 890)
+	{
+		position.z = 890;
+		target = position + view;
+	}
+	if (position.z < -890)
+	{
+		position.z = -890;
 		target = position + view;
 	}
 }
@@ -478,27 +551,6 @@ void Camera3::Update(double dt)
 		}
 	}
 
-	if (position.x > 790)
-	{
-		position.x = 790;
-		target = position + view;
-	}
-	if (position.x < -790)
-	{
-		position.x = -790;
-		target = position + view;
-	}
-	if (position.z > 790)
-	{
-		position.z = 790;
-		target = position + view;
-	}
-	if (position.z < -790)
-	{
-		position.z = -790;
-		target = position + view;
-	}
-
 	//Mouse FPS
 	Application::GetMousePosition(xmousepos, ymousepos);
 
@@ -522,7 +574,7 @@ void Camera3::Update(double dt)
 		view = rotation * view;
 		target = position + view;
 
-		if (view.y > -0.99 && view.y < 0.7)
+		if (view.y > -0.99 && view.y < 0.95)
 		{
 			rotation.SetToRotation(yyawnew, right.x, right.y, right.z);
 			view = rotation * view;

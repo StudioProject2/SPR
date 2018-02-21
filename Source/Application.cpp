@@ -177,6 +177,7 @@ void Application::Run()
 		if (Application::sceneChange == STAGE4)
 		{
 			scene = sceneBoss;
+			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE4;
 			Application::sceneChange = 10;
