@@ -338,7 +338,7 @@ void SceneStage1::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
 				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i], camera.position);
+					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
 				}
@@ -760,7 +760,7 @@ void SceneStage1::RenderBullets()
 		if (bulletPtr[i] != NULL)
 		{
 			modelStack.PushMatrix();
-			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y + bulletPtr[i]->offsetY, bulletPtr[i]->throws.z);
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
 			RenderMesh(meshList[GEO_BULLETS], false);
 			modelStack.PopMatrix();
 		}
