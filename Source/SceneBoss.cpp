@@ -6,11 +6,15 @@
 #include "Utility.h"
 #include "LoadTGA.h"
 #include "LoadOBJ.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
 
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
+using namespace irrklang;
 using namespace std;
 
 SceneBoss::SceneBoss()
@@ -302,6 +306,13 @@ void SceneBoss::Init()
 		//init collision for the bullets here
 		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 	}
+
+	if (!engine)
+	{
+		return;
+	}
+
+	engine->play2D("Sound/test.wav", true);
 }
 
 void SceneBoss::Update(double dt)
@@ -313,13 +324,13 @@ void SceneBoss::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	if (boss.getHealth() <= 500 && (!win || !gameOver))
+	if (boss.getHealth() <= 500 && !win && !gameOver)
 	{
 		UpdateMonsters();
 		UpdateMonsterBullets();
 		UpdateMonsterHitbox();
 	}
-	if (boss.getHealth() > 0 && (!win || !gameOver))
+	if (boss.getHealth() > 0 && !win && !gameOver)
 	{
 		UpdateBossMovement();
 		UpdateBossBullets();
@@ -890,6 +901,7 @@ void SceneBoss::Render()
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
+
 	for (int i = 0; i < 1800; i += 30)
 	{
 		modelStack.PushMatrix();
@@ -1172,7 +1184,7 @@ void SceneBoss::Exit()
 		meshList[i] = NULL;
 
 	}
-
+	engine->drop();
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 }

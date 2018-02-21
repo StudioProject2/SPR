@@ -199,15 +199,15 @@ void Boss::leap(Vector3 camPos)
 		chasing = true;
 		pos.y = 150;
 	}
+	else if (pos.y <= 0)
+	{
+		pos.y = 0;
+		dropping = false;
+	}
 	else if (pos.x > camPos.x - 30 && pos.x < camPos.x + 30 && pos.z < camPos.z + 30 && pos.z > camPos.z - 30)
 	{
 		chasing = false;
 		dropping = true;
-	}
-	else if (pos.y < 0)
-	{
-		pos.y = 0;
-		dropping = false;
 	}
 
 	if (rising)
