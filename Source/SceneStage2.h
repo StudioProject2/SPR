@@ -11,6 +11,7 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Player.h"
@@ -149,7 +150,6 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double bulletBounceTime;
-	double monsterTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
@@ -225,11 +225,22 @@ private:
 	bool objectiveTwo;
 	bool objectiveThree;
 
-	//bullets && monster arrays
+	//Monster Arrays
 	Monster *MonsterPtr[MOBNUM];
+	Monster *MonsterFodderPtr[MOBNUM];
+
+	//MonsterHitBoxes
 	Box *monsterBoxPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+
+	//Monster Bullets
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
+
+	//Monster Times
+	double monsterFodderTime;
+	double monsterTime;
+
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];

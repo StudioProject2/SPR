@@ -43,7 +43,7 @@ void Camera3::Init(const Vector3& pos, const Vector3& target, const Vector3& up)
 	jumpOffset = 1;
 	jumpPos = 0;
 	jumpSpeed = 0.0f;
-	movementSpeed = 70.0f;
+	movementSpeed = 100.0f;
 }
 
 bool isPointXInBox(Vector3 position, Box box)

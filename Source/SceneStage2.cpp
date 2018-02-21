@@ -71,11 +71,20 @@ void SceneStage2::Init()
 	objectiveTwo = false;
 	objectiveThree = false;
 
+
+	//INIT monsters
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterPtr[i] = NULL;
+		monsterBoxPtr[i] = NULL;
 		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		MonsterFodderPtr[i] = NULL;
+		monsterFodderBoxPtr[i] = NULL;
+	}
+	monsterFodderTime = 0.0;
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
@@ -465,6 +474,7 @@ void SceneStage2::Update(double dt)
 			Application::sceneChange = 4;
 		}
 	}
+
 }
 
 void SceneStage2::UpdateObjective()
@@ -633,7 +643,7 @@ void SceneStage2::UpdateMonsterBullets()
 }
 void SceneStage2::UpdateMonsters()
 {
-
+	//Monster ZigZag
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
@@ -656,6 +666,59 @@ void SceneStage2::UpdateMonsters()
 			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		}
 	}
+	
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterPtr[i] != NULL)
+		{
+			if ((*MonsterPtr[i]).health <= 0)
+			{
+				delete MonsterPtr[i];
+				delete monsterBoxPtr[i];
+				MonsterPtr[i] = NULL;
+				monsterBoxPtr[i] = NULL;
+				monDead += 1;
+			}
+		}
+	}
+
+	//Monster Fodder
+	if (elaspeTime > monsterFodderTime)
+	{
+		for (int i = 0; i < MOBNUM; i++)
+		{
+			if (MonsterFodderPtr[i] == NULL)
+			{
+				MonsterFodderPtr[i] = new MonsterFodder();
+				monsterFodderBoxPtr[i] = new Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterFodderTime = elaspeTime + 3.0;
+				break;
+			}
+		}
+	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterFodderPtr[i] != NULL)
+		{
+			(*MonsterFodderPtr[i]).moveRand(camera.position, elaspeTime);
+			*monsterFodderBoxPtr[i] = Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		}
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterFodderPtr[i] != NULL)
+		{
+			if ((*MonsterFodderPtr[i]).health <= 0)
+			{
+				delete MonsterFodderPtr[i];
+				delete monsterFodderBoxPtr[i];
+				MonsterFodderPtr[i] = NULL;
+				monsterFodderBoxPtr[i] = NULL;
+				monDead += 1;
+			}
+		}
+	}
 }
 void SceneStage2::UpdateMonsterHitbox()
 {
@@ -674,7 +737,8 @@ void SceneStage2::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
+					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
+					/*
 					if (MonsterPtr[mon]->health <= 0)
 					{
 						delete MonsterPtr[mon];
@@ -683,6 +747,38 @@ void SceneStage2::UpdateMonsterHitbox()
 						monsterBoxPtr[mon] = NULL;
 						monDead += 1;
 					}
+					*/
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					bulletPtr[bul]->monsterHit(camera);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
+					isHit = false;
+				}
+			}
+		}
+	}
+
+	//Monster Fodder
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		for (int mon = 0; mon < MOBNUM; mon++)
+		{
+			if (!isHit && elaspeTime > bulletBounceTime)
+			{
+				if (bulletBoxPtr[bul] != NULL && monsterFodderBoxPtr[mon] != NULL)
+				{
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterFodderBoxPtr[mon]);
+				}
+				if (isHit)
+				{
+					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
+					cout << "HIT " << endl;
 				}
 				if (isHit)
 				{
@@ -875,6 +971,10 @@ void SceneStage2::Render()
 	RenderObjectives();
 	RenderUi();
 	RenderHitmarker();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Player Health:" + to_string(player->health), Color(0, 1, 1), 2.5, 8, 1);
+	modelStack.PopMatrix();
 
 	if (gameOver)
 	{
@@ -1209,6 +1309,18 @@ void SceneStage2::RenderMonster()
 			modelStack.PopMatrix();
 		}
 	}
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (MonsterFodderPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_CUBE], false);
+			modelStack.PopMatrix();
+		}
+	}
+
 }
 void SceneStage2::RenderMonsterBullets()
 {
