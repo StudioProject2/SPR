@@ -122,6 +122,8 @@ class SceneStage2 : public Scene
 		GEO_FLOWER,
 		GEO_ROCK,
 
+		GEO_PLAYER_TEETH,
+
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
@@ -188,6 +190,8 @@ private:
 	void RenderUi();
 	void RenderPickups();
 	void RenderObjectives();
+	void RenderTopTeeth();
+	void RenderBottomTeeth();
 
 	//hit markers
 	int hitmarkerSize;

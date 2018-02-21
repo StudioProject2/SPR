@@ -67,6 +67,7 @@ void SceneStage2::Init()
 	//player
 	player = Player::getInstance();
 	//objectives
+	gameOver = false;
 	objectiveOne = false;
 	objectiveTwo = false;
 	objectiveThree = false;
@@ -317,11 +318,13 @@ void SceneStage2::Init()
 	meshList[GEO_BOTTOM]->material.kShininess = 0.9f;
 	
 	//barrier
-	meshList[GEO_BARRIER] = MeshBuilder::GenerateQuad("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10);
+	meshList[GEO_BARRIER] = MeshBuilder::GenerateQuad("Barrier", Color(1.0f, 1.0f, 1.0f), 10, 10);
 	meshList[GEO_BARRIER]->textureID = LoadTGAR("Image//Stage2//Barrier.tga");
 
-	//Bullet
+	//Player
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
+	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
 
 	//tree
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
@@ -475,6 +478,13 @@ void SceneStage2::Update(double dt)
 		}
 	}
 
+	if (gameOver)
+	{
+		player->health = 100;
+		player->damage = 10;
+		player->points = 0;
+		Application::sceneChange = 0;
+	}
 }
 
 void SceneStage2::UpdateObjective()
@@ -968,6 +978,8 @@ void SceneStage2::Render()
 	
 	//Player
 	RenderBullets();
+	RenderTopTeeth();
+	RenderBottomTeeth();
 	RenderObjectives();
 	RenderUi();
 	RenderHitmarker();
@@ -1096,6 +1108,50 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 	glEnable(GL_DEPTH_TEST);
 }
 
+void SceneStage2::RenderTopTeeth()
+{
+
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(-1.3, 8, -20);
+	modelStack.Rotate(180, 1, 0, 0);
+	modelStack.Rotate(180, 0, 1, 0);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneStage2::RenderBottomTeeth()
+{
+
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(1.3, -8, -20);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
 void SceneStage2::RenderSkybox()
 {
 	//SKYBOX + FLOOR
@@ -1382,20 +1438,20 @@ void SceneStage2::RenderObjectives()
 	barrierLeft << std::fixed << std::setprecision(1);
 	barrierLeft << "the glowing barriers (" << flowersAmt << "/3)";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(1, 0, 1), 2, 34, 29);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(1, 0, 1), 2, 32, 28);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 0.8, 1), 2, 34, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 0.8, 1), 2, 32, 28);
 	if (!objectiveOne)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(1, 0, 1), 2, 26, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 0.8, 1), 2, 26, 27);
 	}
 	if (objectiveOne && !objectiveTwo)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(1, 0, 0), 2, 29, 27);
-		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(1, 0, 1), 2, 22, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0, 0.3, 1), 2, 29, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0, 0.8, 1), 2, 22, 26);
 	}
 	if (objectiveTwo && !objectiveThree)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(1, 0, 0), 3, 10, 18);
+		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0, 0, 0), 3, 10, 18);
 	}
 	modelStack.PopMatrix();
 }
