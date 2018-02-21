@@ -6,6 +6,7 @@ Player::Player()
 {
 	health = 100;
 	damage = 10;
+	points = 0;
 }
 
 Player::~Player()
