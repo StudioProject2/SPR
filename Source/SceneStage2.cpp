@@ -50,6 +50,7 @@ void SceneStage2::Init()
 	monLeft = 0;
 	nextStage = false;
 	//tree and flower
+	flowersAmt = 3;
 	flowerOneLife = true;
 	flowerTwoLife = true;
 	flowerThreeLife = true;
@@ -306,6 +307,10 @@ void SceneStage2::Init()
 	meshList[GEO_BOTTOM]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_BOTTOM]->material.kShininess = 0.9f;
 	
+	//barrier
+	meshList[GEO_BARRIER] = MeshBuilder::GenerateQuad("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10);
+	meshList[GEO_BARRIER]->textureID = LoadTGAR("Image//Stage2//Barrier.tga");
+
 	//Bullet
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 
@@ -376,20 +381,20 @@ bool isNearObject(Camera3 camera, Box object)
 }
 bool isInObjectX(Camera3 camera, Box object)
 {
-	return (((camera.position.x >= object.minX - 1 && camera.position.x <= object.minX + 1)
+	return (((camera.position.x >= object.minX - 2 && camera.position.x <= object.minX + 2)
 		&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
 		&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ))
-		|| ((camera.position.x >= object.maxX - 1 && camera.position.x <= object.maxX + 1)
+		|| ((camera.position.x >= object.maxX - 2 && camera.position.x <= object.maxX + 2)
 			&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
 			&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ)));
 }
 bool isInObjectY(Camera3 camera, Box object)
 {
 	return (((camera.position.x >= object.minX && camera.position.x <= object.maxX)
-		&& (camera.position.y >= object.minY - 1 && camera.position.y <= object.minY + 1)
+		&& (camera.position.y >= object.minY - 2 && camera.position.y <= object.minY + 2)
 		&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ))
 		|| ((camera.position.x >= object.minX && camera.position.x <= object.maxX)
-			&& (camera.position.y >= object.maxY - 1 && camera.position.y <= object.maxY + 1)
+			&& (camera.position.y >= object.maxY - 2 && camera.position.y <= object.maxY + 2)
 			&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ)));
 	
 }
@@ -397,10 +402,10 @@ bool isInObjectZ(Camera3 camera, Box object)
 {
 	return (((camera.position.x >= object.minX && camera.position.x <= object.maxX)
 		&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
-		&& (camera.position.z >= object.minZ - 1 && camera.position.z <= object.minZ + 1))
+		&& (camera.position.z >= object.minZ - 2 && camera.position.z <= object.minZ + 2))
 		|| ((camera.position.x >= object.minX && camera.position.x <= object.maxX)
 			&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
-			&& (camera.position.z >= object.maxZ - 1 && camera.position.z <= object.maxZ + 1)));
+			&& (camera.position.z >= object.maxZ - 2 && camera.position.z <= object.maxZ + 2)));
 }
 
 void SceneStage2::Update(double dt)
@@ -781,18 +786,21 @@ void SceneStage2::UpdateInteractions()
 			if (isNearObject(camera, flowerOfLifeOne))
 			{
 				flowerOneLife = false;
+				flowersAmt -= 1;
 				light[1].power = 0;
 				glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
 			}
 			if (isNearObject(camera, flowerOfLifeTwo))
 			{
 				flowerTwoLife = false;
+				flowersAmt -= 1;
 				light[2].power = 0;
 				glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
 			}
 			if (isNearObject(camera, flowerOfLifeThree))
 			{
 				flowerThreeLife = false;
+				flowersAmt -= 1;
 				light[3].power = 0;
 				glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
 			}
@@ -864,6 +872,7 @@ void SceneStage2::Render()
 	
 	//Player
 	RenderBullets();
+	RenderObjectives();
 	RenderUi();
 	RenderHitmarker();
 
@@ -972,7 +981,7 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 	for (unsigned i = 0; i < text.length(); ++i)
 	{
 		Mtx44 characterSpacing;
-		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
+		characterSpacing.SetToTranslation(i * 0.7f, 0, 0); //1.0f is the spacing of each character, you may change this value
 		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
 
@@ -1116,8 +1125,38 @@ void SceneStage2::RenderMisc()
 	{
 		modelStack.PushMatrix();
 		modelStack.Translate(-530, -10, 200);
+		modelStack.Rotate(90, 0, 1, 0);
 		modelStack.Scale(1, 2, 1);
 		RenderMesh(meshList[GEO_FLOWER], true);
+		modelStack.PopMatrix();
+	}
+
+	if (!objectiveTwo)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(50, 0, 10);
+		modelStack.Rotate(90, 0, 1, 0);
+		modelStack.Scale(6, 3, 1);
+		RenderMesh(meshList[GEO_BARRIER], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(-70, 0, 10);
+		modelStack.Rotate(90, 0, 1, 0);
+		modelStack.Scale(6, 3, 1);
+		RenderMesh(meshList[GEO_BARRIER], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(-10, 0, 70);
+		modelStack.Scale(6, 3, 1);
+		RenderMesh(meshList[GEO_BARRIER], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(-10, 0, -50);
+		modelStack.Scale(6, 3, 1);
+		RenderMesh(meshList[GEO_BARRIER], false);
 		modelStack.PopMatrix();
 	}
 }
@@ -1225,13 +1264,26 @@ void SceneStage2::RenderObjectives()
 {
 	std::ostringstream monsLeft;
 	monsLeft << std::fixed << std::setprecision(1);
-	monsLeft << "monsters left:" << monLeft;
+	monsLeft << "kill 5 guardians(" << monLeft << "/5)";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(1, 0, 1), 2, 31, 29);
-	RenderTextOnScreen(meshList[GEO_TEXT], "==========", Color(1, 0, 1), 2, 30, 28);
+	std::ostringstream barrierLeft;
+	barrierLeft << std::fixed << std::setprecision(1);
+	barrierLeft << "the glowing barriers (" << flowersAmt << "/3)";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(1, 0, 1), 2, 34, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(1, 0, 1), 2, 32, 28);
 	if (!objectiveOne)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(1, 0, 1), 2, 25.5, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(1, 0, 1), 2, 26, 27);
+	}
+	if (objectiveOne && !objectiveTwo)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(1, 0, 0), 2, 29, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(1, 0, 1), 2, 22, 26);
+	}
+	if (objectiveTwo && !objectiveThree)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(1, 0, 0), 3, 10, 18);
 	}
 	modelStack.PopMatrix();
 }
