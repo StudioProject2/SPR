@@ -164,6 +164,8 @@ private:
 	float rotateStar;
 	float rotateStar2;
 
+	double elaspeTime;
+	double muteButtonTime;
 	//Spawner
 	bool spawn = false;
 
