@@ -314,6 +314,7 @@ void MainMenu::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
+				engine->play2D("Sound/select.wav", false);
 				Application::sceneChange = Application::LEVELMENU;
 				std::cout << "you have started the game" << endl;
 			}
@@ -330,7 +331,7 @@ void MainMenu::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-
+				engine->play2D("Sound/select.wav", false);
 				std::cout << "you have muted the game" << endl;
 			}
 			//else

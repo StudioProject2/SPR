@@ -44,6 +44,9 @@ void Camera3::Init(const Vector3& pos, const Vector3& target, const Vector3& up)
 	jumpPos = 0;
 	jumpSpeed = 0.0f;
 	movementSpeed = 100.0f;
+
+	elaspeTime = 0.0;
+	footstepsTime = 0.0;
 }
 
 bool isPointXInBox(Vector3 position, Box box)
@@ -472,6 +475,7 @@ void Camera3::Update(double dt)
 	InteractionCheck();
 	Vector3 view = (target - position).Normalized();
 	Vector3 right = view.Cross(up);
+	elaspeTime += dt;
 
 	static const float CAMERA_SPEED = 50.f;
 
@@ -481,24 +485,44 @@ void Camera3::Update(double dt)
 
 	if (Application::IsKeyPressed('A'))
 	{
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		{
+			engine->play2D("Sound/footsteps.wav", false);
+			footstepsTime = elaspeTime + 0.3;
+		}
 		position = position - right * (float)(movementSpeed * dt);
 		position.y = prevPosY;
 		target = position + view;
 	}
 	if (Application::IsKeyPressed('D'))
 	{
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		{
+			engine->play2D("Sound/footsteps.wav", false);
+			footstepsTime = elaspeTime + 0.3;
+		}
 		position = position + right * (float)(movementSpeed * dt);
 		position.y = prevPosY;
 		target = position + view;
 	}
 	if (Application::IsKeyPressed('W'))
 	{
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		{
+			engine->play2D("Sound/footsteps.wav", false);
+			footstepsTime = elaspeTime + 0.3;
+		}
 		position += view * (float)(movementSpeed * dt);
 		position.y = prevPosY;
 		target = position + view;
 	}
 	if (Application::IsKeyPressed('S'))
 	{
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		{
+			engine->play2D("Sound/footsteps.wav", false);
+			footstepsTime = elaspeTime + 0.3;
+		}
 		position -= view * (float)(movementSpeed * dt);
 		position.y = prevPosY;
 		target = position + view;
