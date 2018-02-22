@@ -15,11 +15,15 @@
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Player.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
 #define MOBNUM 5
-#define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 #define MOBNUM_TO_KILL 5
@@ -96,7 +100,17 @@ class SceneStage2 : public Scene
 		U_TOTAL,
 	};
 
-
+	//Place this above NUM_GEOMETRY
+	/*
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
+		GEO_ARCHER_BODY,
+		GEO_ARCHER_HAND,
+		GEO_ARCHER_LEG,
+	*/
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -121,6 +135,13 @@ class SceneStage2 : public Scene
 		GEO_GRASS_LINE,
 		GEO_FLOWER,
 		GEO_ROCK,
+		GEO_PICKUP,
+
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
 
 		GEO_PLAYER_TEETH,
 
@@ -169,6 +190,12 @@ private:
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 
+	//AB box checkers
+	bool isInObjectZ(Camera3 camera, Box object);
+	bool isInObjectY(Camera3 camera, Box object);
+	bool isInObjectX(Camera3 camera, Box object);
+	bool isNearObject(Camera3 camera, Box object);
+
 	//Updates
 	void UpdateBullets();
 	void UpdateMonsters();
@@ -177,6 +204,9 @@ private:
 	void UpdateInteractions();
 	void UpdateCollision();
 	void UpdateObjective();
+	void UpdatePickups();
+
+	void UpdateMonsterAnimations();
 
 	//Renders
 	void RenderBullets();
@@ -218,8 +248,11 @@ private:
 	int fallingStage;
 
 	//pickups logic
-	int pickupsY;
-	int pickupsZ;
+	int pickupsTimer;
+	bool pickupsSpawn;
+	bool pickupsFlying;
+	double pickupsY;
+	double pickupsZ;
 
 	//player
 	Player* player;
@@ -245,9 +278,20 @@ private:
 	double monsterFodderTime;
 	double monsterTime;
 
+	//Monster Animations Logic
+	int fodSwingTimer;
+	bool fodLeft;
+	double fodderArmSwing;
+	int dodSwingTimer;
+	bool dodLeft;
+	double dodgerArmSwing;
+	double dodgerLegSwing;
+
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif

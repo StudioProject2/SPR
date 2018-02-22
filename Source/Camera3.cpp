@@ -153,24 +153,33 @@ void Camera3::BoundsCheckStage1()
 	_collidedY = false;
 	_collidedZ = false;
 
-	Box cube = Box(Vector3(0, 0, 0), 105);
+	Box cage = Box(Vector3(500, 0, 575), 70, 7, 70);
+	Box cage2 = Box(Vector3(500, 0, 430), 70, 7, 70);
+	Box cage3 = Box(Vector3(570, 0, 502.5), 7, 70, 70);
+
 	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
 
-	if (isPointXInBox(position, cube)
+	if (isPointXInBox(position, cage) 
+		|| isPointXInBox(position, cage2) 
+		|| isPointXInBox(position, cage3)
 		|| isPointXInBox(position, cube2)
 		)
 	{
 		_collidedX = true;
 	}
 
-	if (isPointYInBox(position, cube)
+	if (isPointYInBox(position, cage) 
+		|| isPointYInBox(position, cage2) 
+		|| isPointYInBox(position, cage3)
 		|| isPointYInBox(position, cube2)
 		)
 	{
 		_collidedY = true;
 	}
 
-	if (isPointZInBox(position, cube)
+	if (isPointZInBox(position, cage)
+		|| isPointZInBox(position, cage2)
+		|| isPointZInBox(position, cage3)
 		|| isPointZInBox(position, cube2)
 		)
 	{
@@ -185,12 +194,13 @@ void Camera3::BoundsCheckStage1()
 		target = position + view;
 	}
 
-	else if (_collidedZ)
+	if (_collidedZ)
 	{
 		position.z = prevPosZ;
 		target = position + view;
 	}
 
+	
 	if (position.x > 790)
 	{
 		position.x = 790;
@@ -211,6 +221,7 @@ void Camera3::BoundsCheckStage1()
 		position.z = -790;
 		target = position + view;
 	}
+	
 }
 
 void Camera3::BoundsCheckStage2()

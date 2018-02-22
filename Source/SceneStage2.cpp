@@ -33,6 +33,16 @@ void SceneStage2::Init()
 {
 	//Monster spawn
 	srand((unsigned int)time(NULL));
+	//Monster Animation
+	fodSwingTimer = 0;
+	fodLeft = false;
+	fodderArmSwing = 0.0;
+
+	dodSwingTimer = 0;
+	dodLeft = false;
+	dodgerArmSwing = 0.0;
+	dodgerLegSwing = 0.0;
+
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
@@ -50,7 +60,7 @@ void SceneStage2::Init()
 	monLeft = 0;
 	nextStage = false;
 	//tree and flower
-	flowersAmt = 3;
+	flowersAmt = 0;
 	flowerOneLife = true;
 	flowerTwoLife = true;
 	flowerThreeLife = true;
@@ -62,6 +72,9 @@ void SceneStage2::Init()
 	treeFallTimer = 0;
 	fallingStage = 0;
 	//pickups
+	pickupsTimer = 0;
+	pickupsSpawn = false;
+	pickupsFlying = false;
 	pickupsY = 10;
 	pickupsZ = 0;
 	//player
@@ -204,7 +217,7 @@ void SceneStage2::Init()
 	light[1].type = Light::LIGHT_POINT;
 	light[1].position.Set(240, 0, 500);
 	light[1].color.Set(0, 1, 0);
-	light[1].power = 2;
+	light[1].power = 4;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -227,7 +240,7 @@ void SceneStage2::Init()
 	light[2].type = Light::LIGHT_POINT;
 	light[2].position.Set(750, 0, -200);
 	light[2].color.Set(0, 1, 0);
-	light[2].power = 2;
+	light[2].power = 4;
 	light[2].kC = 1.f;
 	light[2].kL = 0.01f;
 	light[2].kQ = 0.001f;
@@ -250,7 +263,7 @@ void SceneStage2::Init()
 	light[3].type = Light::LIGHT_POINT;
 	light[3].position.Set(-530, 0, 200);
 	light[3].color.Set(0, 1, 0);
-	light[3].power = 2;
+	light[3].power = 4;
 	light[3].kC = 1.f;
 	light[3].kL = 0.01f;
 	light[3].kQ = 0.001f;
@@ -325,6 +338,10 @@ void SceneStage2::Init()
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
 	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
+	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_PLAYER_TEETH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PLAYER_TEETH]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_PLAYER_TEETH]->material.kShininess = 1.0f;
 
 	//tree
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
@@ -360,9 +377,66 @@ void SceneStage2::Init()
 	meshList[GEO_ROCK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_ROCK]->material.kShininess = 1.f;
 
+	//monster
+	meshList[GEO_FODDER_BODY] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
+	meshList[GEO_FODDER_BODY]->textureID = LoadTGA("Image//MonsterTextures//FodderTexture.tga");
+	meshList[GEO_FODDER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FODDER_BODY]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FODDER_BODY]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FODDER_BODY]->material.kShininess = 1.f;
+	meshList[GEO_FODDER_HAND] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderHandOBJ.obj");
+	meshList[GEO_FODDER_HAND]->textureID = LoadTGA("Image//MonsterTextures//FodderTexture.tga");
+	meshList[GEO_FODDER_HAND]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FODDER_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FODDER_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FODDER_HAND]->material.kShininess = 1.f;
+	meshList[GEO_DODGER_BODY] = MeshBuilder::GenerateOBJ("dodger", "OBJ//MonstersOBJ//DodgerBodyOBJ.obj");
+	meshList[GEO_DODGER_BODY]->textureID = LoadTGA("Image//MonsterTextures//DodgerTexture.tga");
+	meshList[GEO_DODGER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_DODGER_BODY]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_DODGER_BODY]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_DODGER_BODY]->material.kShininess = 1.f;
+	meshList[GEO_DODGER_HAND] = MeshBuilder::GenerateOBJ("dodger", "OBJ//MonstersOBJ//DodgerHandOBJ.obj");
+	meshList[GEO_DODGER_HAND]->textureID = LoadTGA("Image//MonsterTextures//DodgerTexture.tga");
+	meshList[GEO_DODGER_HAND]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_DODGER_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_DODGER_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_DODGER_HAND]->material.kShininess = 1.f;
+	meshList[GEO_DODGER_LEG] = MeshBuilder::GenerateOBJ("dodger", "OBJ//MonstersOBJ//DodgerLegOBJ.obj");
+	meshList[GEO_DODGER_LEG]->textureID = LoadTGA("Image//MonsterTextures//DodgerTexture.tga");
+	meshList[GEO_DODGER_LEG]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_DODGER_LEG]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_DODGER_LEG]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_DODGER_LEG]->material.kShininess = 1.f;
+
+	//inits for archer
+	/*
+	meshList[GEO_ARCHER_BODY] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherBodyOBJ.obj");
+	meshList[GEO_ARCHER_BODY]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
+	meshList[GEO_ARCHER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_ARCHER_BODY]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ARCHER_BODY]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ARCHER_BODY]->material.kShininess = 1.f;
+	meshList[GEO_ARCHER_HAND] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherHandOBJ.obj");
+	meshList[GEO_ARCHER_HAND]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
+	meshList[GEO_ARCHER_HAND]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_ARCHER_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ARCHER_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ARCHER_HAND]->material.kShininess = 1.f;
+	meshList[GEO_ARCHER_LEG] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherLegOBJ.obj");
+	meshList[GEO_ARCHER_LEG]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
+	meshList[GEO_ARCHER_LEG]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_ARCHER_LEG]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ARCHER_LEG]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ARCHER_LEG]->material.kShininess = 1.f;
+	*/
+
+	//pickups
+	meshList[GEO_PICKUP] = MeshBuilder::GenerateOBJ("pickups", "OBJ//PickupOBJ.obj");
+	meshList[GEO_PICKUP]->textureID = LoadTGA("Image//HealthPickupTexture.tga");
+
 	//Debuggging
 	meshList[GEO_TEST] = MeshBuilder::GenerateHem("test", Color(1.0f, 1.0f, 1.0f), 10, 10, 1); 
-	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
 	
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -375,8 +449,6 @@ void SceneStage2::Init()
 		monsterBulletPtr[i] = NULL;
 	}
 
-	gameOver = false;
-
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
@@ -385,13 +457,13 @@ void SceneStage2::Init()
 	}
 }
 
-bool isNearObject(Camera3 camera, Box object)
+bool SceneStage2::isNearObject(Camera3 camera, Box object)
 {
 	return ((camera.position.x >= object.minX && camera.position.x <= object.maxX) &&
 			(camera.position.y >= object.minY && camera.position.y <= object.maxY) &&
 			(camera.position.z >= object.minZ && camera.position.z <= object.maxZ));
 }
-bool isInObjectX(Camera3 camera, Box object)
+bool SceneStage2::isInObjectX(Camera3 camera, Box object)
 {
 	return (((camera.position.x >= object.minX - 2 && camera.position.x <= object.minX + 2)
 		&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
@@ -400,7 +472,7 @@ bool isInObjectX(Camera3 camera, Box object)
 			&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
 			&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ)));
 }
-bool isInObjectY(Camera3 camera, Box object)
+bool SceneStage2::isInObjectY(Camera3 camera, Box object)
 {
 	return (((camera.position.x >= object.minX && camera.position.x <= object.maxX)
 		&& (camera.position.y >= object.minY - 2 && camera.position.y <= object.minY + 2)
@@ -410,7 +482,7 @@ bool isInObjectY(Camera3 camera, Box object)
 			&& (camera.position.z >= object.minZ && camera.position.z <= object.maxZ)));
 	
 }
-bool isInObjectZ(Camera3 camera, Box object)
+bool SceneStage2::isInObjectZ(Camera3 camera, Box object)
 {
 	return (((camera.position.x >= object.minX && camera.position.x <= object.maxX)
 		&& (camera.position.y >= object.minY && camera.position.y <= object.maxY)
@@ -422,6 +494,16 @@ bool isInObjectZ(Camera3 camera, Box object)
 
 void SceneStage2::Update(double dt)
 {
+	if (objectiveThree)
+	{
+		for (int mon = 0; mon < MOBNUM; mon++)
+		{
+			delete MonsterPtr[mon];
+			delete monsterBoxPtr[mon];
+			MonsterPtr[mon] = NULL;
+			monsterBoxPtr[mon] = NULL;
+		}
+	}
 	monLeft = MOBNUM_TO_KILL - monDead;
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
@@ -430,10 +512,15 @@ void SceneStage2::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	UpdateMonsters();
+	if (!objectiveThree)
+	{
+		UpdateMonsters();
+		UpdateMonsterAnimations();
+	}
 	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 	UpdateInteractions();
+	UpdatePickups();
 
 	if (player->health <= 0)
 	{
@@ -449,11 +536,8 @@ void SceneStage2::Update(double dt)
 		glDisable(GL_CULL_FACE);
 	}
 
-	if (!objectiveThree)
-	{
-		camera.Update(dt);
-		UpdateCollision();
-	}
+	camera.Update(dt);
+	UpdateCollision();
 
 	UpdateObjective();
 	
@@ -512,7 +596,6 @@ void SceneStage2::UpdateObjective()
 		nextStage = true;
 		if (nextStage)
 		{
-			LoadingTimer = 120;
 			for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 			{
 				if (bulletPtr[bul] != NULL)
@@ -535,6 +618,25 @@ void SceneStage2::UpdateCollision()
 	Vector3 view = (camera.target - camera.position).Normalized();
 	Box treeOfLife;
 	Box treeBarrier;
+	Box treeFallen;
+
+	if (objectiveThree)
+	{
+		treeFallen = Box(Vector3(143, 0, -122), 87, 87);
+	}
+	if (!hitX)
+	{
+		hitX = isInObjectX(camera, treeFallen);
+	}
+	if (!hitY)
+	{
+		hitY = isInObjectY(camera, treeFallen);
+	}
+	if (!hitZ)
+	{
+		hitZ = isInObjectZ(camera, treeFallen);
+	}
+
 	if (!objectiveThree)
 	{
 		treeOfLife = Box(Vector3(-10, 0, 10), 25, 25);
@@ -636,6 +738,7 @@ void SceneStage2::UpdateMonsterBullets()
 			if (monsterBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= 10;
+				engine->play2D("Sound/dinosaurRoar1.wav", false);
 				delete monsterBulletPtr[i];
 				monsterBulletPtr[i] = NULL;
 			}
@@ -653,7 +756,8 @@ void SceneStage2::UpdateMonsterBullets()
 }
 void SceneStage2::UpdateMonsters()
 {
-	//Monster ZigZag
+	
+	//Monster DODGER
 	if (elaspeTime > monsterTime)
 	{
 		for (int i = 0; i < MOBNUM; i++)
@@ -661,19 +765,20 @@ void SceneStage2::UpdateMonsters()
 			if (MonsterPtr[i] == NULL)
 			{
 				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, 10, 10, 30);
 				monsterTime = elaspeTime + 3.0;
 				break;
 			}
 		}
 	}
 
+	//Monster FODDER
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 10, 10, 12);
 		}
 	}
 	
@@ -691,7 +796,7 @@ void SceneStage2::UpdateMonsters()
 			}
 		}
 	}
-
+	
 	//Monster Fodder
 	if (elaspeTime > monsterFodderTime)
 	{
@@ -700,7 +805,7 @@ void SceneStage2::UpdateMonsters()
 			if (MonsterFodderPtr[i] == NULL)
 			{
 				MonsterFodderPtr[i] = new MonsterFodder();
-				monsterFodderBoxPtr[i] = new Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterFodderBoxPtr[i] = new Box(MonsterFodderPtr[i]->pos, 10, 10, 30);
 				monsterFodderTime = elaspeTime + 3.0;
 				break;
 			}
@@ -711,7 +816,7 @@ void SceneStage2::UpdateMonsters()
 		if (MonsterFodderPtr[i] != NULL)
 		{
 			(*MonsterFodderPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterFodderBoxPtr[i] = Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterFodderBoxPtr[i] = Box(MonsterFodderPtr[i]->pos, 10, 10, 12);
 		}
 	}
 
@@ -748,6 +853,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
+					engine->play2D("Sound/highHumanHit.wav", false);
 					/*
 					if (MonsterPtr[mon]->health <= 0)
 					{
@@ -788,7 +894,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
-					cout << "HIT " << endl;
+					engine->play2D("Sound/femaleHit.wav", false);
 				}
 				if (isHit)
 				{
@@ -821,8 +927,22 @@ void SceneStage2::UpdateInteractions()
 
 	interactionSize = 0;
 	bool inRange = false;
+	bool inPickupRange = false;
 
-	healthPack = Box(Vector3(-10, pickupsY, pickupsZ), 10, 10);
+	if (pickupsSpawn)
+	{
+		healthPack = Box(Vector3(0, pickupsY, pickupsZ), 10, 10);
+	}
+	if (!inPickupRange)
+	{
+		inPickupRange = isNearObject(camera, healthPack);
+	}
+	if (inPickupRange)
+	{
+		LoadingTimer = 120;
+		pickupsSpawn = false;
+		player->health += 40;
+	}
 
 	if (treeLifeThree && objectiveTwo)
 	{
@@ -872,16 +992,19 @@ void SceneStage2::UpdateInteractions()
 			{
 				if (treeLifeOne)
 				{
+					engine->play2D("Sound/treeCut1.wav", false);
 					treeFallTimer = 60;
 					fallingStage = 1;
 				}
 				else if (treeLifeTwo && !treeLifeOne)
 				{
+					engine->play2D("Sound/treeCut1.wav", false);
 					treeFallTimer = 60;
 					fallingStage = 2;
 				}
 				else if (treeLifeThree && !treeLifeTwo)
 				{
+					engine->play2D("Sound/treeCut2.wav", false);
 					treeFallTimer = 60;
 					fallingStage = 3;
 				}
@@ -892,23 +1015,47 @@ void SceneStage2::UpdateInteractions()
 			if (isNearObject(camera, flowerOfLifeOne))
 			{
 				flowerOneLife = false;
-				flowersAmt -= 1;
+				flowersAmt += 1;
 				light[1].power = 0;
 				glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+				if (flowersAmt == 3)
+				{
+					engine->play2D("Sound/bigDing.wav", false);
+				}
+				else
+				{
+					engine->play2D("Sound/ding.wav", false);
+				}
 			}
 			if (isNearObject(camera, flowerOfLifeTwo))
 			{
 				flowerTwoLife = false;
-				flowersAmt -= 1;
+				flowersAmt += 1;
 				light[2].power = 0;
 				glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
+				if (flowersAmt == 3)
+				{
+					engine->play2D("Sound/bigDing.wav", false);
+				}
+				else
+				{
+					engine->play2D("Sound/ding.wav", false);
+				}
 			}
 			if (isNearObject(camera, flowerOfLifeThree))
 			{
 				flowerThreeLife = false;
-				flowersAmt -= 1;
+				flowersAmt += 1;
 				light[3].power = 0;
 				glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
+				if (flowersAmt == 3)
+				{
+					engine->play2D("Sound/bigDing.wav", false);
+				}
+				else
+				{
+					engine->play2D("Sound/ding.wav", false);
+				}
 			}
 		}
 	}
@@ -948,11 +1095,122 @@ void SceneStage2::UpdateInteractions()
 		interactionSize = 0;
 		if (treeFallTimer == 0)
 		{
+			pickupsSpawn = true;
 			treeLifeThree = false;
 			light[0].power = 0;
 			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 		}
 	}
+}
+void SceneStage2::UpdatePickups()
+{
+
+	if (pickupsSpawn)
+	{
+		if (!pickupsFlying)
+		{
+			if (pickupsTimer < 60)
+			{
+				pickupsTimer += 1;
+				pickupsY += 1;
+			}
+			else
+			{
+				pickupsFlying = true;
+			}
+		}
+		else
+		{
+			if (pickupsTimer > 0)
+			{
+				pickupsTimer -= 1;
+				pickupsY -= 1.2;
+				pickupsZ += 1;
+			}
+		}
+	}
+}
+void SceneStage2::UpdateMonsterAnimations()
+{
+	if (!fodLeft)
+	{
+		if (fodSwingTimer < 30)
+		{
+			fodSwingTimer += 1;
+			fodderArmSwing += 4;
+		}
+		else
+		{
+			fodLeft = true;
+		}
+	}
+	else
+	{
+		if (fodSwingTimer > 0)
+		{
+			fodSwingTimer -= 1;
+			fodderArmSwing -= 4;
+		}
+		else
+		{
+			fodLeft = false;
+		}
+	}
+
+	if (!dodLeft)
+	{
+		if (dodSwingTimer < 30)
+		{
+			dodSwingTimer += 1;
+			dodgerArmSwing += 4;
+			dodgerLegSwing += 1.5;
+		}
+		else
+		{
+			dodLeft = true;
+		}
+	}
+	else
+	{
+		if (dodSwingTimer > 0)
+		{
+			dodSwingTimer -= 1;
+			dodgerArmSwing -= 4;
+			dodgerLegSwing -= 1.5;
+		}
+		else
+		{
+			dodLeft = false;
+		}
+	}
+	
+
+	//Archer animations
+	/*if (!arcLeft)
+	{
+		if (arcSwingTimer < 30)
+		{
+			arcSwingTimer += 1;
+			archerLegSwing += 1.5;
+		}
+		else
+		{
+			arcLeft = true;
+		}
+	}
+	else
+	{
+		if (arcSwingTimer > 0)
+		{
+			arcSwingTimer -= 1;
+			archerLegSwing -= 1.5;
+		}
+		else
+		{
+			arcLeft = false;
+		}
+	}
+	*/
 }
 
 void SceneStage2::Render()
@@ -973,7 +1231,10 @@ void SceneStage2::Render()
 	RenderPickups();
 
 	//MOBS
-	RenderMonster();
+	if (!objectiveThree)
+	{
+		RenderMonster();
+	}
 	RenderMonsterBullets();
 	
 	//Player
@@ -1110,7 +1371,6 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 void SceneStage2::RenderTopTeeth()
 {
-
 	Mtx44 ortho;
 	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
 	projectionStack.PushMatrix();
@@ -1120,12 +1380,12 @@ void SceneStage2::RenderTopTeeth()
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
 
-	modelStack.Translate(-1.3, 8, -20);
+	modelStack.Translate(-1.3, 8, -17);
 	modelStack.Rotate(180, 1, 0, 0);
 	modelStack.Rotate(180, 0, 1, 0);
 	modelStack.Scale(1.5, 1, 1);
 
-	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
@@ -1143,10 +1403,10 @@ void SceneStage2::RenderBottomTeeth()
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
 
-	modelStack.Translate(1.3, -8, -20);
+	modelStack.Translate(1.3, -8, -17);
 	modelStack.Scale(1.5, 1, 1);
 
-	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
@@ -1354,14 +1614,68 @@ void SceneStage2::RenderBullets()
 }
 void SceneStage2::RenderMonster()
 {
+	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
+	double dRot;
+	double fRot;
+
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
+			Vector3 B = MonsterPtr[i]->pos - camera.position;
+			B.y = camera.position.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				dRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				dRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				dRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				dRot = 180 - rotation;
+			else
+				dRot = rotation;
+
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y - 10, (*MonsterPtr[i]).pos.z);
+			modelStack.Rotate(dRot + 90, 0, 1, 0);
 			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
+			RenderMesh(meshList[GEO_DODGER_BODY], true);
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0.2, 0);
+				modelStack.Translate(0, 2, 0);
+				modelStack.Rotate(dodgerArmSwing + 300, 0, 0, 1);
+				modelStack.Translate(0, -2, 0);
+				RenderMesh(meshList[GEO_DODGER_HAND], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0.2, 0);
+				modelStack.Rotate(180, 0, 1, 0);
+				modelStack.Translate(0, 2, 0);
+				modelStack.Rotate(dodgerArmSwing - 60, 0, 0, 1);
+				modelStack.Translate(0, -2, 0);
+				RenderMesh(meshList[GEO_DODGER_HAND], true);
+				modelStack.PopMatrix();
+					modelStack.PushMatrix();
+					modelStack.Translate(0, 0, -0.05);
+					modelStack.Translate(0, 1.5, 0);
+					modelStack.Rotate(dodgerLegSwing + 340, 0, 0, 1);
+					modelStack.Translate(0, -1.5, 0);
+					RenderMesh(meshList[GEO_DODGER_LEG], true);
+					modelStack.PopMatrix();
+
+					modelStack.PushMatrix();
+					modelStack.Translate(0, 0, 0.05);
+					modelStack.Rotate(180, 0, 1, 0);
+					modelStack.Translate(0, 1.5, 0);
+					modelStack.Rotate(dodgerLegSwing - 20, 0, 0, 1);
+					modelStack.Translate(0, -1.5, 0);
+					RenderMesh(meshList[GEO_DODGER_LEG], true);
+					modelStack.PopMatrix();
 			modelStack.PopMatrix();
 		}
 	}
@@ -1369,13 +1683,79 @@ void SceneStage2::RenderMonster()
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
+			Vector3 B = MonsterFodderPtr[i]->pos - camera.position;
+			B.y = camera.position.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				fRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				fRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				fRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				fRot = 180 - rotation;
+			else
+				fRot = rotation;
+
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y - 10, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Rotate(fRot + 90, 0, 1, 0);
 			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
+			RenderMesh(meshList[GEO_FODDER_BODY], true);
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0, 0.05);
+				modelStack.Translate(0, 1.5, 0);
+				modelStack.Rotate(fodderArmSwing + 300, 0, 0, 1);
+				modelStack.Translate(0, -1.5, 0);
+				RenderMesh(meshList[GEO_FODDER_HAND], true);
+				modelStack.PopMatrix();
+
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0, -0.05);
+				modelStack.Rotate(180, 0, 1, 0);
+				modelStack.Translate(0, 1.5, 0);
+				modelStack.Rotate(fodderArmSwing - 60, 0, 0, 1);
+				modelStack.Translate(0, -1.5, 0);
+				RenderMesh(meshList[GEO_FODDER_HAND], true);
+				modelStack.PopMatrix();
 			modelStack.PopMatrix();
 		}
 	}
+
+	//Render For the Archer
+	/*
+		modelStack.PushMatrix();
+			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
+			modelStack.Scale(10, 10, 10);
+			RenderMesh(meshList[GEO_DODGER_BODY], true);
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0, 4.3);
+				modelStack.Rotate(180, 0, 1, 0);
+				modelStack.Translate(0, 2, 0);
+				modelStack.Rotate(80, 0, 0, 1);
+				modelStack.Translate(0, -2, 0);
+				RenderMesh(meshList[GEO_ARCHER_HAND], true);
+				modelStack.PopMatrix();
+					modelStack.PushMatrix();
+					modelStack.Translate(0, 0, -0.05); 
+					modelStack.Translate(0, 1.5, 0);
+					modelStack.Rotate(archerLegSwing + 340, 0, 0, 1);
+					modelStack.Translate(0, -1.5, 0);
+					RenderMesh(meshList[GEO_ARCHER_LEG], true);
+					modelStack.PopMatrix();
+					modelStack.PushMatrix();
+					modelStack.Translate(0, 0, 4.3);
+					modelStack.Rotate(180, 0, 1, 0);
+					modelStack.Translate(0, 1.5, 0);
+					modelStack.Rotate(archerLegSwing - 20, 0, 0, 1);
+					modelStack.Translate(0, -1.5, 0);
+					RenderMesh(meshList[GEO_ARCHER_LEG], true);
+					modelStack.PopMatrix();
+			modelStack.PopMatrix();
+	*/
 
 }
 void SceneStage2::RenderMonsterBullets()
@@ -1422,36 +1802,39 @@ void SceneStage2::RenderUi()
 }
 void SceneStage2::RenderPickups()
 {
-	modelStack.PushMatrix();
-	modelStack.Translate(100, pickupsY, pickupsZ);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_TEST], false);
-	modelStack.PopMatrix();
+	if (pickupsSpawn)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(0, pickupsY, pickupsZ);
+		modelStack.Scale(5, 2, 5);
+		RenderMesh(meshList[GEO_PICKUP], false);
+		modelStack.PopMatrix();
+	}
 }
 void SceneStage2::RenderObjectives()
 {
 	std::ostringstream monsLeft;
 	monsLeft << std::fixed << std::setprecision(1);
-	monsLeft << "kill 5 guardians(" << monLeft << "/5)";
+	monsLeft << "kill 5 guardians(" << monDead << "/5)";
 	modelStack.PushMatrix();
 	std::ostringstream barrierLeft;
 	barrierLeft << std::fixed << std::setprecision(1);
-	barrierLeft << "the glowing barriers (" << flowersAmt << "/3)";
+	barrierLeft << "the glowing roots (" << flowersAmt << "/3)";
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 0.8, 1), 2, 34, 29);
 	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 0.8, 1), 2, 32, 28);
 	if (!objectiveOne)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 0.8, 1), 2, 26, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 0.8, 1), 2, 26.2, 27);
 	}
 	if (objectiveOne && !objectiveTwo)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0, 0.3, 1), 2, 29, 27);
-		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0, 0.8, 1), 2, 22, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0, 0.8, 1), 2, 26.2, 26);
 	}
 	if (objectiveTwo && !objectiveThree)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0, 0, 0), 3, 10, 18);
+		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0, 0, 0), 3, 10.5, 18);
 	}
 	modelStack.PopMatrix();
 }
