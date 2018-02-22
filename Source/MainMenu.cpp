@@ -340,6 +340,7 @@ void MainMenu::Update(double dt)
 				if (Application::muted)
 				{
 					Application::muteToggle = true;
+					Application::inMenu = false;
 				}
 				else if (!Application::muted)
 				{
