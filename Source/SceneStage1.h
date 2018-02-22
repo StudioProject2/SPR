@@ -1,5 +1,5 @@
-#ifndef SCENE_STAGE1
-#define SCENE_STAGE1
+#ifndef SCENE_STAGE_1
+#define SCENE_STAGE_1
 
 #include "Scene.h"
 #include "Camera.h"
@@ -11,13 +11,14 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
 
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 1
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
@@ -138,6 +139,9 @@ class SceneStage1 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_CAGE,
+		GEO_CAGEDOOR,
+
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
@@ -154,9 +158,6 @@ public:
 
 private:
 	unsigned m_vertexArrayID;
-	//unsigned m_vertexBuffer[NUM_GEOMETRY];
-	//unsigned m_colorBuffer[NUM_GEOMETRY];
-	//unsigned m_indexBuffer;
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
@@ -169,11 +170,7 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double monsterTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
+	double bulletBounceTime;
 
 	bool gameOver;
 
@@ -190,6 +187,8 @@ private:
 	void RenderBullets();
 	void RenderHitmarker();
 
+	void RenderMeshOnScreen(Mesh* mesh, int x, int y, int sizex, int sizey);
+
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
@@ -200,6 +199,18 @@ private:
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+
+	//Monster Fodder
+	Monster *MonsterFodderPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+	double monsterFodderTime;
+
+	//Interaction variables/Methods
+	bool nearCageDoor;
+	bool inCage;
+	bool isNearObject(Camera3 camera, Box object);
+	void UpdateInteractions();
+
 };
 
 #endif

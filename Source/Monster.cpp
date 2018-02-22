@@ -136,6 +136,7 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 		monsterDirTime = elaspeTime + 2.0;
 	}
 
+	//Monster Spawn
 	if (Application::whatScene == Application::STAGE1)
 	{
 		boundsCheckStage1();
@@ -157,7 +158,7 @@ void Monster::moveRand(Vector3 camPos, double elaspeTime)
 
 void Monster::boundsCheckStage1()
 {
-	Box cube = Box(Vector3(0, 0, 0), 120);
+	Box cube = Box(Vector3(0, 0, 0), 0);
 
 	//Spawn Check, so mob wont spawn in objects
 	if (firstSpawn == true)
@@ -170,7 +171,7 @@ void Monster::boundsCheckStage1()
 			spawnPtX = (rand() % 1400 - 700) + 1.0;
 			spawnPtZ = (rand() % 1400 - 700) + 1.0;
 
-			pos = Vector3(spawnPtX, 10, spawnPtZ);
+			pos = Vector3(spawnPtX, 0, spawnPtZ);
 			dirChanger = 0;
 			moveRight = true;
 			monsterDirTime = 0.0;
