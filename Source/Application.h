@@ -23,6 +23,10 @@ public:
 	static void GetMousePosition(double &xPos, double &yPos);
 	static int sceneChange;
 	static int whatScene;
+	static bool muted;
+	static bool muteToggle;
+	static bool inMenu;
+
 	enum sceneType
 	{
 		MAINMENU,
@@ -38,7 +42,6 @@ private:
 
 	//Declare a window object
 	StopWatch m_timer;
-
 	ISoundEngine* engine = createIrrKlangDevice();
 };
 

@@ -485,7 +485,7 @@ void Camera3::Update(double dt)
 
 	if (Application::IsKeyPressed('A'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
@@ -496,7 +496,7 @@ void Camera3::Update(double dt)
 	}
 	if (Application::IsKeyPressed('D'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
@@ -507,7 +507,7 @@ void Camera3::Update(double dt)
 	}
 	if (Application::IsKeyPressed('W'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
@@ -518,7 +518,7 @@ void Camera3::Update(double dt)
 	}
 	if (Application::IsKeyPressed('S'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
