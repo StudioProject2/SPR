@@ -150,12 +150,10 @@ void Application::Run()
 		}
 		if (Application::sceneChange == LEVELMENU)
 		{
-			engine->stopAllSounds();
 			ShowCursor(true);
 			scene = sceneLevel;
 			scene->Init();
 			whatScene = LEVELMENU;
-			engine->play2D("Sound/menuBGM.mp3", true);
 			Application::sceneChange = 10;
 		}
 		if (Application::sceneChange == STAGE1)
