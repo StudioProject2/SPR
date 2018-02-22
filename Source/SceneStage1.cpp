@@ -46,6 +46,7 @@ void SceneStage1::Init()
 	}
 	monsterFodderTime = elaspeTime + 3.0;
 
+	mobDead = 0;
 	nearCageDoor = false;
 	inCage = true;
 
@@ -316,6 +317,11 @@ void SceneStage1::Update(double dt)
 	camera.Update(dt);
 	UpdateInteractions();
 
+	if (mobDead > 5)
+	{
+		Application::sceneChange = Application::STAGE2;
+	}
+
 }
 void SceneStage1::UpdateBullets()
 {
@@ -381,31 +387,6 @@ void SceneStage1::UpdateMonsters()
 	if (inCage == true)
 		return;
 
-	
-	if (elaspeTime > monsterTime)
-	{
-		for (int i = 0; i < MOBNUM; i++)
-		{
-			if (MonsterPtr[i] == NULL)
-			{
-				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-				monsterTime = elaspeTime + 3.0;
-				break;
-			}
-		}
-	}
-
-	for (int i = 0; i < MOBNUM; i++)
-	{
-		if (MonsterPtr[i] != NULL)
-		{
-			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-		}
-	}
-	
-
 	//MonsterFodder
 	if (elaspeTime > monsterFodderTime)
 	{
@@ -439,6 +420,7 @@ void SceneStage1::UpdateMonsters()
 				delete monsterFodderBoxPtr[i];
 				MonsterFodderPtr[i] = NULL;
 				monsterFodderBoxPtr[i] = NULL;
+				mobDead++;
 			}
 		}
 	}

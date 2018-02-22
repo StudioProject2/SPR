@@ -18,7 +18,7 @@
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 1
+#define MOBNUM 10
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
@@ -204,6 +204,9 @@ private:
 	Monster *MonsterFodderPtr[MOBNUM];
 	Box *monsterFodderBoxPtr[MOBNUM];
 	double monsterFodderTime;
+
+	//MonsterCount
+	int mobDead;
 
 	//Interaction variables/Methods
 	bool nearCageDoor;
