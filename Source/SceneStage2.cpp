@@ -738,6 +738,7 @@ void SceneStage2::UpdateMonsterBullets()
 			if (monsterBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= 10;
+				engine->play2D("Sound/dinosaurRoar1.wav", false);
 				delete monsterBulletPtr[i];
 				monsterBulletPtr[i] = NULL;
 			}
@@ -852,6 +853,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
+					engine->play2D("Sound/highHumanHit.wav", false);
 					/*
 					if (MonsterPtr[mon]->health <= 0)
 					{
@@ -892,6 +894,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
+					engine->play2D("Sound/femaleHit.wav", false);
 				}
 				if (isHit)
 				{
@@ -989,16 +992,19 @@ void SceneStage2::UpdateInteractions()
 			{
 				if (treeLifeOne)
 				{
+					engine->play2D("Sound/treeCut1.wav", false);
 					treeFallTimer = 60;
 					fallingStage = 1;
 				}
 				else if (treeLifeTwo && !treeLifeOne)
 				{
+					engine->play2D("Sound/treeCut1.wav", false);
 					treeFallTimer = 60;
 					fallingStage = 2;
 				}
 				else if (treeLifeThree && !treeLifeTwo)
 				{
+					engine->play2D("Sound/treeCut2.wav", false);
 					treeFallTimer = 60;
 					fallingStage = 3;
 				}
@@ -1012,6 +1018,14 @@ void SceneStage2::UpdateInteractions()
 				flowersAmt += 1;
 				light[1].power = 0;
 				glUniform1f(m_parameters[U_LIGHT1_POWER], light[1].power);
+				if (flowersAmt == 3)
+				{
+					engine->play2D("Sound/bigDing.wav", false);
+				}
+				else
+				{
+					engine->play2D("Sound/ding.wav", false);
+				}
 			}
 			if (isNearObject(camera, flowerOfLifeTwo))
 			{
@@ -1019,6 +1033,14 @@ void SceneStage2::UpdateInteractions()
 				flowersAmt += 1;
 				light[2].power = 0;
 				glUniform1f(m_parameters[U_LIGHT2_POWER], light[2].power);
+				if (flowersAmt == 3)
+				{
+					engine->play2D("Sound/bigDing.wav", false);
+				}
+				else
+				{
+					engine->play2D("Sound/ding.wav", false);
+				}
 			}
 			if (isNearObject(camera, flowerOfLifeThree))
 			{
@@ -1026,6 +1048,14 @@ void SceneStage2::UpdateInteractions()
 				flowersAmt += 1;
 				light[3].power = 0;
 				glUniform1f(m_parameters[U_LIGHT3_POWER], light[3].power);
+				if (flowersAmt == 3)
+				{
+					engine->play2D("Sound/bigDing.wav", false);
+				}
+				else
+				{
+					engine->play2D("Sound/ding.wav", false);
+				}
 			}
 		}
 	}
