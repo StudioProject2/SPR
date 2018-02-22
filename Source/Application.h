@@ -3,6 +3,11 @@
 #define APPLICATION_H
 
 #include "timer.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 class Application
 {
@@ -33,6 +38,8 @@ private:
 
 	//Declare a window object
 	StopWatch m_timer;
+
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif
