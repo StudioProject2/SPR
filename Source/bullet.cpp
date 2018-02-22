@@ -28,7 +28,10 @@ void bullet::updateBullet(Vector3 view, Camera3 camera, bullet &isShot)
 		shootTarget = view;
 		throws = camera.position;
 		offsetY = 0;
-		engine->play2D("Sound/spit.wav", false);
+		if (!Application::muted)
+		{
+			engine->play2D("Sound/spit.wav", false);
+		}
 	}
 	if (shot)
 	{

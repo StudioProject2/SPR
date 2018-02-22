@@ -361,7 +361,10 @@ void SceneBoss::Update(double dt)
 			if (directBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= DIRECTBULLETDMG;
-				engine->play2D("Sound/humanHit.wav", false);
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/humanHit.wav", false);
+				}
 				delete directBulletPtr[i];
 				directBulletPtr[i] = NULL;
 			}
@@ -384,7 +387,10 @@ void SceneBoss::Update(double dt)
 			if (ringBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= RINGBULLETDMG;
-				engine->play2D("Sound/humanHit.wav", false);
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/humanHit.wav", false);
+				}
 				delete ringBulletPtr[i];
 				ringBulletPtr[i] = NULL;
 			}
@@ -407,7 +413,10 @@ void SceneBoss::Update(double dt)
 			if (groundBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= GROUNDBULLETDMG;
-				engine->play2D("Sound/humanHit.wav", false);
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/humanHit.wav", false);
+				}
 				delete groundBulletPtr[i];
 				groundBulletPtr[i] = NULL;
 			}
@@ -757,7 +766,10 @@ void SceneBoss::UpdateBossHitbox()
 
 	if (isHit)
 	{
-		engine->play2D("Sound/humanHit.wav", false);
+		if (!Application::muted)
+		{
+			engine->play2D("Sound/humanHit.wav", false);
+		}
 		boss.setHealth(boss.getHealth() - 1);
 		hitmarkerTimer = 50;
 	}
@@ -870,7 +882,10 @@ void SceneBoss::UpdateMonsterHitbox()
 					hitmarkerTimer = 50;
 					bulletPtr[bul]->monsterHit(camera);
 					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
-					engine->play2D("Sound/humanHit.wav", false);
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/humanHit.wav", false);
+					}
 					isHit = false;
 				}
 			}
