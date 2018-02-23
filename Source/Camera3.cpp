@@ -201,24 +201,24 @@ void Camera3::BoundsCheckStage1()
 	}
 
 	
-	if (position.x > 790)
+	if (position.x > 595)
 	{
-		position.x = 790;
+		position.x = 595;
 		target = position + view;
 	}
-	if (position.x < -790)
+	if (position.x < -595)
 	{
-		position.x = -790;
+		position.x = -595;
 		target = position + view;
 	}
-	if (position.z > 790)
+	if (position.z > 595)
 	{
-		position.z = 790;
+		position.z = 595;
 		target = position + view;
 	}
-	if (position.z < -790)
+	if (position.z < -595)
 	{
-		position.z = -790;
+		position.z = -595;
 		target = position + view;
 	}
 	
@@ -274,25 +274,33 @@ void Camera3::BoundsCheckStage3()
 	_collidedY = false;
 	_collidedZ = false;
 
-	Box cube = Box(Vector3(0, 0, 0), 105);
-	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
+	Box hut1 = Box(Vector3(200, -10, 0), 50);
+	Box hut2 = Box(Vector3(200, -10, 200), 50);
+	Box hut3 = Box(Vector3(-200, -10, 0), 50);
+	Box hut4 = Box(Vector3(-200, -10, 200), 50);
 
-	if (isPointXInBox(position, cube)
-		|| isPointXInBox(position, cube2)
+	if (isPointXInBox(position, hut1)
+		|| isPointXInBox(position, hut2)
+		|| isPointXInBox(position, hut3)
+		|| isPointXInBox(position, hut4)
 		)
 	{
 		_collidedX = true;
 	}
 
-	if (isPointYInBox(position, cube)
-		|| isPointYInBox(position, cube2)
+	if (isPointYInBox(position, hut1)
+		|| isPointYInBox(position, hut2)
+		|| isPointYInBox(position, hut3)
+		|| isPointYInBox(position, hut4)
 		)
 	{
 		_collidedY = true;
 	}
 
-	if (isPointZInBox(position, cube)
-		|| isPointZInBox(position, cube2)
+	if (isPointZInBox(position, hut1)
+		|| isPointZInBox(position, hut2)
+		|| isPointZInBox(position, hut3)
+		|| isPointZInBox(position, hut4)
 		)
 	{
 		_collidedZ = true;
@@ -496,7 +504,7 @@ void Camera3::Update(double dt)
 
 	if (Application::IsKeyPressed('A'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
@@ -507,7 +515,7 @@ void Camera3::Update(double dt)
 	}
 	if (Application::IsKeyPressed('D'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
@@ -518,7 +526,7 @@ void Camera3::Update(double dt)
 	}
 	if (Application::IsKeyPressed('W'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;
@@ -529,7 +537,7 @@ void Camera3::Update(double dt)
 	}
 	if (Application::IsKeyPressed('S'))
 	{
-		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION)
+		if (elaspeTime > footstepsTime && position.y == FLOOR_POSITION && !Application::muted)
 		{
 			engine->play2D("Sound/footsteps.wav", false);
 			footstepsTime = elaspeTime + 0.3;

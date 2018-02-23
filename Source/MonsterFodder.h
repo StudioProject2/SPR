@@ -9,6 +9,7 @@ class MonsterFodder : public Monster
 {
 public:
 	MonsterFodder();
+	MonsterFodder(Vector3);
 	~MonsterFodder();
 
 	int health;

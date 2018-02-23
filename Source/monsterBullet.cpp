@@ -83,7 +83,16 @@ bool monsterBullet::bulletCollideStage2()
 
 bool monsterBullet::bulletCollideStage3()
 {
+	Box hut1 = Box(Vector3(200, -10, 0), 50);
+	Box hut2 = Box(Vector3(200, -10, 200), 50);
+	Box hut3 = Box(Vector3(-200, -10, 0), 50);
+	Box hut4 = Box(Vector3(-200, -10, 200), 50);
+
 	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800
+		|| isBulletInBox(hut1)
+		|| isBulletInBox(hut2)
+		|| isBulletInBox(hut3)
+		|| isBulletInBox(hut4)
 		)
 	{
 		return true;

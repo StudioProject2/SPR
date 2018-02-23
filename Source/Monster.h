@@ -7,6 +7,7 @@ class Monster
 {
 public:
 	Monster();
+	Monster(Vector3);
 	~Monster();
 	enum direction
 	{
