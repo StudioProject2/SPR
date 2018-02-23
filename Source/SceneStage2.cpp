@@ -50,6 +50,7 @@ void SceneStage2::Init()
 	hitmarkerSize = 0;
 	bulletBounceTime = 0.0;
 	LoadingTimer = 0;
+	playerHurtBounceTime = 0.0;
 	//Sizes
 	sizeDotOne = 0;
 	sizeDotTwo = 0;
@@ -920,6 +921,38 @@ void SceneStage2::UpdateMonsterHitbox()
 		}
 	}
 
+	//When player touch monster hitbox
+	Box *playerBox = new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (monsterBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterBoxPtr[i]))
+			{
+				player->health -= 10;
+				playerHurtBounceTime = elaspeTime + 0.5;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurRoar1.wav", false);
+				}
+			}
+		}
+
+		if (monsterFodderBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
+			{
+				player->health -= 10;
+				playerHurtBounceTime = elaspeTime + 0.5;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurRoar1.wav", false);
+				}
+			}
+		}
+	}
+
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -1659,7 +1692,7 @@ void SceneStage2::RenderMonster()
 		if (MonsterPtr[i] != NULL)
 		{
 			Vector3 B = MonsterPtr[i]->pos - camera.position;
-			B.y = camera.position.y;
+			B.y = MonsterPtr[i]->pos.y;
 
 			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
 			rotation = rotation * (180 / 3.14);
@@ -1720,7 +1753,7 @@ void SceneStage2::RenderMonster()
 		if (MonsterFodderPtr[i] != NULL)
 		{
 			Vector3 B = MonsterFodderPtr[i]->pos - camera.position;
-			B.y = camera.position.y;
+			B.y = MonsterFodderPtr[i]->pos.y;
 
 			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
 			rotation = rotation * (180 / 3.14);
@@ -1866,7 +1899,7 @@ void SceneStage2::RenderObjectives()
 	if (objectiveOne && !objectiveTwo)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0, 0.3, 1), 2, 29, 27);
-		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0, 0.8, 1), 2, 26.2, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0, 0.8, 1), 2, 24.2, 26);
 	}
 	if (objectiveTwo && !objectiveThree)
 	{

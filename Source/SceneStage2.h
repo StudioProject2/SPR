@@ -292,6 +292,9 @@ private:
 	Box *bulletBoxPtr[NO_OF_BULLETS];
 
 	ISoundEngine* engine = createIrrKlangDevice();
+
+	//Player Hurt
+	double playerHurtBounceTime;
 };
 
 #endif
