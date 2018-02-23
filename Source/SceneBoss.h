@@ -11,15 +11,21 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
+#include "MonsterArcher.h"
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Boss.h"
 #include "Player.h"
+#include "irrKlang.h"
 
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 2
 #define MOB_SIZE 10
 #define MOBBULLETDELAY 2.0
 
@@ -118,6 +124,20 @@ class SceneBoss : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
+		GEO_DODGER_WEAPON,
+		GEO_ARCHER_BODY,
+		GEO_ARCHER_HAND,
+		GEO_ARCHER_LEG,
+		GEO_ARCHER_WEAPON,
+		GEO_BOSS_BODY,
+		GEO_BOSS_HAND,
+		GEO_BOSS_LEG,
+
 		GEO_GROUNDSIGNAL,
 
 		GEO_FLOOR,
@@ -179,6 +199,7 @@ private:
 	void UpdateBossMovement();
 	void UpdateBossHitbox();
 	void UpdateBossBullets();
+	void UpdateMonsterAnimations();
 
 	void RenderBullets();
 	void RenderHitmarker();
@@ -199,6 +220,19 @@ private:
 	Box *bossBox;
 	Vector3 groundAreaCenter;
 
+	//STUFF THEO ADDED
+	int monDead;
+	double bulletBounceTime;
+	//MonsterArcher and MonsterFodder
+	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterArcherPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+	Box *monsterArcherBoxPtr[MOBNUM];
+	monsterBullet *monsterArcherBulletPtr[DIRECTBULLETNUM];
+	double monsterArcherBulletDelay[MOBNUM];
+	double monsterFodderTime;
+	double monsterArcherTime;
+
 	int bossMovement;
 	enum bossMovementState
 	{
@@ -208,7 +242,23 @@ private:
 		CHARGE
 	};
 
+	//monster Animations
+	//Monster Animations Logic
+	int fodSwingTimer;
+	bool fodLeft;
+	double fodderArmSwing;
+	int dodSwingTimer;
+	bool dodLeft;
+	double dodgerArmSwing;
+	double dodgerLegSwing;
+	int arcSwingTimer;
+	bool arcLeft;
+	double archerArmSwing;
+	double archerLegSwing;
+
+
 	Player *player;
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif

@@ -15,6 +15,11 @@
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Player.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
@@ -137,6 +142,7 @@ class SceneStage2 : public Scene
 		GEO_DODGER_BODY,
 		GEO_DODGER_HAND,
 		GEO_DODGER_LEG,
+		GEO_DODGER_WEAPON,
 
 		GEO_PLAYER_TEETH,
 
@@ -285,6 +291,11 @@ private:
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+
+	ISoundEngine* engine = createIrrKlangDevice();
+
+	//Player Hurt
+	double playerHurtBounceTime;
 };
 
 #endif
