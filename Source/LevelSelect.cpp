@@ -310,12 +310,17 @@ void LevelSelect::Update(double dt)
 
 	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 270 && posy < 300)
+		if (posx > 245 && posx < 535)
 		{
-			if (posx > 245 && posx < 535)
+			if (posy > 270 && posy < 300)
 			{
 				//Level 1
-				Application::sceneChange = Application::STAGE1;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
+				Application::sceneChange = Application::STAGELOSE;
 				//std::cout << "you have started the game" << endl;
 			}
 		}
@@ -323,7 +328,11 @@ void LevelSelect::Update(double dt)
 		{
 			if (posy > 340 && posy < 365)
 			{
-				//Stage 3
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE2;
 			}
 		}
@@ -331,7 +340,11 @@ void LevelSelect::Update(double dt)
 		{
 			if (posy > 405 && posy < 435)
 			{
-				//Stage 3
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE3;
 			}
 		}
@@ -339,7 +352,11 @@ void LevelSelect::Update(double dt)
 		{
 			if (posy > 465 && posy < 490)
 			{
-				//Boss Level
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE4;
 			}
 		}
@@ -347,21 +364,17 @@ void LevelSelect::Update(double dt)
 		{
 			if (posy > 535 && posy < 565)
 			{
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
 				//Back to Main Menu
-				Application::sceneChange = Application::MAINMENU;
+				Application::sceneChange = 0;
 			}
 		}
 	}
 
-
-
-
-
 	camera.Update(dt);
-
-	std::cout << posx << std::endl;
-	std::cout << posy << std::endl;
-	//std::cout << camera.position << std::endl;
 }
 
 void LevelSelect::Render()

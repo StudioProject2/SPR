@@ -1,5 +1,5 @@
-#ifndef SCENE_STAGE_1
-#define SCENE_STAGE_1
+#ifndef LOSE_H
+#define LOSE_H
 
 #include "Scene.h"
 #include "Camera.h"
@@ -9,21 +9,13 @@
 #include "Light.h"
 #include "Camera3.h"
 #include "CameraDebug.h"
-#include "Box.h"
-#include "Monster.h"
-#include "MonsterFodder.h"
-#include "monsterBullet.h"
-#include "bullet.h"
+#include "irrKlang.h"
 
+#pragma comment(lib, "irrKlang.lib")
 
-#define NO_OF_BULLETS 20
-#define BULLET_SIZE 1
-#define MOBNUM 10
-#define MOB_SIZE 10
-#define MOBBULLETNUM 100
-#define MOBBULLETDELAY 2.0
+using namespace irrklang;
 
-class SceneStage1 : public Scene
+class LoseScene : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -96,6 +88,7 @@ class SceneStage1 : public Scene
 	};
 
 
+
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -117,8 +110,6 @@ class SceneStage1 : public Scene
 		GEO_LIGHTBALL,
 		GEO_LIGHTBALL2,
 
-		GEO_BULLETS,
-
 		GEO_LEFT,
 		GEO_RIGHT,
 		GEO_TOP,
@@ -139,17 +130,14 @@ class SceneStage1 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
-		GEO_CAGE,
-		GEO_CAGEDOOR,
-
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
 	};
 
 public:
-	SceneStage1();
-	~SceneStage1();
+	LoseScene();
+	~LoseScene();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -158,62 +146,40 @@ public:
 
 private:
 	unsigned m_vertexArrayID;
+	//unsigned m_vertexBuffer[NUM_GEOMETRY];
+	//unsigned m_colorBuffer[NUM_GEOMETRY];
+	//unsigned m_indexBuffer;
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
+	float rotateAngle;
+	float translateX;
+	float scaleAll;
+
+	float rotateAmt;
+	float translateAmt;
+	float scaleAmt;
+
+	float rotateStar;
+	float rotateStar2;
+
+	//Spawner
+	bool spawn = false;
+
+
 	MS modelStack, viewStack, projectionStack;
 
-	Camera3 camera;
-
-	double elaspeTime;
-	double tempElaspeTime;
-	double deltaTime;
-	double monsterTime;
-	double bulletBounceTime;
-
-	bool gameOver;
+	Camera camera;
 
 	Light light[4];
+
+
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-
-	void UpdateBullets();
-	void UpdateMonsters();
-	void UpdateMonsterBullets();
-	void UpdateMonsterHitbox();
-
-	void RenderBullets();
-	void RenderHitmarker();
-
-	void RenderMeshOnScreen(Mesh* mesh, int x, int y, int sizex, int sizey);
-
-	int hitmarkerSize;
-	int hitmarkerTimer;
-
-	Monster *MonsterPtr[MOBNUM];
-	Box *monsterBoxPtr[MOBNUM];
-	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-	double monsterBulletDelay[MOBNUM];
-	bullet *bulletPtr[NO_OF_BULLETS];
-	bullet start;
-	Box *bulletBoxPtr[NO_OF_BULLETS];
-
-	//Monster Fodder
-	Monster *MonsterFodderPtr[MOBNUM];
-	Box *monsterFodderBoxPtr[MOBNUM];
-	double monsterFodderTime;
-
-	//MonsterCount
-	int mobDead;
-
-	//Interaction variables/Methods
-	bool nearCageDoor;
-	bool inCage;
-	bool isNearObject(Camera3 camera, Box object);
-	void UpdateInteractions();
-
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif
+

@@ -11,16 +11,22 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Player.h"
+#include "irrKlang.h"
 
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
-#define MOB_SIZE 10
+#define MOBNUM 5
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
+#define MOBNUM_TO_KILL 5
 
 class SceneStage2 : public Scene
 {
@@ -94,27 +100,25 @@ class SceneStage2 : public Scene
 		U_TOTAL,
 	};
 
-
+	//Place this above NUM_GEOMETRY
+	/*
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
+		GEO_ARCHER_BODY,
+		GEO_ARCHER_HAND,
+		GEO_ARCHER_LEG,
+	*/
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
 		GEO_QUAD,
-		GEO_QUAD1,
 		GEO_CUBE,
-		GEO_CIRCLE,
-		GEO_RING,
-		GEO_HEM,
 		GEO_SPHERE,
-		GEO_SPHERE1,
-		GEO_SPHERE2,
-		GEO_SPHERE3,
-		GEO_SPHERE4,
-		GEO_SPHERE5,
-		GEO_SPHERE6,
-		GEO_SPHERE7,
-		GEO_SPHERE8,
+		GEO_TEST,
 		GEO_LIGHTBALL,
-		GEO_LIGHTBALL2,
 
 		GEO_BULLETS,
 
@@ -125,24 +129,21 @@ class SceneStage2 : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
-		GEO_FLOOR,
-		GEO_FENCE,
-		GEO_CHAIR,
-		GEO_WALL,
-		GEO_WATCHWALL,
-		GEO_TUNNEL,
-		GEO_BOMB,
-		GEO_TENT,
-		GEO_LAMP,
-		GEO_TANK,
-		GEO_WATCHTOWER,
-		GEO_GUY,
-
+		GEO_BARRIER,
 		GEO_TREE,
 		GEO_GRASS_PATCH,
 		GEO_GRASS_LINE,
 		GEO_FLOWER,
 		GEO_ROCK,
+		GEO_PICKUP,
+
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
+
+		GEO_PLAYER_TEETH,
 
 		GEO_TEXT,
 
@@ -160,61 +161,137 @@ public:
 
 private:
 	unsigned m_vertexArrayID;
-	//unsigned m_vertexBuffer[NUM_GEOMETRY];
-	//unsigned m_colorBuffer[NUM_GEOMETRY];
-	//unsigned m_indexBuffer;
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
 
 	MS modelStack, viewStack, projectionStack;
-
+	
+	//inits
 	Camera3 camera;
-
 	double elaspeTime;
 	double tempElaspeTime;
 	double deltaTime;
-	double monsterTime;
-	double pauseTime;
+	double bulletBounceTime;
 	double monster1BulletTime;
 	double monster2BulletTime;
 	double monster3BulletTime;
 	double monster4BulletTime;
 	double monster5BulletTime;
+	int monDead;
+	int monLeft;
 
+	bool nextStage;
 	bool gameOver;
-	bool nextLevel;
 
+	//Base-Render function
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
 
+	//AB box checkers
+	bool isInObjectZ(Camera3 camera, Box object);
+	bool isInObjectY(Camera3 camera, Box object);
+	bool isInObjectX(Camera3 camera, Box object);
+	bool isNearObject(Camera3 camera, Box object);
+
+	//Updates
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateInteractions();
+	void UpdateCollision();
+	void UpdateObjective();
+	void UpdatePickups();
 
+	void UpdateMonsterAnimations();
+
+	//Renders
 	void RenderBullets();
 	void RenderHitmarker();
 	void RenderMonster();
-	void RednerMonsterBullets();
+	void RenderMonsterBullets();
 	void RenderLights();
 	void RenderSkybox();
 	void RenderObj();
 	void RenderMisc();
 	void RenderUi();
+	void RenderPickups();
+	void RenderObjectives();
+	void RenderTopTeeth();
+	void RenderBottomTeeth();
 
+	//hit markers
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
+	//text size
+	int LoadingTimer;
+	int sizeDotOne;
+	int sizeDotTwo;
+	int sizeDotThree;
+	int interactionSize;
+
+	//tree and flowers logic
+	int flowersAmt;
+	bool flowerOneLife;
+	bool flowerTwoLife;
+	bool flowerThreeLife;
+	bool treeLifeOne;
+	bool treeLifeTwo;
+	bool treeLifeThree;
+	double treeY;
+	double treeRotate;
+	int treeFallTimer;
+	int fallingStage;
+
+	//pickups logic
+	int pickupsTimer;
+	bool pickupsSpawn;
+	bool pickupsFlying;
+	double pickupsY;
+	double pickupsZ;
+
+	//player
+	Player* player;
+
+	//objectives
+	bool objectiveOne;
+	bool objectiveTwo;
+	bool objectiveThree;
+
+	//Monster Arrays
 	Monster *MonsterPtr[MOBNUM];
+	Monster *MonsterFodderPtr[MOBNUM];
+
+	//MonsterHitBoxes
 	Box *monsterBoxPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+
+	//Monster Bullets
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
+
+	//Monster Times
+	double monsterFodderTime;
+	double monsterTime;
+
+	//Monster Animations Logic
+	int fodSwingTimer;
+	bool fodLeft;
+	double fodderArmSwing;
+	int dodSwingTimer;
+	bool dodLeft;
+	double dodgerArmSwing;
+	double dodgerLegSwing;
+
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif

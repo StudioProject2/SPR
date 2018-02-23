@@ -11,16 +11,31 @@
 #include "CameraDebug.h"
 #include "Box.h"
 #include "Monster.h"
+#include "MonsterFodder.h"
+#include "MonsterArcher.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Boss.h"
+#include "Player.h"
+#include "irrKlang.h"
 
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM 2
 #define MOB_SIZE 10
-#define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
+
+#define DIRECTBULLETNUM 100
+#define RINGBULLETNUM 100
+#define GROUNDBULLETNUM 1000
+
+#define DIRECTBULLETDMG 10
+#define RINGBULLETDMG 10
+#define GROUNDBULLETDMG 20
 
 class SceneBoss : public Scene
 {
@@ -109,6 +124,8 @@ class SceneBoss : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
+		GEO_GROUNDSIGNAL,
+
 		GEO_FLOOR,
 		GEO_BUILDING,
 		GEO_FENCE,
@@ -144,13 +161,17 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double monsterTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
+	double bossPlayerShootTime;
+	double bossRingShootTime;
+	double bossMovementChangeTime;
+	double bossGroundAttackTime;
+	double bossChangeGroundTargetTime;
+	double bossGroundAttackDelayTime;
+	double groundSignalBlinkTime;
 
+	bool printGroundSignal;
 	bool gameOver;
+	bool win;
 
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
@@ -161,6 +182,9 @@ private:
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateBossMovement();
+	void UpdateBossHitbox();
+	void UpdateBossBullets();
 
 	void RenderBullets();
 	void RenderHitmarker();
@@ -168,13 +192,43 @@ private:
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
+	Boss boss;
 	Monster *MonsterPtr[MOBNUM];
 	Box *monsterBoxPtr[MOBNUM];
-	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
+	monsterBullet *directBulletPtr[DIRECTBULLETNUM];
+	monsterBullet *ringBulletPtr[RINGBULLETNUM];
+	monsterBullet *groundBulletPtr[GROUNDBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
+	Box *bossBox;
+	Vector3 groundAreaCenter;
+
+	//STUFF THEO ADDED
+	int monDead;
+	double bulletBounceTime;
+	//MonsterArcher and MonsterFodder
+	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterArcherPtr[MOBNUM];
+	Box *monsterFodderBoxPtr[MOBNUM];
+	Box *monsterArcherBoxPtr[MOBNUM];
+	monsterBullet *monsterArcherBulletPtr[DIRECTBULLETNUM];
+	double monsterArcherBulletDelay[MOBNUM];
+	double monsterFodderTime;
+	double monsterArcherTime;
+
+	int bossMovement;
+	enum bossMovementState
+	{
+		STRAIGHT,
+		ZIGZAG,
+		ASCEND,
+		CHARGE
+	};
+
+	Player *player;
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif
