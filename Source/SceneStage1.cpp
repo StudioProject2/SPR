@@ -49,6 +49,8 @@ void SceneStage1::Init()
 	mobDead = 0;
 	nearCageDoor = false;
 	inCage = true;
+	player = Player::getInstance();
+	playerHurtBounceTime = 0.0;
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	glGenVertexArrays(1, &m_vertexArrayID);
@@ -237,7 +239,6 @@ void SceneStage1::Init()
 	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
-	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
 	meshList[GEO_FRONT]->textureID = LoadTGA("Image//Boss Stage/skybox_front.tga");
 	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -280,6 +281,14 @@ void SceneStage1::Init()
 	meshList[GEO_CAGEDOOR] = MeshBuilder::GenerateOBJ("cube", "OBJ//cageDoor.obj");
 	meshList[GEO_CAGEDOOR]->textureID = LoadTGA("Image//cage.tga");
 
+	//Player 
+	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
+	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
+	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_PLAYER_TEETH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PLAYER_TEETH]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_PLAYER_TEETH]->material.kShininess = 1.0f;
+
 	//Monsters
 
 	for (int i = 0; i < 25; i++)
@@ -296,9 +305,6 @@ void SceneStage1::Init()
 		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 	}
 }
-
-//TO DO: add a function to detect monster hit box
-
 
 //UPDATE FUNCTIONS
 void SceneStage1::Update(double dt)
@@ -487,6 +493,22 @@ void SceneStage1::UpdateMonsterHitbox()
 					bulletBounceTime = elaspeTime + 0.1;
 					isHit = false;
 				}
+			}
+		}
+	}
+
+	//Player Touch Monster
+	//When player touch monster hitbox
+	Box *playerBox = new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (monsterFodderBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
+			{
+				player->health -= 10;
+				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}
 	}
@@ -700,7 +722,6 @@ void SceneStage1::Render()
 			modelStack.Scale(10, 10, 10);
 			RenderMesh(meshList[GEO_CUBE], false);
 			modelStack.PopMatrix(); 
-			cout << MonsterFodderPtr[i]->pos.y << endl;
 		}
 	}
 
@@ -726,10 +747,7 @@ void SceneStage1::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
 	}
 
-	//FPS MODEL
-	modelStack.PushMatrix();
-	RenderMeshOnScreen(meshList[GEO_CUBE], 1, 1, 1, 1);
-	modelStack.PopMatrix();
+
 
 	//WALLS
 	//Front wall
@@ -796,9 +814,19 @@ void SceneStage1::Render()
 	if (nearCageDoor == true)
 	{
 		modelStack.PushMatrix();
-		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to break cage bars", Color(0, 1, 1), 2.5, 6, 1);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to break cage bars", Color(0, 1, 1), 2.5, 5, 5);
 	}
 
+	//Player health
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Player Health:" + to_string(player->health), Color(0, 1, 1), 2.5, 8, 1);
+	modelStack.PopMatrix();
+
+	//Player 
+	RenderTopTeeth();
+	RenderBottomTeeth();
+
+	RenderObjectives();
 
 	//FPS
 	std::ostringstream sFps;
@@ -907,7 +935,7 @@ void SceneStage1::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 	for (unsigned i = 0; i < text.length(); ++i)
 	{
 		Mtx44 characterSpacing;
-		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
+		characterSpacing.SetToTranslation(i * 0.7f, 0, 0); //1.0f is the spacing of each character, you may change this value
 		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
 		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
 
@@ -963,6 +991,74 @@ void SceneStage1::RenderHitmarker()
 {
 	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
 }
+void SceneStage1::RenderTopTeeth()
+{
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(-1.3, 8, -17);
+	modelStack.Rotate(180, 1, 0, 0);
+	modelStack.Rotate(180, 0, 1, 0);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneStage1::RenderBottomTeeth()
+{
+
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(1.3, -8, -17);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneStage1::RenderObjectives()
+{
+	modelStack.PushMatrix(); 
+	string escape = "Escape from the cage";
+
+	std::ostringstream monsLeft;
+	monsLeft << std::fixed << std::setprecision(1);
+	monsLeft << "kill 5 guardians(" << mobDead << "/5)";
+
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 1, 0), 2, 34, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 1, 0), 2, 32, 28);
+	
+	if (inCage)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2, 27);
+	}
+	if (mobDead < 10 && !inCage)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 1, 0), 2, 26.2, 27);
+	}
+
+	modelStack.PopMatrix();
+}
+
+
 
 //EXTRA FUNCTIONS
 bool SceneStage1::isNearObject(Camera3 camera, Box object)
