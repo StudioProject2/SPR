@@ -259,6 +259,7 @@ private:
 	};
 
 	//monster Animations
+	double spinToWin;
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
@@ -271,6 +272,10 @@ private:
 	bool arcLeft;
 	double archerArmSwing;
 	double archerLegSwing;
+	int bossSwingTimer;
+	bool bossLeft;
+	double bossArmSwing;
+	double bossLegSwing;
 
 
 	Player *player;

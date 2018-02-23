@@ -26,6 +26,10 @@ void SceneStage1::Init()
 {
 	//Monster spawn
 	srand((unsigned int)time(NULL));
+	//Monster Animation
+	fodSwingTimer = 0;
+	fodLeft = false;
+	fodderArmSwing = 0.0;
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
@@ -261,8 +265,24 @@ void SceneStage1::Init()
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.f;
+	
+	//Monsters
+	meshList[GEO_FODDER_BODY] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
+	meshList[GEO_FODDER_BODY]->textureID = LoadTGA("Image//MonsterTextures//FodderTexture.tga");
+	meshList[GEO_FODDER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FODDER_BODY]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FODDER_BODY]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FODDER_BODY]->material.kShininess = 1.f;
+	meshList[GEO_FODDER_HAND] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderHandOBJ.obj");
+	meshList[GEO_FODDER_HAND]->textureID = LoadTGA("Image//MonsterTextures//FodderTexture.tga");
+	meshList[GEO_FODDER_HAND]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FODDER_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FODDER_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FODDER_HAND]->material.kShininess = 1.f;
+	
 	//Bullet
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
+	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -579,6 +599,35 @@ void SceneStage1::UpdateInteractions()
 
 }
 
+
+void SceneStage1::UpdateMonsterAnimations()
+{
+	if (!fodLeft)
+	{
+		if (fodSwingTimer < 30)
+		{
+			fodSwingTimer += 1;
+			fodderArmSwing += 4;
+		}
+		else
+		{
+			fodLeft = true;
+		}
+	}
+	else
+	{
+		if (fodSwingTimer > 0)
+		{
+			fodSwingTimer -= 1;
+			fodderArmSwing -= 4;
+		}
+		else
+		{
+			fodLeft = false;
+		}
+	}
+}
+
 //RENDER FUNCTIONS
 void SceneStage1::Render()
 {
@@ -721,28 +770,53 @@ void SceneStage1::Render()
 	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
-	//DRAW MOBS
-	for (int i = 0; i < MOBNUM; i++)
-	{
-		if (MonsterPtr[i] != NULL)
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
-			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
-			modelStack.PopMatrix();
-		}
-	}
+	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
+	double fRot;
+	double dRot;
 
+	//DRAW MOBS
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
+			Vector3 B = MonsterFodderPtr[i]->pos - camera.position;
+			B.y = MonsterFodderPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				fRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				fRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				fRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				fRot = 180 - rotation;
+			else
+				fRot = rotation;
+
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y - 10, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Rotate(fRot + 90, 0, 1, 0);
 			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_CUBE], false);
-			modelStack.PopMatrix(); 
+			RenderMesh(meshList[GEO_FODDER_BODY], true);
+			modelStack.PushMatrix();
+			modelStack.Translate(0, 0, 0.05);
+			modelStack.Translate(0, 1.5, 0);
+			modelStack.Rotate(fodderArmSwing + 300, 0, 0, 1);
+			modelStack.Translate(0, -1.5, 0);
+			RenderMesh(meshList[GEO_FODDER_HAND], true);
+			modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(0, 0, -0.05);
+			modelStack.Rotate(180, 0, 1, 0);
+			modelStack.Translate(0, 1.5, 0);
+			modelStack.Rotate(fodderArmSwing - 60, 0, 0, 1);
+			modelStack.Translate(0, -1.5, 0);
+			RenderMesh(meshList[GEO_FODDER_HAND], true);
+			modelStack.PopMatrix();
+			modelStack.PopMatrix();
 		}
 	}
 
@@ -750,12 +824,30 @@ void SceneStage1::Render()
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
+			Vector3 B = monsterBulletPtr[i]->pos - camera.position;
+			B.y = monsterBulletPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				dRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				dRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				dRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				dRot = 180 - rotation;
+			else
+				dRot = rotation;
+
 			modelStack.PushMatrix();
 			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Rotate(dRot, 0, 1, 0);
+			modelStack.Rotate(90, 1, 0, 0);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
-
 		}
 	}
 
