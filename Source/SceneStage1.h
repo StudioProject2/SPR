@@ -14,6 +14,7 @@
 #include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Player.h"
 
 
 #define NO_OF_BULLETS 20
@@ -142,7 +143,13 @@ class SceneStage1 : public Scene
 		GEO_CAGE,
 		GEO_CAGEDOOR,
 
+		GEO_PLAYER_TEETH,
+
+		GEO_PLAYERHEALTH,
+
 		GEO_TEXT,
+
+
 
 		NUM_GEOMETRY,
 	};
@@ -178,6 +185,7 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
 	void UpdateBullets();
 	void UpdateMonsters();
@@ -186,8 +194,6 @@ private:
 
 	void RenderBullets();
 	void RenderHitmarker();
-
-	void RenderMeshOnScreen(Mesh* mesh, int x, int y, int sizex, int sizey);
 
 	int hitmarkerSize;
 	int hitmarkerTimer;
@@ -212,7 +218,24 @@ private:
 	bool nearCageDoor;
 	bool inCage;
 	bool isNearObject(Camera3 camera, Box object);
+	bool isNearExit;
 	void UpdateInteractions();
+	void RenderObjectives();
+
+	//Player
+	Player *player;
+	double playerHurtBounceTime;
+
+	//Render Fps Model
+	void RenderTopTeeth();
+	void RenderBottomTeeth();
+
+	//Player health
+	void RenderPlayerHealth();
+	
+	//End scene
+	bool completeObjectives;
+
 
 };
 
