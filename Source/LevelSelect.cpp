@@ -315,6 +315,11 @@ void LevelSelect::Update(double dt)
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
 				//Level 1
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE1;
 				//std::cout << "you have started the game" << endl;
 			}
@@ -331,6 +336,11 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE2;
 			}
 		}
@@ -342,6 +352,11 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE3;
 			}
 		}
@@ -353,6 +368,11 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
+				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE4;
 			}
 		}
@@ -364,6 +384,10 @@ void LevelSelect::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
 				//Back to Main Menu
 				Application::sceneChange = 0;
 			}
@@ -376,10 +400,6 @@ void LevelSelect::Update(double dt)
 	}
 
 	camera.Update(dt);
-
-	std::cout << posx << std::endl;
-	std::cout << posy << std::endl;
-	//std::cout << camera.position << std::endl;
 }
 
 void LevelSelect::Render()

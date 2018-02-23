@@ -396,6 +396,26 @@ void SceneBoss::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
+	//Teeth
+	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
+	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
+	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_PLAYER_TEETH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PLAYER_TEETH]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_PLAYER_TEETH]->material.kShininess = 1.0f;
+
+	//Player Health
+	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
+	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
+
+	//Boss Health
+	meshList[GEO_BOSSHEALTHBAR] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1.0f, 1.0f, 1.0f);
+	meshList[GEO_BOSSHEALTHBAR]->textureID = LoadTGA("Image//bossHpBorder.tga");
+	
+	meshList[GEO_BOSSHEALTHBACK] = MeshBuilder::GenerateQuad1("top", Color(0.15f, 0.15f, 0.15f), 1.0f, 1.0f, 1.0f);
+
+	meshList[GEO_BOSSHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 0.0f, 0.0f), 1.0f, 1.0f, 1.0f);
+
 	//Monsters
 
 	for (int i = 0; i < DIRECTBULLETNUM; i++)
@@ -433,7 +453,8 @@ void SceneBoss::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	if (boss.getHealth() <= 1000 && !win && !gameOver)
+
+	if (boss.getHealth() <= 500 && !win && !gameOver)
 	{
 		UpdateMonsters();
 		UpdateMonsterBullets();
@@ -450,6 +471,7 @@ void SceneBoss::Update(double dt)
 		UpdateMonsterAnimations();
 	}
 	
+	UpdateBossHealth();
 	
 	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
 
@@ -463,7 +485,7 @@ void SceneBoss::Update(double dt)
 				player->health -= DIRECTBULLETDMG;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/humanHit.wav", false);
+					engine->play2D("Sound/dinosaurRoar1.wav", false);
 				}
 				delete directBulletPtr[i];
 				directBulletPtr[i] = NULL;
@@ -489,7 +511,7 @@ void SceneBoss::Update(double dt)
 				player->health -= RINGBULLETDMG;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/humanHit.wav", false);
+					engine->play2D("Sound/dinosaurRoar1.wav", false);
 				}
 				delete ringBulletPtr[i];
 				ringBulletPtr[i] = NULL;
@@ -515,7 +537,7 @@ void SceneBoss::Update(double dt)
 				player->health -= GROUNDBULLETDMG;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/humanHit.wav", false);
+					engine->play2D("Sound/dinosaurRoar1.wav", false);
 				}
 				delete groundBulletPtr[i];
 				groundBulletPtr[i] = NULL;
@@ -676,7 +698,6 @@ void SceneBoss::UpdateMonsterBullets()
 				player->health -= 10;
 				delete monsterArcherBulletPtr[i];
 				monsterArcherBulletPtr[i] = NULL;
-
 			}
 			if (monsterArcherBulletPtr[i] != NULL)
 			{
@@ -868,7 +889,7 @@ void SceneBoss::UpdateBossHitbox()
 	{
 		if (!Application::muted)
 		{
-			engine->play2D("Sound/humanHit.wav", false);
+			engine->play2D("Sound/deepHumanHit.wav", false);
 		}
 		boss.setHealth(boss.getHealth() - 1);
 		hitmarkerTimer = 50;
@@ -959,6 +980,12 @@ void SceneBoss::UpdateBossBullets()
 			}
 		}
 	}
+}
+
+void SceneBoss::UpdateBossHealth()
+{
+	bossHealthScale = boss.getHealth() / 44.4;
+	bossHealthTranslate = ((40 - ((1000 - (double)boss.getHealth()) / 45)) / bossHealthScale);
 }
 
 void SceneBoss::UpdateMonsterHitbox()
@@ -1341,7 +1368,6 @@ void SceneBoss::Render()
 	double fRot;
 	double aRot;
 
-	//STUFF THEO ADDED
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
@@ -1562,22 +1588,27 @@ void SceneBoss::Render()
 	}
 
 	RenderBullets();
+	RenderTopTeeth();
+	RenderBottomTeeth();
 
 	//FPS
-	std::ostringstream sFps;
+	/*std::ostringstream sFps;
 	sFps << std::fixed << std::setprecision(3);
 	sFps << 1.0 / deltaTime << "fps";
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(0, 0, 0), 2, 1, 29);
-	modelStack.PopMatrix();
+	modelStack.PopMatrix();*/
 
-	modelStack.PushMatrix();
+	/*modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Boss Health:" + to_string(boss.getHealth()), Color(1, 0, 0), 2.5, 9, 23);
-	modelStack.PopMatrix();
+	modelStack.PopMatrix();*/
 
-	modelStack.PushMatrix();
+	RenderPlayerHealth();
+	RenderBossHealth();
+
+	/*modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Player Health:" + to_string(player->health), Color(0, 1, 1), 2.5, 8, 1);
-	modelStack.PopMatrix();
+	modelStack.PopMatrix();*/
 
 	RenderHitmarker();
 
@@ -1590,6 +1621,83 @@ void SceneBoss::Render()
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON!", Color(1, 1, 1), 5, 4, 5);
 	}
+}
+
+void SceneBoss::RenderTopTeeth()
+{
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(-1.3, 8, -17);
+	modelStack.Rotate(180, 1, 0, 0);
+	modelStack.Rotate(180, 0, 1, 0);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneBoss::RenderBottomTeeth()
+{
+
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(1.3, -8, -17);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneBoss::RenderPlayerHealth()
+{
+	/*for (int i = 0; i < player->health; i += 10)
+	{
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2 + (i * 1.5 / 10), 48, 1, 1);
+	}*/
+
+	int vertical = player->health / 50;
+	int horizontal = (player->health - (vertical * 50)) / 10;
+
+	for (int i = 0; i < vertical; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
+		}
+	}
+	for (int i = 0; i < horizontal; i++)
+	{
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
+	}
+
+	//RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5, 48, 1, 1);
+	//RenderTextOnScreen(meshList[GEO_TEXT], "x" + to_string(player->health), Color(0, 0, 0), 2, 4, 24);
+}
+
+void SceneBoss::RenderBossHealth()
+{
+	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBAR], 1.6, 3.2, 25, 18);
+	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBACK], 1.78, 72, 22.5, 0.8);
+	RenderMeshOnScreen(meshList[GEO_BOSSHEALTH], bossHealthTranslate, 72, bossHealthScale, 0.8);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Chieftain:" + to_string(boss.getHealth()) + "/1000", Color(1.0f, 1.0f, 1.0f), 2, 12, 28.8);
 }
 
 void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
@@ -1705,6 +1813,26 @@ void SceneBoss::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, fl
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
 
+	glEnable(GL_DEPTH_TEST);
+}
+
+void SceneBoss::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
+{
+	glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+	modelStack.Scale(sizex, sizey, 0);
+	modelStack.Translate(x, y, 0);
+	RenderMesh(mesh, false); //UI should not have light
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 }
 

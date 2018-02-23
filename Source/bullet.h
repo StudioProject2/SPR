@@ -17,6 +17,11 @@
 #include "Application.h"
 #include "Utility.h"
 #include "LoadTGA.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define PLAYER_WEAPON_RANGE 100
 #define PLAYER_THROWING_SPEED 10
@@ -41,6 +46,8 @@ public:
 
 	int weaponShootingTimer;
 	int weaponTimer;
+
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif 

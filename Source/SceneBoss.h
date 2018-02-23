@@ -146,6 +146,13 @@ class SceneBoss : public Scene
 
 		GEO_TEXT,
 
+		GEO_PLAYER_TEETH,
+
+		GEO_PLAYERHEALTH,
+		GEO_BOSSHEALTH,
+		GEO_BOSSHEALTHBACK,
+		GEO_BOSSHEALTHBAR,
+
 		NUM_GEOMETRY,
 	};
 
@@ -183,6 +190,9 @@ private:
 	double bossGroundAttackDelayTime;
 	double groundSignalBlinkTime;
 
+	double bossHealthTranslate;
+	double bossHealthScale;
+
 	bool printGroundSignal;
 	bool gameOver;
 	bool win;
@@ -191,6 +201,11 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
+	void RenderTopTeeth();
+	void RenderBottomTeeth();
+	void RenderPlayerHealth();
+	void RenderBossHealth();
 
 	void UpdateBullets();
 	void UpdateMonsters();
@@ -200,6 +215,7 @@ private:
 	void UpdateBossHitbox();
 	void UpdateBossBullets();
 	void UpdateMonsterAnimations();
+	void UpdateBossHealth();
 
 	void RenderBullets();
 	void RenderHitmarker();

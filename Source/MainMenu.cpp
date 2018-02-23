@@ -261,6 +261,9 @@ void MainMenu::Init()
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
+
+	muteButtonTime = 0.0;
+	elaspeTime = 0.0;
 }
 
 void MainMenu::Update(double dt)
@@ -314,6 +317,10 @@ void MainMenu::Update(double dt)
 		{
 			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/select.wav", false);
+				}
 				Application::sceneChange = Application::LEVELMENU;
 				std::cout << "you have started the game" << endl;
 			}
@@ -328,10 +335,18 @@ void MainMenu::Update(double dt)
 	{
 		if (posy > 435 && posy < 470)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (Application::IsKeyPressed(VK_LBUTTON) && elaspeTime > muteButtonTime)
 			{
-
-				std::cout << "you have muted the game" << endl;
+				if (Application::muted)
+				{
+					Application::muteToggle = true;
+					Application::inMenu = false;
+				}
+				else if (!Application::muted)
+				{
+					Application::muted = true;
+				}
+				muteButtonTime = elaspeTime + 0.5;
 			}
 			//else
 			//{
@@ -357,10 +372,6 @@ void MainMenu::Update(double dt)
 	}
 
 	camera.Update(dt);
-	
-	std::cout << posx << std::endl;
-	std::cout << posy << std::endl;
-	//std::cout << camera.position << std::endl;
 }
 
 void MainMenu::Render()

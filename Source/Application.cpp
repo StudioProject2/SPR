@@ -25,6 +25,9 @@ const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
 int Application::sceneChange = 0;
 int Application::whatScene = 0;
+bool Application::muted = false;
+bool Application::muteToggle = false;
+bool Application::inMenu = false;
 //init watscene;
 
 //Define an error callback
@@ -137,12 +140,31 @@ void Application::Run()
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
+		if (Application::muted)
+		{
+			engine->stopAllSounds();
+		}
+		if (Application::muteToggle)
+		{
+			if (Application::whatScene == MAINMENU)
+			{
+				Application::sceneChange = MAINMENU;
+			}
+			Application::muted = false;
+			Application::muteToggle = false;
+		}
 		if (Application::sceneChange == MAINMENU)
 		{
 			ShowCursor(true);
 			scene = sceneMenu;
 			scene->Init();
 			whatScene = MAINMENU;
+			if (!muted && !Application::inMenu)
+			{
+				engine->stopAllSounds();
+				engine->play2D("Sound/menuBGM.mp3", true);
+				Application::inMenu = true;
+			}
 			Application::sceneChange = 10;
 			
 		}
@@ -152,6 +174,12 @@ void Application::Run()
 			scene = sceneLevel;
 			scene->Init();
 			whatScene = LEVELMENU;
+			if (!muted && !Application::inMenu)
+			{
+				engine->stopAllSounds();
+				engine->play2D("Sound/menuBGM.mp3", true);
+				Application::inMenu = true;
+			}
 			Application::sceneChange = 10;
 		}
 		if (Application::sceneChange == STAGE1)
@@ -159,6 +187,11 @@ void Application::Run()
 			scene = scene1;
 			scene->Init();
 			whatScene = STAGE1;
+			if (!muted)
+			{
+				engine->stopAllSounds();
+				engine->play2D("Sound/stage1BGM.mp3", true);
+			}
 			Application::sceneChange = 10;
 		}
 		if (Application::sceneChange == STAGE2)
@@ -167,6 +200,11 @@ void Application::Run()
 			scene = scene2;
 			scene->Init();
 			whatScene = STAGE2;
+			if (!muted)
+			{
+				engine->stopAllSounds();
+				engine->play2D("Sound/stage2BGM.mp3", true);
+			}
 			Application::sceneChange = 10;
 		}
 		if (Application::sceneChange == STAGE3)
@@ -174,6 +212,11 @@ void Application::Run()
 			scene = scene3;
 			scene->Init();
 			whatScene = STAGE3;
+			if (!muted)
+			{
+				engine->stopAllSounds();
+				engine->play2D("Sound/stage3BGM.mp3", true);
+			}
 			Application::sceneChange = 10;
 		}
 		if (Application::sceneChange == STAGE4)
@@ -182,6 +225,11 @@ void Application::Run()
 			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE4;
+			if (!muted)
+			{
+				engine->stopAllSounds();
+				engine->play2D("Sound/bossBGM.mp3", true);
+			}
 			Application::sceneChange = 10;
 		}
 		scene->Update(m_timer.getElapsedTime());

@@ -311,8 +311,6 @@ void SceneStage3::Init()
 	}
 }
 
-//TO DO: add a function to detect monster hit box
-
 void SceneStage3::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
@@ -321,7 +319,7 @@ void SceneStage3::Update(double dt)
 	start.isShooting = true;
 
 	UpdateBullets();
-	UpdateMonsters();
+	//UpdateMonsters();
 	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 	cout << player->health << endl;
@@ -329,21 +327,8 @@ void SceneStage3::Update(double dt)
 	{
 		gameOver = true;
 	}
-
-	if (Application::IsKeyPressed('1'))
-	{
-		glEnable(GL_CULL_FACE);
-	}
-	if (Application::IsKeyPressed('2'))
-	{
-		glDisable(GL_CULL_FACE);
-	}
-	if (Application::IsKeyPressed('3'))
-	{
-		Application::sceneChange = Application::STAGE2;
-	}
-
 	camera.Update(dt);
+
 }
 void SceneStage3::UpdateBullets()
 {
@@ -489,7 +474,7 @@ void SceneStage3::UpdateMonsters()
 			}
 		}
 	}
-
+	
 	//Monster Fodder
 	if (elaspeTime > monsterFodderTime)
 	{
@@ -586,7 +571,7 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - 10;
+					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -617,7 +602,7 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - 10;
+					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -648,7 +633,7 @@ void SceneStage3::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					(*MonsterArcherPtr[mon]).health = (*MonsterArcherPtr[mon]).health - 10;
+					(*MonsterArcherPtr[mon]).health = (*MonsterArcherPtr[mon]).health - player->damage;
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -850,7 +835,8 @@ void SceneStage3::Render()
 	modelStack.PopMatrix();
 
 	Vector3 defaultView = Vector3(0, 0, 1);
-	Vector3 dir = Vector3(0, 0, 0);
+
+	//Vector3 dir = Vector3(0, 0, 0);
 	double coolrot;
 
 	//RENDER ALL MOBS
@@ -954,36 +940,43 @@ void SceneStage3::Render()
 	RenderBullets();
 
 	//FENCES
-
 	for (int i = 0; i < 1800; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(-600, -10, -1400 + i);
+		modelStack.Translate(-300, -10, -900 + i);
 		modelStack.Rotate(90, 0, 1, 0);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(600, -10, -1400 + i);
+		modelStack.Translate(300, -10, -900 + i);
 		modelStack.Rotate(270, 0, 1, 0);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 	}
-	for (int i = 0; i < 570; i += 30)
+
+	for (int i = 0; i < 660; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(600 - i, -10, 390);
+		modelStack.Translate( -i - 100, -10, 890);
 		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(600 - i, -10, -390);
+		modelStack.Translate(+i + 100, -10, 890);
 		modelStack.Scale(20, 20, 20);
-		//RenderMesh(meshList[GEO_FENCE], false);
+		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(300 - i, -10, -910);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_FENCE], true);
+		modelStack.PopMatrix();
+		
 	}
 
 	//RENDER GRASSES
@@ -1006,7 +999,7 @@ void SceneStage3::Render()
 	for (int i = 0; i < 1401; i += 350)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(650 - i, -10, 810);
+		modelStack.Translate(650 - i, -10, 910);
 		modelStack.Scale(10, 30, 10);
 		RenderMesh(meshList[GEO_GRASS_LINE], false);
 		modelStack.PopMatrix();
@@ -1029,7 +1022,6 @@ void SceneStage3::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
 	}
 }
-
 void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -1074,7 +1066,6 @@ void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
 	}
 
 }
-
 void SceneStage3::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -1101,7 +1092,6 @@ void SceneStage3::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
 void SceneStage3::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check

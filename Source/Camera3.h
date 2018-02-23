@@ -2,6 +2,11 @@
 #define CAMERA_3_H
 
 #include "Camera.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 class Camera3 : public Camera
 {
@@ -28,6 +33,9 @@ private:
 	void BoundsCheckStage2();
 	void BoundsCheckStage3();
 	void BoundsCheckStage4();
+
+	double elaspeTime;
+	double footstepsTime;
 public:
 	double prevPosX;
 	double prevPosY;
@@ -62,7 +70,7 @@ public:
 	virtual void Reset();
 	void InteractionCheck();
 
-
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif
