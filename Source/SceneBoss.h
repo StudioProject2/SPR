@@ -124,6 +124,20 @@ class SceneBoss : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
+		GEO_DODGER_WEAPON,
+		GEO_ARCHER_BODY,
+		GEO_ARCHER_HAND,
+		GEO_ARCHER_LEG,
+		GEO_ARCHER_WEAPON,
+		GEO_BOSS_BODY,
+		GEO_BOSS_HAND,
+		GEO_BOSS_LEG,
+
 		GEO_GROUNDSIGNAL,
 
 		GEO_FLOOR,
@@ -200,6 +214,7 @@ private:
 	void UpdateBossMovement();
 	void UpdateBossHitbox();
 	void UpdateBossBullets();
+	void UpdateMonsterAnimations();
 	void UpdateBossHealth();
 
 	void RenderBullets();
@@ -242,6 +257,21 @@ private:
 		ASCEND,
 		CHARGE
 	};
+
+	//monster Animations
+	//Monster Animations Logic
+	int fodSwingTimer;
+	bool fodLeft;
+	double fodderArmSwing;
+	int dodSwingTimer;
+	bool dodLeft;
+	double dodgerArmSwing;
+	double dodgerLegSwing;
+	int arcSwingTimer;
+	bool arcLeft;
+	double archerArmSwing;
+	double archerLegSwing;
+
 
 	Player *player;
 	ISoundEngine* engine = createIrrKlangDevice();

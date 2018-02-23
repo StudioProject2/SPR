@@ -291,7 +291,8 @@ void SceneStage2::Init()
 
 	//Others
 	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
+	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -336,7 +337,7 @@ void SceneStage2::Init()
 	meshList[GEO_BARRIER]->textureID = LoadTGAR("Image//Stage2//Barrier.tga");
 
 	//Player
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
 	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
 	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
 	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
@@ -409,6 +410,12 @@ void SceneStage2::Init()
 	meshList[GEO_DODGER_LEG]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_DODGER_LEG]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_DODGER_LEG]->material.kShininess = 1.f;
+	meshList[GEO_DODGER_WEAPON] = MeshBuilder::GenerateOBJ("dodger", "OBJ//MonstersOBJ//DodgerWeaponOBJ.obj");
+	meshList[GEO_DODGER_WEAPON]->textureID = LoadTGA("Image//MonsterTextures//DodgerWeaponTexture.tga");
+	meshList[GEO_DODGER_WEAPON]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_DODGER_WEAPON]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_DODGER_WEAPON]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_DODGER_WEAPON]->material.kShininess = 1.f;
 
 	//inits for archer
 	/*
@@ -430,6 +437,12 @@ void SceneStage2::Init()
 	meshList[GEO_ARCHER_LEG]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_ARCHER_LEG]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_ARCHER_LEG]->material.kShininess = 1.f;
+	meshList[GEO_ARCHER_WEAPON] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherWeaponOBJ.obj");
+	meshList[GEO_ARCHER_WEAPON]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
+	meshList[GEO_ARCHER_WEAPON]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_ARCHER_WEAPON]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_ARCHER_WEAPON]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_ARCHER_WEAPON]->material.kShininess = 1.f;
 	*/
 
 	//pickups
@@ -741,7 +754,7 @@ void SceneStage2::UpdateMonsterBullets()
 				player->health -= 10;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 				delete monsterBulletPtr[i];
 				monsterBulletPtr[i] = NULL;
@@ -1728,6 +1741,13 @@ void SceneStage2::RenderMonster()
 				modelStack.Rotate(dodgerArmSwing - 60, 0, 0, 1);
 				modelStack.Translate(0, -2, 0);
 				RenderMesh(meshList[GEO_DODGER_HAND], true);
+					modelStack.PushMatrix();
+					modelStack.Translate(1, 1.5, 0.8);
+					modelStack.Rotate(180, 0, 1, 0);
+					modelStack.Rotate(90, 0, 0, 1);
+					modelStack.Scale(0.5, 0.5, 0.5);
+					RenderMesh(meshList[GEO_DODGER_WEAPON], true);
+					modelStack.PopMatrix();
 				modelStack.PopMatrix();
 					modelStack.PushMatrix();
 					modelStack.Translate(0, 0, -0.05);
@@ -1794,47 +1814,37 @@ void SceneStage2::RenderMonster()
 		}
 	}
 
-	//Render For the Archer
-	/*
-		modelStack.PushMatrix();
-			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y, (*MonsterPtr[i]).pos.z);
-			modelStack.Scale(10, 10, 10);
-			RenderMesh(meshList[GEO_DODGER_BODY], true);
-				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, 4.3);
-				modelStack.Rotate(180, 0, 1, 0);
-				modelStack.Translate(0, 2, 0);
-				modelStack.Rotate(80, 0, 0, 1);
-				modelStack.Translate(0, -2, 0);
-				RenderMesh(meshList[GEO_ARCHER_HAND], true);
-				modelStack.PopMatrix();
-					modelStack.PushMatrix();
-					modelStack.Translate(0, 0, -0.05); 
-					modelStack.Translate(0, 1.5, 0);
-					modelStack.Rotate(archerLegSwing + 340, 0, 0, 1);
-					modelStack.Translate(0, -1.5, 0);
-					RenderMesh(meshList[GEO_ARCHER_LEG], true);
-					modelStack.PopMatrix();
-					modelStack.PushMatrix();
-					modelStack.Translate(0, 0, 4.3);
-					modelStack.Rotate(180, 0, 1, 0);
-					modelStack.Translate(0, 1.5, 0);
-					modelStack.Rotate(archerLegSwing - 20, 0, 0, 1);
-					modelStack.Translate(0, -1.5, 0);
-					RenderMesh(meshList[GEO_ARCHER_LEG], true);
-					modelStack.PopMatrix();
-			modelStack.PopMatrix();
-	*/
-
 }
 void SceneStage2::RenderMonsterBullets()
 {
+	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
+	double dRot;
+
 	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
 		if (monsterBulletPtr[i] != NULL)
 		{
+			Vector3 B = monsterBulletPtr[i]->pos - camera.position;
+			B.y = monsterBulletPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				dRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				dRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				dRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				dRot = 180 - rotation;
+			else
+				dRot = rotation;
+
 			modelStack.PushMatrix();
 			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
+			modelStack.Rotate(dRot, 0, 1, 0);
+			modelStack.Rotate(90, 1, 0, 0);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();

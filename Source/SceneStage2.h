@@ -142,6 +142,7 @@ class SceneStage2 : public Scene
 		GEO_DODGER_BODY,
 		GEO_DODGER_HAND,
 		GEO_DODGER_LEG,
+		GEO_DODGER_WEAPON,
 
 		GEO_PLAYER_TEETH,
 
