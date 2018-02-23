@@ -462,7 +462,7 @@ void SceneBoss::Update(double dt)
 
 	UpdateBullets();
 
-	if (boss.getHealth() <= 1000 && !win && !gameOver)
+	if (boss.getHealth() <= 500 && !win && !gameOver)
 	{
 		UpdateMonsters();
 		UpdateMonsterBullets();
