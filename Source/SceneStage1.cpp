@@ -396,7 +396,7 @@ void SceneStage1::UpdateMonsters()
 			{
 				MonsterFodderPtr[i] = new MonsterFodder();
 				monsterFodderBoxPtr[i] = new Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-				monsterFodderTime = elaspeTime + 3.0;
+				monsterFodderTime = elaspeTime + 1.0;
 				break;
 			}
 		}
@@ -420,6 +420,10 @@ void SceneStage1::UpdateMonsters()
 				delete monsterFodderBoxPtr[i];
 				MonsterFodderPtr[i] = NULL;
 				monsterFodderBoxPtr[i] = NULL;
+				if (elaspeTime > monsterTime)
+				{
+					monsterTime = elaspeTime + 1.0;
+				}
 				mobDead++;
 			}
 		}
