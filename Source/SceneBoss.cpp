@@ -1398,6 +1398,7 @@ void SceneBoss::RenderBossHealth()
 	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBAR], 1.6, 3.2, 25, 18);
 	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBACK], 1.78, 72, 22.5, 0.8);
 	RenderMeshOnScreen(meshList[GEO_BOSSHEALTH], bossHealthTranslate, 72, bossHealthScale, 0.8);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Chieftain:" + to_string(boss.getHealth()) + "/1000", Color(1.0f, 1.0f, 1.0f), 2, 12, 28.8);
 }
 
 void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
