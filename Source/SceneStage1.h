@@ -14,6 +14,7 @@
 #include "MonsterFodder.h"
 #include "monsterBullet.h"
 #include "bullet.h"
+#include "Player.h"
 
 
 #define NO_OF_BULLETS 20
@@ -142,6 +143,7 @@ class SceneStage1 : public Scene
 		GEO_CAGE,
 		GEO_CAGEDOOR,
 
+		GEO_PLAYER_TEETH,
 		GEO_TEXT,
 
 		NUM_GEOMETRY,
@@ -213,6 +215,15 @@ private:
 	bool inCage;
 	bool isNearObject(Camera3 camera, Box object);
 	void UpdateInteractions();
+	void RenderObjectives();
+
+	//Player
+	Player *player;
+	double playerHurtBounceTime;
+
+	//Render Fps Model
+	void RenderTopTeeth();
+	void RenderBottomTeeth();
 
 };
 
