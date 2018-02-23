@@ -352,7 +352,8 @@ void SceneStage3::Init()
 	meshList[GEO_ARCHER_WEAPON]->material.kShininess = 1.f;
 
 	//Bullet
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
+	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -1205,7 +1206,7 @@ void SceneStage3::Render()
 
 					modelStack.PushMatrix();
 					modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
-					modelStack.Rotate(dRot, 0, 1, 0);
+					modelStack.Rotate(bRot, 0, 1, 0);
 					modelStack.Rotate(90, 1, 0, 0);
 					modelStack.Scale(2, 2, 2);
 					RenderMesh(meshList[GEO_SPHERE], false);
