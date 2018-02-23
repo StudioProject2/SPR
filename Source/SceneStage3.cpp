@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <sstream>
 
-//DONT TOUCH MY SHIT
 using namespace std;
 
 SceneStage3::SceneStage3()
@@ -42,10 +41,6 @@ void SceneStage3::Init()
 	archerLegSwing = 0.0;
 	//Timer
 	elaspeTime = 0.0;
-	deltaTime = 0.0;
-	monsterTime = elaspeTime + 3.0;
-	monsterFodderTime = elaspeTime + 3.0;
-	monsterArcherTime = elaspeTime + 3.0;
 
 	hitmarkerSize = 0;
 
@@ -188,10 +183,10 @@ void SceneStage3::Init()
 	glUniform1f(m_parameters[U_LIGHT0_EXPONENT], light[0].exponent);
 
 	//***************************************Second Light*****************************************
-	light[1].type = Light::LIGHT_POINT;
+	light[1].type = Light::LIGHT_DIRECTIONAL;
 	light[1].position.Set(720, 150, 720);
 	light[1].color.Set(1, 1, 1);
-	light[1].power = 20;
+	light[1].power = 1;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -263,8 +258,6 @@ void SceneStage3::Init()
 	}
 
 	//Others
-	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
-	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
@@ -286,7 +279,7 @@ void SceneStage3::Init()
 	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
 	meshList[GEO_FLOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_FLOOR]->material.kSpecular.Set(0.2f, 0.2f, 0.2f);
 	meshList[GEO_FLOOR]->material.kShininess = 1.f;
 	
 	//Monsters
@@ -355,8 +348,7 @@ void SceneStage3::Init()
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
 	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
-	//Debuggging Cube
-	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
+	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("Cube", 1, 1, 1);
 
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
@@ -369,6 +361,21 @@ void SceneStage3::Init()
 	//GRASS
 	meshList[GEO_GRASS_LINE] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Line.obj");
 	meshList[GEO_GRASS_LINE]->textureID = LoadTGA("Image//stage2//objtextures//Grass2.tga");
+
+	//Teeth
+	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
+	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
+	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_PLAYER_TEETH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_PLAYER_TEETH]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_PLAYER_TEETH]->material.kShininess = 1.0f;
+
+	//Player Health
+	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
+	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
+
+	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
+	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
 
 	//Monsters
 	for (int i = 0; i < 25; i++)
@@ -387,27 +394,51 @@ void SceneStage3::Init()
 		//init collision for the bullets here
 		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 	}
+
+	hut1Burned = false;
+	hut2Burned = false;
+	hut3Burned = false;
+	hut4Burned = false;
+
+	nearHut1 = false;
+	nearHut2 = false;
+	nearHut3 = false;
+	nearHut4 = false;
+
+	monsterSpawnDelay1 = 0;
+	monsterSpawnDelay2 = 0;
+	monsterSpawnDelay3 = 0;
+	monsterSpawnDelay4 = 0;
+
+	initialObjectiveTime = 5.0;
+	monstersLeft = 0;
+	hutsBurned = 0;
+}
+
+bool SceneStage3::isNearObject(Camera3 camera, Box object)
+{
+	return ((camera.position.x >= object.minX && camera.position.x <= object.maxX) &&
+		(camera.position.y >= object.minY && camera.position.y <= object.maxY) &&
+		(camera.position.z >= object.minZ && camera.position.z <= object.maxZ));
 }
 
 void SceneStage3::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
-	deltaTime = dt;
 	start.isShooting = true;
 
 	UpdateBullets();
 	UpdateMonsters();
 	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
+	UpdateInteractions();
 	UpdateMonsterAnimations();
-	cout << player->health << endl;
 	if (player->health <= 0)
 	{
 		gameOver = true;
 	}
 	camera.Update(dt);
-
 }
 void SceneStage3::UpdateBullets()
 {
@@ -516,19 +547,85 @@ void SceneStage3::UpdateMonsterBullets()
 }
 void SceneStage3::UpdateMonsters()
 {
-	//Monster Normal
-	if (elaspeTime > monsterTime)
+
+	if (monsterSpawnDelay1 != 0 && elaspeTime > monsterSpawnDelay1)
 	{
-		for (int i = 0; i < MOBNUM; i++)
-		{
-			if (MonsterPtr[i] == NULL)
-			{
-				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-				monsterTime = elaspeTime + 3.0;
-				break;
-			}
-		}
+		MonsterPtr[0] = new Monster(Vector3(100, 0, 93));
+		monsterBoxPtr[0] = new Box(MonsterPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterPtr[1] = new Monster(Vector3(290, 0, -85));
+		monsterBoxPtr[1] = new Box(MonsterPtr[1]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[0] = new MonsterFodder(Vector3(272, 0, -80));
+		monsterFodderBoxPtr[0] = new Box(MonsterFodderPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[1] = new MonsterFodder(Vector3(120, 0, 90));
+		monsterFodderBoxPtr[1] = new Box(MonsterFodderPtr[1]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[2] = new MonsterFodder(Vector3(115, 0, 100));
+		monsterFodderBoxPtr[2] = new Box(MonsterFodderPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[0] = new MonsterArcher(Vector3(101, 0, -100));
+		monsterArcherBoxPtr[0] = new Box(MonsterArcherPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[1] = new MonsterArcher(Vector3(295, 0, -80));
+		monsterArcherBoxPtr[1] = new Box(MonsterArcherPtr[1]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterSpawnDelay1 = 0;
+		monstersLeft += 7;
+	}
+
+	if (monsterSpawnDelay2 != 0 && elaspeTime > monsterSpawnDelay2)
+	{
+		MonsterPtr[2] = new Monster(Vector3(280, 0, 280));
+		monsterBoxPtr[2] = new Box(MonsterPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterPtr[3] = new Monster(Vector3(100, 0, 293));
+		monsterBoxPtr[3] = new Box(MonsterPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[3] = new MonsterFodder(Vector3(272, 0, 125));
+		monsterFodderBoxPtr[3] = new Box(MonsterFodderPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[4] = new MonsterFodder(Vector3(120, 0, 290));
+		monsterFodderBoxPtr[4] = new Box(MonsterFodderPtr[4]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[5] = new MonsterFodder(Vector3(115, 0, 300));
+		monsterFodderBoxPtr[5] = new Box(MonsterFodderPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[2] = new MonsterArcher(Vector3(101, 0, 100));
+		monsterArcherBoxPtr[2] = new Box(MonsterArcherPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[3] = new MonsterArcher(Vector3(285, 0, 295));
+		monsterArcherBoxPtr[3] = new Box(MonsterArcherPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterSpawnDelay2 = 0;
+		monstersLeft += 7;
+	}
+
+	if (monsterSpawnDelay3 != 0 && elaspeTime > monsterSpawnDelay3)
+	{
+		MonsterPtr[4] = new Monster(Vector3(-300, 0, 93));
+		monsterBoxPtr[4] = new Box(MonsterPtr[4]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterPtr[5] = new Monster(Vector3(-110, 0, -85));
+		monsterBoxPtr[5] = new Box(MonsterPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[6] = new MonsterFodder(Vector3(-128, 0, -80));
+		monsterFodderBoxPtr[6] = new Box(MonsterFodderPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[7] = new MonsterFodder(Vector3(-280, 0, 90));
+		monsterFodderBoxPtr[7] = new Box(MonsterFodderPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[8] = new MonsterFodder(Vector3(-295, 0, 100));
+		monsterFodderBoxPtr[8] = new Box(MonsterFodderPtr[8]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[4] = new MonsterArcher(Vector3(-299, 0, -100));
+		monsterArcherBoxPtr[4] = new Box(MonsterArcherPtr[4]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[5] = new MonsterArcher(Vector3(-105, 0, -80));
+		monsterArcherBoxPtr[5] = new Box(MonsterArcherPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterSpawnDelay3 = 0;
+		monstersLeft += 7;
+	}
+
+	if (monsterSpawnDelay4 != 0 && elaspeTime > monsterSpawnDelay4)
+	{
+		MonsterPtr[6] = new Monster(Vector3(-300, 0, 280));
+		monsterBoxPtr[6] = new Box(MonsterPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterPtr[7] = new Monster(Vector3(-110, 0, 115));
+		monsterBoxPtr[7] = new Box(MonsterPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[9] = new MonsterFodder(Vector3(-128, 0, 110));
+		monsterFodderBoxPtr[9] = new Box(MonsterFodderPtr[9]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[10] = new MonsterFodder(Vector3(-280, 0, 295));
+		monsterFodderBoxPtr[10] = new Box(MonsterFodderPtr[10]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterFodderPtr[11] = new MonsterFodder(Vector3(-295, 0, 100));
+		monsterFodderBoxPtr[11] = new Box(MonsterFodderPtr[11]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[6] = new MonsterArcher(Vector3(-299, 0, 300));
+		monsterArcherBoxPtr[6] = new Box(MonsterArcherPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		MonsterArcherPtr[7] = new MonsterArcher(Vector3(-105, 0, 120));
+		monsterArcherBoxPtr[7] = new Box(MonsterArcherPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterSpawnDelay4 = 0;
+		monstersLeft += 7;
 	}
 
 	for (int i = 0; i < MOBNUM; i++)
@@ -550,24 +647,12 @@ void SceneStage3::UpdateMonsters()
 				delete monsterBoxPtr[i];
 				MonsterPtr[i] = NULL;
 				monsterBoxPtr[i] = NULL; 
+				monstersLeft--;
 			}
 		}
 	}
 	
 	//Monster Fodder
-	if (elaspeTime > monsterFodderTime)
-	{
-		for (int i = 0; i < MOBNUM; i++)
-		{
-			if (MonsterFodderPtr[i] == NULL)
-			{
-				MonsterFodderPtr[i] = new MonsterFodder();
-				monsterFodderBoxPtr[i] = new Box(MonsterFodderPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-				monsterFodderTime = elaspeTime + 3.0;
-				break;
-			}
-		}
-	}
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
@@ -587,24 +672,12 @@ void SceneStage3::UpdateMonsters()
 				delete monsterFodderBoxPtr[i];
 				MonsterFodderPtr[i] = NULL;
 				monsterFodderBoxPtr[i] = NULL;
+				monstersLeft--;
 			}
 		}
 	}
 	
 	//Monster Archer
-	if (elaspeTime > monsterArcherTime)
-	{
-		for (int i = 0; i < MOBNUM; i++)
-		{
-			if (MonsterArcherPtr[i] == NULL)
-			{
-				MonsterArcherPtr[i] = new MonsterArcher();
-				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-				monsterArcherTime = elaspeTime + 3.0;
-				break;
-			}
-		}
-	}
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterArcherPtr[i] != NULL)
@@ -624,6 +697,7 @@ void SceneStage3::UpdateMonsters()
 				delete monsterArcherBoxPtr[i];
 				MonsterArcherPtr[i] = NULL;
 				monsterArcherBoxPtr[i] = NULL;
+				monstersLeft--;
 			}
 		}
 	}
@@ -769,6 +843,70 @@ void SceneStage3::UpdateMonsterHitbox()
 	}
 
 }
+
+void SceneStage3::UpdateInteractions()
+{
+	Box hut1 = Box(Vector3(200, -10, 0), 70);
+	Box hut2 = Box(Vector3(200, -10, 200), 70);
+	Box hut3 = Box(Vector3(-200, -10, 0), 70);
+	Box hut4 = Box(Vector3(-200, -10, 200), 70);
+
+	if (isNearObject(camera, hut1))
+	{
+		nearHut1 = true;
+	}
+	else
+	{
+		nearHut1 = false;
+	}
+	if (isNearObject(camera, hut2))
+	{
+		nearHut2 = true;
+	}
+	else
+	{
+		nearHut2 = false;
+	}
+	if (isNearObject(camera, hut3))
+	{
+		nearHut3 = true;
+	}
+	else
+	{
+		nearHut3 = false;
+	}
+	if (isNearObject(camera, hut4))
+	{
+		nearHut4 = true;
+	}
+	else
+	{
+		nearHut4 = false;
+	}
+
+	if (nearHut1 && Application::IsKeyPressed('E') && !hut1Burned)
+	{
+		hut1Burned = true;
+		hutsBurned++;
+		monsterSpawnDelay1 = elaspeTime + 1.0;
+	}
+	if (nearHut2 && Application::IsKeyPressed('E') && !hut2Burned)
+	{
+		hut2Burned = true;
+		hutsBurned++;
+		monsterSpawnDelay2 = elaspeTime + 1.0;
+	}
+	if (nearHut3 && Application::IsKeyPressed('E') && !hut3Burned)
+	{
+		hut3Burned = true;
+		hutsBurned++;
+		monsterSpawnDelay3 = elaspeTime + 1.0;
+	}
+	if (nearHut4 && Application::IsKeyPressed('E') && !hut4Burned)
+	{
+		hut4Burned = true;
+		hutsBurned++;
+		monsterSpawnDelay4 = elaspeTime + 1.0;
 
 void SceneStage3::UpdateMonsterAnimations()
 {
@@ -939,9 +1077,6 @@ void SceneStage3::Render()
 
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
-	RenderMesh(meshList[GEO_AXES], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, -1000);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
@@ -979,7 +1114,6 @@ void SceneStage3::Render()
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_FLOOR], true);
 	modelStack.PopMatrix();
-
 
 	//LIGHTBALLS
 	modelStack.PushMatrix();
@@ -1248,8 +1382,6 @@ void SceneStage3::Render()
 		}
 	}
 
-	RenderBullets();
-
 	//FENCES
 	for (int i = 0; i < 1800; i += 30)
 	{
@@ -1317,22 +1449,147 @@ void SceneStage3::Render()
 
 	}
 
-
-	//FPS
-	std::ostringstream sFps;
-	sFps << std::fixed << std::setprecision(3);
-	sFps << 1.0 / deltaTime << "fps";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
+	modelStack.Translate(200, -10, 0);
+	modelStack.Scale(8, 8, 8);
+	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
+	modelStack.PushMatrix();
+	modelStack.Translate(200, -10, 200);
+	modelStack.Scale(8, 8, 8);
+	RenderMesh(meshList[GEO_BUILDING], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-200, -10, 0);
+	modelStack.Scale(8, 8, 8);
+	RenderMesh(meshList[GEO_BUILDING], true);
+	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	modelStack.Translate(-200, -10, 200);
+	modelStack.Scale(8, 8, 8);
+	RenderMesh(meshList[GEO_BUILDING], true);
+	modelStack.PopMatrix();
+
+	RenderBullets();
+	RenderTopTeeth();
+	RenderBottomTeeth();
+	RenderPlayerHealth();
 	RenderHitmarker();
+	RenderNearHut();
+	RenderObjectives();
+
+	if (elaspeTime < initialObjectiveTime)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(0.0f, 0.0f, 0.0f), 4, 2, 7);
+	}
 
 	if (gameOver)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
 	}
 }
+void SceneStage3::RenderTopTeeth()
+{
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(-1.3, 8, -17);
+	modelStack.Rotate(180, 1, 0, 0);
+	modelStack.Rotate(180, 0, 1, 0);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneStage3::RenderBottomTeeth()
+{
+
+	Mtx44 ortho;
+	ortho.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity();
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+
+	modelStack.Translate(1.3, -8, -17);
+	modelStack.Scale(1.5, 1, 1);
+
+	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+}
+void SceneStage3::RenderPlayerHealth()
+{
+	/*for (int i = 0; i < player->health; i += 10)
+	{
+	RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2 + (i * 1.5 / 10), 48, 1, 1);
+	}*/
+
+	int vertical = player->health / 50;
+	int horizontal = (player->health - (vertical * 50)) / 10;
+
+	for (int i = 0; i < vertical; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
+		}
+	}
+	for (int i = 0; i < horizontal; i++)
+	{
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
+	}
+
+	//RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5, 48, 1, 1);
+	//RenderTextOnScreen(meshList[GEO_TEXT], "x" + to_string(player->health), Color(0, 0, 0), 2, 4, 24);
+}
+
+void SceneStage3::RenderNearHut()
+{
+	if (elaspeTime > initialObjectiveTime && ((nearHut1 && !hut1Burned) || (nearHut2 && !hut2Burned) || (nearHut3 && !hut3Burned) || (nearHut4 && !hut4Burned)))
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to burn", Color(0.0f, 0.0f, 0.0f), 4, 4, 7);
+	}
+}
+
+void SceneStage3::RenderObjectives()
+{
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 0, 0), 2, 32, 25);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 0, 0), 2, 31, 24);
+	if (hutsBurned != 4)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Burn the huts", Color(0.1, 0.1, 0.1), 2, 28, 23);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Huts burned:" + to_string(hutsBurned) + "/4", Color(0.1, 0.1, 0.1), 2, 26, 22);
+	}
+	else if (monstersLeft != 0)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Kill all humans", Color(0.1, 0.1, 0.1), 2, 26, 23);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Humans left:" + to_string(monstersLeft), Color(0.1, 0.1, 0.1), 2, 27, 22);
+	}
+	else
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Go to the next part", Color(0.1, 0.1, 0.1), 3, 4, 12);
+		RenderTextOnScreen(meshList[GEO_TEXT], "of the village", Color(0.1, 0.1, 0.1), 3, 5.5, 11);
+		RenderTextOnScreen(meshList[GEO_TEXT], "and kill the chief!", Color(0.1, 0.1, 0.1), 3, 4.5, 10);
+	}
+}
+
 void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -1446,6 +1703,25 @@ void SceneStage3::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
+void SceneStage3::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
+{
+	glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+	modelStack.Scale(sizex, sizey, 0);
+	modelStack.Translate(x, y, 0);
+	RenderMesh(mesh, false); //UI should not have light
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+	glEnable(GL_DEPTH_TEST);
+}
 
 void SceneStage3::RenderBullets()
 {
@@ -1463,7 +1739,8 @@ void SceneStage3::RenderBullets()
 
 void SceneStage3::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
 }
 
 void SceneStage3::Exit()

@@ -7,11 +7,6 @@ MonsterFodder::MonsterFodder()
 {
 	health = 100;
 
-	//Vector3
-	Vector3 pos;
-	Vector3 target;
-	Vector3 view;
-
 	//Movement 
 	firstSpawn = true;
 	dirChanger = 0;
@@ -26,6 +21,28 @@ MonsterFodder::MonsterFodder()
 	_collidedY = false;
 	_collidedZ = false;
 
+
+}
+
+MonsterFodder::MonsterFodder(Vector3 x)
+{
+	health = 100;
+
+	pos = x;
+
+	//Movement 
+	firstSpawn = false;
+	dirChanger = 0;
+	moveRight = false;
+	monsterDirTime = 0.0;
+
+	//Collision for mob
+	prevPosX = 0.0;
+	prevPosY = 0.0;
+	prevPosZ = 0.0;
+	_collidedX = false;
+	_collidedY = false;
+	_collidedZ = false;
 
 }
 

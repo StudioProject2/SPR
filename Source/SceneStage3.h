@@ -19,7 +19,7 @@
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 1
+#define MOBNUM 30
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
@@ -99,25 +99,8 @@ class SceneStage3 : public Scene
 
 	enum GEOMETRY_TYPE
 	{
-		GEO_AXES,
-		GEO_QUAD,
-		GEO_QUAD1,
 		GEO_CUBE,
-		GEO_CIRCLE,
-		GEO_RING,
-		GEO_HEM,
 		GEO_SPHERE,
-		GEO_SPHERE1,
-		GEO_SPHERE2,
-		GEO_SPHERE3,
-		GEO_SPHERE4,
-		GEO_SPHERE5,
-		GEO_SPHERE6,
-		GEO_SPHERE7,
-		GEO_SPHERE8,
-		GEO_LIGHTBALL,
-		GEO_LIGHTBALL2,
-
 		GEO_BULLETS,
 
 		GEO_LEFT,
@@ -127,18 +110,12 @@ class SceneStage3 : public Scene
 		GEO_FRONT,
 		GEO_BACK,
 
+		GEO_PLAYER_TEETH,
+
 		GEO_FLOOR,
 		GEO_FENCE,
-		GEO_CHAIR,
-		GEO_WALL,
-		GEO_WATCHWALL,
-		GEO_TUNNEL,
-		GEO_BOMB,
-		GEO_TENT,
-		GEO_LAMP,
-		GEO_TANK,
-		GEO_WATCHTOWER,
-		GEO_GUY,
+		GEO_BUILDING,
+		GEO_FLAME,
 
 		GEO_FODDER_BODY,
 		GEO_FODDER_HAND,
@@ -154,6 +131,8 @@ class SceneStage3 : public Scene
 		GEO_GRASS_LINE,
 
 		GEO_TEXT,
+
+		GEO_PLAYERHEALTH,
 
 		NUM_GEOMETRY,
 	};
@@ -181,13 +160,13 @@ private:
 	Camera3 camera;
 
 	double elaspeTime;
-	double tempElaspeTime;
-	double deltaTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
+	double monsterSpawnDelay1;
+	double monsterSpawnDelay2;
+	double monsterSpawnDelay3;
+	double monsterSpawnDelay4;
+	double initialObjectiveTime;
+	int monstersLeft;
+	int hutsBurned;
 
 	bool gameOver;
 
@@ -195,22 +174,39 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
+	bool isNearObject(Camera3 camera, Box object);
 	//SP2 Stuff
 	void UpdateBullets();
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateInteractions();
 	void UpdateMonsterAnimations();
+
 	//void UpdatePlayerMonsterCol();
 	void RenderBullets();
 	void RenderHitmarker();
+	void RenderTopTeeth();
+	void RenderBottomTeeth();
+	void RenderPlayerHealth();
+	void RenderNearHut();
+	void RenderObjectives();
+
 	//Times 
 	double bulletBounceTime;
 	double playerHurtBounceTime;
-	double monsterTime;
-	double monsterFodderTime;
-	double monsterArcherTime;
+
+	bool hut1Burned;
+	bool hut2Burned;
+	bool hut3Burned;
+	bool hut4Burned;
+
+	bool nearHut1;
+	bool nearHut2;
+	bool nearHut3;
+	bool nearHut4;
 
 	int hitmarkerSize;
 	int hitmarkerTimer;

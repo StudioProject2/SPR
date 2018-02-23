@@ -9,6 +9,7 @@ class MonsterArcher : public Monster
 {
 public:
 	MonsterArcher();
+	MonsterArcher(Vector3);
 	~MonsterArcher();
 
 	int health;

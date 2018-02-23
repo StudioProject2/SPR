@@ -274,25 +274,33 @@ void Camera3::BoundsCheckStage3()
 	_collidedY = false;
 	_collidedZ = false;
 
-	Box cube = Box(Vector3(0, 0, 0), 105);
-	Box cube2 = Box(Vector3(100, 0, 150), 3.5);
+	Box hut1 = Box(Vector3(200, -10, 0), 50);
+	Box hut2 = Box(Vector3(200, -10, 200), 50);
+	Box hut3 = Box(Vector3(-200, -10, 0), 50);
+	Box hut4 = Box(Vector3(-200, -10, 200), 50);
 
-	if (isPointXInBox(position, cube)
-		|| isPointXInBox(position, cube2)
+	if (isPointXInBox(position, hut1)
+		|| isPointXInBox(position, hut2)
+		|| isPointXInBox(position, hut3)
+		|| isPointXInBox(position, hut4)
 		)
 	{
 		_collidedX = true;
 	}
 
-	if (isPointYInBox(position, cube)
-		|| isPointYInBox(position, cube2)
+	if (isPointYInBox(position, hut1)
+		|| isPointYInBox(position, hut2)
+		|| isPointYInBox(position, hut3)
+		|| isPointYInBox(position, hut4)
 		)
 	{
 		_collidedY = true;
 	}
 
-	if (isPointZInBox(position, cube)
-		|| isPointZInBox(position, cube2)
+	if (isPointZInBox(position, hut1)
+		|| isPointZInBox(position, hut2)
+		|| isPointZInBox(position, hut3)
+		|| isPointZInBox(position, hut4)
 		)
 	{
 		_collidedZ = true;
