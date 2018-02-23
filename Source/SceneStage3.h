@@ -140,6 +140,17 @@ class SceneStage3 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+		GEO_DODGER_BODY,
+		GEO_DODGER_HAND,
+		GEO_DODGER_LEG,
+		GEO_DODGER_WEAPON,
+		GEO_ARCHER_BODY,
+		GEO_ARCHER_HAND,
+		GEO_ARCHER_LEG,
+		GEO_ARCHER_WEAPON,
+
 		GEO_GRASS_LINE,
 
 		GEO_TEXT,
@@ -190,6 +201,7 @@ private:
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateMonsterAnimations();
 	//void UpdatePlayerMonsterCol();
 	void RenderBullets();
 	void RenderHitmarker();
@@ -223,6 +235,18 @@ private:
 	Box *bulletBoxPtr[NO_OF_BULLETS];
 	Player *player;
 
+	//Monster Animations Logic
+	int fodSwingTimer;
+	bool fodLeft;
+	double fodderArmSwing;
+	int dodSwingTimer;
+	bool dodLeft;
+	double dodgerArmSwing;
+	double dodgerLegSwing;
+	int arcSwingTimer;
+	bool arcLeft;
+	double archerArmSwing;
+	double archerLegSwing;
 };
 
 #endif

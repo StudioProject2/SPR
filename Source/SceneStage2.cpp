@@ -417,34 +417,6 @@ void SceneStage2::Init()
 	meshList[GEO_DODGER_WEAPON]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_DODGER_WEAPON]->material.kShininess = 1.f;
 
-	//inits for archer
-	/*
-	meshList[GEO_ARCHER_BODY] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherBodyOBJ.obj");
-	meshList[GEO_ARCHER_BODY]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
-	meshList[GEO_ARCHER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_ARCHER_BODY]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ARCHER_BODY]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ARCHER_BODY]->material.kShininess = 1.f;
-	meshList[GEO_ARCHER_HAND] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherHandOBJ.obj");
-	meshList[GEO_ARCHER_HAND]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
-	meshList[GEO_ARCHER_HAND]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_ARCHER_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ARCHER_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ARCHER_HAND]->material.kShininess = 1.f;
-	meshList[GEO_ARCHER_LEG] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherLegOBJ.obj");
-	meshList[GEO_ARCHER_LEG]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
-	meshList[GEO_ARCHER_LEG]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_ARCHER_LEG]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ARCHER_LEG]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ARCHER_LEG]->material.kShininess = 1.f;
-	meshList[GEO_ARCHER_WEAPON] = MeshBuilder::GenerateOBJ("archer", "OBJ//MonstersOBJ//ArcherWeaponOBJ.obj");
-	meshList[GEO_ARCHER_WEAPON]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
-	meshList[GEO_ARCHER_WEAPON]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_ARCHER_WEAPON]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_ARCHER_WEAPON]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_ARCHER_WEAPON]->material.kShininess = 1.f;
-	*/
-
 	//pickups
 	meshList[GEO_PICKUP] = MeshBuilder::GenerateOBJ("pickups", "OBJ//PickupOBJ.obj");
 	meshList[GEO_PICKUP]->textureID = LoadTGA("Image//HealthPickupTexture.tga");

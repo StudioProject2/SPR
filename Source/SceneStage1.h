@@ -139,6 +139,9 @@ class SceneStage1 : public Scene
 		GEO_WATCHTOWER,
 		GEO_GUY,
 
+		GEO_FODDER_BODY,
+		GEO_FODDER_HAND,
+
 		GEO_CAGE,
 		GEO_CAGEDOOR,
 
@@ -183,6 +186,7 @@ private:
 	void UpdateMonsters();
 	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
+	void UpdateMonsterAnimations();
 
 	void RenderBullets();
 	void RenderHitmarker();
@@ -214,6 +218,10 @@ private:
 	bool isNearObject(Camera3 camera, Box object);
 	void UpdateInteractions();
 
+	//Monster Animations Logic
+	int fodSwingTimer;
+	bool fodLeft;
+	double fodderArmSwing;
 };
 
 #endif

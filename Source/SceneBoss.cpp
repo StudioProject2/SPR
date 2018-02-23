@@ -40,7 +40,13 @@ void SceneBoss::Init()
 	arcLeft = false;
 	archerArmSwing = 0.0;
 	archerLegSwing = 0.0;
+
+	bossSwingTimer = 0;
+	bossLeft = false;
+	bossArmSwing = 0.0;
+	bossLegSwing = 0.0;
 	//Timer
+	spinToWin = 0;
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
@@ -366,26 +372,27 @@ void SceneBoss::Init()
 
 	//Boss Monster
 	meshList[GEO_BOSS_BODY] = MeshBuilder::GenerateOBJ("boss", "OBJ//MonstersOBJ//BossBodyOBJ.obj");
-	meshList[GEO_BOSS_BODY]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
+	meshList[GEO_BOSS_BODY]->textureID = LoadTGA("Image//MonsterTextures//BossTexture.tga");
 	meshList[GEO_BOSS_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BOSS_BODY]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_BOSS_BODY]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_BOSS_BODY]->material.kShininess = 1.f;
 	meshList[GEO_BOSS_HAND] = MeshBuilder::GenerateOBJ("boss", "OBJ//MonstersOBJ//BossHandOBJ.obj");
-	meshList[GEO_BOSS_HAND]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
+	meshList[GEO_BOSS_HAND]->textureID = LoadTGA("Image//MonsterTextures//BossTexture.tga");
 	meshList[GEO_BOSS_HAND]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BOSS_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_BOSS_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_BOSS_HAND]->material.kShininess = 1.f;
 	meshList[GEO_BOSS_LEG] = MeshBuilder::GenerateOBJ("boss", "OBJ//MonstersOBJ//BossLegOBJ.obj");
-	meshList[GEO_BOSS_LEG]->textureID = LoadTGA("Image//MonsterTextures//ArcherTexture.tga");
+	meshList[GEO_BOSS_LEG]->textureID = LoadTGA("Image//MonsterTextures//BossTexture.tga");
 	meshList[GEO_BOSS_LEG]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
 	meshList[GEO_BOSS_LEG]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_BOSS_LEG]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_BOSS_LEG]->material.kShininess = 1.f;
 
 	//Bullet
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
+	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
 	//Debuggging Cube
 	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
@@ -446,6 +453,7 @@ void SceneBoss::Init()
 
 void SceneBoss::Update(double dt)
 {
+	spinToWin += 30;
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
@@ -454,7 +462,7 @@ void SceneBoss::Update(double dt)
 
 	UpdateBullets();
 
-	if (boss.getHealth() <= 500 && !win && !gameOver)
+	if (boss.getHealth() <= 1000 && !win && !gameOver)
 	{
 		UpdateMonsters();
 		UpdateMonsterBullets();
@@ -1170,6 +1178,33 @@ void SceneBoss::UpdateMonsterAnimations()
 		}
 	}
 	
+	//boss
+	if (!bossLeft)
+	{
+		if (bossSwingTimer < 30)
+		{
+			bossSwingTimer += 1;
+			bossArmSwing += 2;
+			bossLegSwing += 1.5;
+		}
+		else
+		{
+			bossLeft = true;
+		}
+	}
+	else
+	{
+		if (bossSwingTimer > 0)
+		{
+			bossSwingTimer -= 1;
+			bossArmSwing -= 2;
+			bossLegSwing -= 1.5;
+		}
+		else
+		{
+			bossLeft = false;
+		}
+	}
 }
 
 void SceneBoss::Render()
@@ -1368,6 +1403,12 @@ void SceneBoss::Render()
 	double fRot;
 	double aRot;
 
+	double bdRot;
+	double bfRot;
+	double baRot;
+
+	double bRot;
+
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
@@ -1416,8 +1457,26 @@ void SceneBoss::Render()
 	{
 		if (MonsterArcherPtr[i] != NULL)
 		{
+			Vector3 B = MonsterArcherPtr[i]->pos - camera.position;
+			B.y = MonsterArcherPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				aRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				aRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				aRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				aRot = 180 - rotation;
+			else
+				aRot = rotation;
+
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y - 10, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Rotate(aRot + 90, 0, 1, 0);
 			modelStack.Scale(10, 10, 10);
 			RenderMesh(meshList[GEO_ARCHER_BODY], true);
 				modelStack.PushMatrix();
@@ -1428,9 +1487,9 @@ void SceneBoss::Render()
 				modelStack.Translate(0, -2, 0);
 				RenderMesh(meshList[GEO_ARCHER_HAND], true);
 					modelStack.PushMatrix();
-					modelStack.Translate(1, 1.5, 0.8);
-					modelStack.Rotate(180, 0, 1, 0);
-					modelStack.Rotate(90, 1, 0, 0);
+					modelStack.Translate(0, 1, 3);
+					modelStack.Rotate(90, 0, 1, 0);
+					modelStack.Rotate(160, 1, 0, 0);
 					modelStack.Scale(0.5, 0.5, 0.5);
 					RenderMesh(meshList[GEO_ARCHER_WEAPON], true);
 					modelStack.PopMatrix();
@@ -1458,8 +1517,27 @@ void SceneBoss::Render()
 	{
 		if (monsterArcherBulletPtr[i] != NULL)
 		{
+			Vector3 B = monsterArcherBulletPtr[i]->pos - camera.position;
+			B.y = monsterArcherBulletPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				bdRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				bdRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				bdRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				bdRot = 180 - rotation;
+			else
+				bdRot = rotation;
+
 			modelStack.PushMatrix();
 			modelStack.Translate((*monsterArcherBulletPtr[i]).pos.x, (*monsterArcherBulletPtr[i]).pos.y, (*monsterArcherBulletPtr[i]).pos.z);
+			modelStack.Rotate(bdRot, 0, 1, 0);
+			modelStack.Rotate(90, 1, 0, 0);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
@@ -1540,10 +1618,29 @@ void SceneBoss::Render()
 	{
 		if (directBulletPtr[i] != NULL)
 		{
+			Vector3 B = directBulletPtr[i]->pos - camera.position;
+			B.y = directBulletPtr[i]->pos.y;
+
+			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180 / 3.14);
+
+			if (B.x > 0 && B.z < 0)
+				bfRot = 180 + rotation;
+			else if (B.x > 0 && B.z > 0)
+				bfRot = 180 + rotation;
+			else if (B.x < 0 && B.z > 0)
+				bfRot = 180 - rotation;
+			else if (B.x < 0 && B.z < 0)
+				bfRot = 180 - rotation;
+			else
+				bfRot = rotation;
+
 			modelStack.PushMatrix();
 			modelStack.Translate((*directBulletPtr[i]).pos.x, (*directBulletPtr[i]).pos.y, (*directBulletPtr[i]).pos.z);
+			modelStack.Rotate(bfRot, 0, 1, 0);
+			modelStack.Rotate(90, 1, 0, 0);
 			modelStack.Scale(2, 2, 2);
-			RenderMesh(meshList[GEO_SPHERE], true);
+			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
 	}
@@ -1554,6 +1651,8 @@ void SceneBoss::Render()
 		{
 			modelStack.PushMatrix();
 			modelStack.Translate((*ringBulletPtr[i]).pos.x, (*ringBulletPtr[i]).pos.y, (*ringBulletPtr[i]).pos.z);
+			modelStack.Rotate(spinToWin, 0, 1, 0);
+			modelStack.Rotate(90, 0, 0, 1);
 			modelStack.Scale(2, 2, 2);
 			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
@@ -1572,11 +1671,55 @@ void SceneBoss::Render()
 		}
 	}
 
-	modelStack.PushMatrix();
-	modelStack.Translate(boss.getPos().x, boss.getPos().y, boss.getPos().z);
-	modelStack.Scale(10, 10, 10);
-	RenderMesh(meshList[GEO_SPHERE], true);
-	modelStack.PopMatrix();
+	
+		Vector3 B = boss.getPos() - camera.position;
+		B.y = boss.getPos().y;
+
+		double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+		rotation = rotation * (180 / 3.14);
+
+		if (B.x > 0 && B.z < 0)
+			bRot = 180 + rotation;
+		else if (B.x > 0 && B.z > 0)
+			bRot = 180 + rotation;
+		else if (B.x < 0 && B.z > 0)
+			bRot = 180 - rotation;
+		else if (B.x < 0 && B.z < 0)
+			bRot = 180 - rotation;
+		else
+			bRot = rotation;
+		modelStack.PushMatrix();
+		modelStack.Translate(boss.getPos().x, boss.getPos().y + 5, boss.getPos().z);
+		modelStack.Rotate(bRot + 90, 0, 1, 0);
+		modelStack.Scale(10, 10, 10);
+		RenderMesh(meshList[GEO_BOSS_BODY], true);
+			modelStack.PushMatrix();
+			modelStack.Translate(0, 0.2, -0.05);
+			modelStack.Translate(0, 0.5, 0);
+			modelStack.Rotate(bossArmSwing + 330, 0, 0, 1);
+			modelStack.Translate(0, -0.5, 0);
+			RenderMesh(meshList[GEO_BOSS_HAND], true);
+			modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(0, 0.2, 0.05);
+			modelStack.Rotate(180, 0, 1, 0);
+			modelStack.Translate(0, 0.5, 0);
+			modelStack.Rotate(bossArmSwing - 30, 0, 0, 1);
+			modelStack.Translate(0, -0.5, 0);
+			RenderMesh(meshList[GEO_BOSS_HAND], true);
+			modelStack.PopMatrix();
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0, -0.05);
+				modelStack.Rotate(bossLegSwing + 340, 0, 0, 1);
+				RenderMesh(meshList[GEO_BOSS_LEG], true);
+				modelStack.PopMatrix();
+				modelStack.PushMatrix();
+				modelStack.Translate(0, 0, -0.4);
+				modelStack.Rotate(-bossLegSwing -340, 0, 0, 1);
+				RenderMesh(meshList[GEO_BOSS_LEG], true);
+				modelStack.PopMatrix();
+		modelStack.PopMatrix();
+	
 
 	if (printGroundSignal && groundAreaCenter != NULL)
 	{
