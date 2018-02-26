@@ -853,6 +853,7 @@ void SceneBoss::UpdateBossMovement()
 			boss.resetY();
 			bossMovement++;
 		}
+		boss.resetVariables();
 		bossMovementChangeTime = elaspeTime + 15.0;
 	}
 

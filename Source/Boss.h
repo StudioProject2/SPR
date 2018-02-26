@@ -29,10 +29,8 @@ private:
 	Vector3 chargeTarget;
 
 	//Movement 
-	bool firstSpawn;
 	bool firstCharge;
 	bool startCharge;
-	int dirChanger;
 	bool moveRight;
 	double bossDirTime;
 	double bossChargeDelay;
@@ -65,6 +63,7 @@ public:
 	Vector3 getPos();
 	void setHealth(int x);
 	void resetY();
+	void resetVariables();
 };
 
 #endif 
