@@ -167,9 +167,6 @@ public:
 
 private:
 	unsigned m_vertexArrayID;
-	//unsigned m_vertexBuffer[NUM_GEOMETRY];
-	//unsigned m_colorBuffer[NUM_GEOMETRY];
-	//unsigned m_indexBuffer;
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
@@ -180,12 +177,10 @@ private:
 
 	double elaspeTime;
 	double tempElaspeTime;
-	double deltaTime;
 	double monsterTime;
 	double bossPlayerShootTime;
 	double bossRingShootTime;
 	double bossMovementChangeTime;
-	double bossGroundAttackTime;
 	double bossChangeGroundTargetTime;
 	double bossGroundAttackDelayTime;
 	double groundSignalBlinkTime;
@@ -236,8 +231,6 @@ private:
 	Box *bossBox;
 	Vector3 groundAreaCenter;
 
-	//STUFF THEO ADDED
-	int monDead;
 	double bulletBounceTime;
 	//MonsterArcher and MonsterFodder
 	Monster *MonsterFodderPtr[MOBNUM];
@@ -260,6 +253,7 @@ private:
 
 	//monster Animations
 	double spinToWin;
+
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
