@@ -35,7 +35,9 @@ public:
 		STAGE2,
 		STAGE3,
 		STAGE4,
-		STAGETEST
+		STAGETEST,
+		WIN,
+		LOSE
 	};
 
 private:

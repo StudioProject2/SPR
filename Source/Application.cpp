@@ -19,13 +19,15 @@
 
 #include "MainMenu.h"
 #include "LevelSelect.h"
+#include "SceneWin.h"
+#include "SceneLose.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
 int Application::sceneChange = 0;
 int Application::whatScene = 0;
-bool Application::muted = false;
+bool Application::muted = true;
 bool Application::muteToggle = false;
 bool Application::inMenu = false;
 //init watscene;
@@ -134,6 +136,9 @@ void Application::Run()
 
 	Scene *sceneMenu = new MainMenu();
 	Scene *sceneLevel = new LevelSelect();
+	Scene *sceneWin = new SceneWin();
+	Scene *sceneLose = new LoseScene();
+
 
 	Scene *scene = sceneMenu;
 
@@ -232,6 +237,20 @@ void Application::Run()
 			}
 			Application::sceneChange = 10;
 		}
+		if (Application::sceneChange == WIN)
+		{
+			scene = sceneWin;
+			scene->Init();
+			whatScene = WIN;
+			Application::sceneChange = 10;
+		}
+		if (Application::sceneChange == LOSE)
+		{
+			scene = sceneLose;
+			scene->Init();
+			whatScene = LOSE;
+			Application::sceneChange = 10;
+		}
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
 		//Swap buffers
@@ -247,6 +266,8 @@ void Application::Run()
 	scene3->Exit();
 	sceneMenu->Exit();
 	sceneLevel->Exit();
+	sceneWin->Exit();
+	sceneLose->Exit();
 
 	delete sceneBoss;
 	delete scene1;
@@ -254,6 +275,8 @@ void Application::Run()
 	delete scene3;
 	delete sceneMenu;
 	delete sceneLevel;
+	delete sceneWin;
+	delete sceneLose;
 }
 
 void Application::Exit()

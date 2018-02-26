@@ -477,7 +477,10 @@ void SceneStage3::Update(double dt)
 		movingUp = true;
 	}
 
-
+	if (player->health <= 0)
+	{
+		Application::sceneChange = Application::LOSE;
+	}
 }
 
 void SceneStage3::UpdateBullets()

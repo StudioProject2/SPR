@@ -503,7 +503,7 @@ void SceneStage2::Update(double dt)
 
 	if (player->health <= 0)
 	{
-		gameOver = true;
+		Application::sceneChange = Application::LOSE;
 	}
 
 	if (Application::IsKeyPressed('1'))
