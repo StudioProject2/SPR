@@ -152,6 +152,7 @@ class SceneStage1 : public Scene
 
 		GEO_TEXT,
 
+		GEO_ARROW,
 
 
 		NUM_GEOMETRY,
@@ -225,6 +226,7 @@ private:
 	bool isNearExit;
 	void UpdateInteractions();
 	void RenderObjectives();
+	float breakCage;
 
 	//Player
 	Player *player;
@@ -240,11 +242,15 @@ private:
 	//End scene
 	bool completeObjectives;
 
-
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
 	double fodderArmSwing;
+	
+	//Arrow
+	float yArrowTranslate;
+	bool movingUp;
+
 };
 
 #endif
