@@ -357,7 +357,12 @@ void Monster::boundsCheckStage3()
 
 void Monster::boundsCheckBoss()
 {
-	Box cube = Box(Vector3(0, 0, 0), 120);
+	Box hut1 = Box(Vector3(200, -10, 0), 50);
+	Box hut2 = Box(Vector3(200, -10, 200), 50);
+	Box hut3 = Box(Vector3(200, -10, -200), 50);
+	Box hut4 = Box(Vector3(-200, -10, 0), 50);
+	Box hut5 = Box(Vector3(-200, -10, 200), 50);
+	Box hut6 = Box(Vector3(-200, -10, -200), 50);
 
 	//Spawn Check, so mob wont spawn in objects
 	if (firstSpawn == true)
@@ -375,7 +380,12 @@ void Monster::boundsCheckBoss()
 			moveRight = true;
 			monsterDirTime = 0.0;
 
-		} while (isPointInBox(pos, cube));
+		} while (isPointInBox(pos, hut1)
+			|| isPointInBox(pos, hut2)
+			|| isPointInBox(pos, hut3)
+			|| isPointInBox(pos, hut4)
+			|| isPointInBox(pos, hut5)
+			|| isPointInBox(pos, hut6));
 
 		firstSpawn = false;
 	}
@@ -384,18 +394,33 @@ void Monster::boundsCheckBoss()
 	_collidedY = false;
 	_collidedZ = false;
 
-	if (isPointXInBox1(pos, cube))
+	if (isPointXInBox1(pos, hut1)
+		|| isPointXInBox1(pos, hut2)
+		|| isPointXInBox1(pos, hut3)
+		|| isPointXInBox1(pos, hut4)
+		|| isPointXInBox1(pos, hut5)
+		|| isPointXInBox1(pos, hut6))
 
 	{
 		_collidedX = true;
 	}
 
-	if (isPointYInBox1(pos, cube))
+	if (isPointYInBox1(pos, hut1)
+		|| isPointYInBox1(pos, hut2)
+		|| isPointYInBox1(pos, hut3)
+		|| isPointYInBox1(pos, hut4)
+		|| isPointYInBox1(pos, hut5)
+		|| isPointYInBox1(pos, hut6))
 	{
 		_collidedY = true;
 	}
 
-	if (isPointZInBox1(pos, cube))
+	if (isPointZInBox1(pos, hut1)
+		|| isPointZInBox1(pos, hut2)
+		|| isPointZInBox1(pos, hut3)
+		|| isPointZInBox1(pos, hut4)
+		|| isPointZInBox1(pos, hut5)
+		|| isPointZInBox1(pos, hut6))
 	{
 		_collidedZ = true;
 	}

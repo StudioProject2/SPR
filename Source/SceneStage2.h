@@ -271,7 +271,7 @@ private:
 	float dodgerArmSwing;
 	float dodgerLegSwing;
 
-	ISoundEngine* engine = createIrrKlangDevice();
+	ISoundEngine* engine;
 };
 
 #endif

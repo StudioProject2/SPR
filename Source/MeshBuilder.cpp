@@ -72,8 +72,8 @@ Mesh* MeshBuilder::GenerateCircle(const std::string &meshName, float lengthX, fl
 
 	for (int theta = 0; theta <= 360; theta += 10)
 	{
-		float x = 10 * cosf(DegreeToRadian(theta));
-		float y = 10 * sinf(DegreeToRadian(theta));
+		float x = 10 * cosf(DegreeToRadian((float)theta));
+		float y = 10 * sinf(DegreeToRadian((float)theta));
 
 		v.pos.Set(x, 0, y);
 		v.color.Set(1, 0, 0);
@@ -87,7 +87,7 @@ Mesh* MeshBuilder::GenerateCircle(const std::string &meshName, float lengthX, fl
 
 	std::vector<GLuint> index_buffer_data;
 
-	for (int i = 0; i < vertex_buffer_data.size(); ++i)
+	for (unsigned int i = 0; i < vertex_buffer_data.size(); ++i)
 	{
 		index_buffer_data.push_back(i);
 	}
@@ -161,7 +161,7 @@ Mesh* MeshBuilder::GenerateQuad1(const std::string &meshName, Color color, float
 
 	std::vector<GLuint> index_buffer_data;
 
-	for (int i = 0; i < vertex_buffer_data.size(); ++i)
+	for (unsigned int i = 0; i < vertex_buffer_data.size(); ++i)
 	{
 		index_buffer_data.push_back(i);
 	}
@@ -222,7 +222,7 @@ Mesh* MeshBuilder::GenerateQuad(const std::string &meshName, Color color, float 
 
 	std::vector<GLuint> index_buffer_data;
 
-	for (int i = 0; i < vertex_buffer_data.size(); ++i)
+	for (unsigned int i = 0; i < vertex_buffer_data.size(); ++i)
 	{
 		index_buffer_data.push_back(i);
 	}
@@ -443,10 +443,10 @@ Mesh* MeshBuilder::GenerateRing(const std::string &meshName, float lengthX, floa
 
 	for (int theta = 0; theta <= 360; theta += 10)
 	{
-		float x = 10 * cosf(DegreeToRadian(theta));
-		float y = 10 * sinf(DegreeToRadian(theta));
+		float x = 10 * cosf(DegreeToRadian((float)theta));
+		float y = 10 * sinf(DegreeToRadian((float)theta));
 
-		v.pos.Set(1.2*x, 0, 1.2*y);
+		v.pos.Set(1.2f*x, 0, 1.2f*y);
 		v.color.Set(1, 0, 0);
 		vertex_buffer_data.push_back(v);
 
@@ -458,7 +458,7 @@ Mesh* MeshBuilder::GenerateRing(const std::string &meshName, float lengthX, floa
 
 	std::vector<GLuint> index_buffer_data;
 
-	for (int i = 0; i < vertex_buffer_data.size(); ++i)
+	for (unsigned int i = 0; i < vertex_buffer_data.size(); ++i)
 	{
 		index_buffer_data.push_back(i);
 	}

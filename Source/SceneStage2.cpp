@@ -338,7 +338,7 @@ void SceneStage2::Init()
 	meshList[GEO_BARRIER]->textureID = LoadTGAR("Image//Stage2//Barrier.tga");
 
 	//Player
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("Bullet", Color(1.0f, 1.0f, 1.0f), 10, 10, 1);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.0f, 0.7f), 20, 20, 0.5);
 	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
 	meshList[GEO_PLAYER_TEETH]->textureID = LoadTGA("Image//PlayerTeeth.tga");
 	meshList[GEO_PLAYER_TEETH]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
@@ -436,6 +436,8 @@ void SceneStage2::Init()
 	//Objective Indicator
 	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
 	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
+
+	engine = createIrrKlangDevice();
 }
 
 bool SceneStage2::isNearObject(Camera3 camera, Box object)

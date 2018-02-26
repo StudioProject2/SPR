@@ -277,7 +277,7 @@ void SceneBoss::Init()
 	}
 
 	//Others
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.0f, 0.7f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -442,6 +442,7 @@ void SceneBoss::Init()
 		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
 	}
 
+	engine = createIrrKlangDevice();
 }
 
 void SceneBoss::Update(double dt)
@@ -1328,14 +1329,14 @@ void SceneBoss::Render()
 	for (int i = 0; i < 1800; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(-300.f, -10.f, -900.f + (float)(i));
+		modelStack.Translate(-300.f, -10.f, -900.f + i);
 		modelStack.Rotate(90, 0, 1, 0);
 		modelStack.Scale(20, 20, 20);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(300.f, -10.f, -900.f + (float)(i));
+		modelStack.Translate(300.f, -10.f, -900.f + i);
 		modelStack.Rotate(270.f, 0.f, 1.f, 0.f);
 		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
@@ -1345,13 +1346,13 @@ void SceneBoss::Render()
 	for (int i = 0; i < 660; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(300.f - (float)(i), -10.f, 890.f);
+		modelStack.Translate(300.f - i, -10.f, 890.f);
 		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(300.f - (float)(i), -10.f, -910.f);
+		modelStack.Translate(300.f - i, -10.f, -910.f);
 		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
