@@ -20,8 +20,6 @@ Boss::Boss()
 	Vector3 view;
 
 	//Movement 
-	firstSpawn = true;
-	dirChanger = 0;
 	moveRight = false;
 	bossDirTime = 0.0;
 	startCharge = false;
@@ -336,6 +334,14 @@ void Boss::setHealth(int x)
 void Boss::resetY()
 {
 	pos.y = 0;
+}
+
+void Boss::resetVariables()
+{
+	leaped = false;
+	rising = false;
+	chasing = false;
+	dropping = false;
 }
 
 
