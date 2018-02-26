@@ -259,7 +259,7 @@ void SceneStage3::Init()
 	}
 
 	//Others
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.0f, 0.7f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);

@@ -26,6 +26,8 @@ public:
 	static bool muted;
 	static bool muteToggle;
 	static bool inMenu;
+	static double sceneChangeDelay;
+	static double elaspedTime;
 
 	enum sceneType
 	{
@@ -42,6 +44,7 @@ public:
 
 private:
 
+	double tempDT;
 	//Declare a window object
 	StopWatch m_timer;
 	ISoundEngine* engine = createIrrKlangDevice();
