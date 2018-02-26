@@ -147,6 +147,7 @@ class SceneStage2 : public Scene
 		GEO_DODGER_WEAPON,
 
 		GEO_PLAYER_TEETH,
+		GEO_PLAYERHEALTH,
 
 		GEO_TEXT,
 
@@ -192,6 +193,7 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
+	void RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey);
 
 	//AB box checkers
 	bool isInObjectZ(Camera3 camera, Box object);
@@ -212,6 +214,7 @@ private:
 	void UpdateMonsterAnimations();
 
 	//Renders
+	void RenderPlayerHealth();
 	void RenderBullets();
 	void RenderHitmarker();
 	void RenderMonster();
