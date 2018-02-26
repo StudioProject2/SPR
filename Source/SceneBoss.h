@@ -185,8 +185,8 @@ private:
 	double bossGroundAttackDelayTime;
 	double groundSignalBlinkTime;
 
-	double bossHealthTranslate;
-	double bossHealthScale;
+	float bossHealthTranslate;
+	float bossHealthScale;
 
 	bool printGroundSignal;
 	bool gameOver;
@@ -215,8 +215,8 @@ private:
 	void RenderBullets();
 	void RenderHitmarker();
 
-	int hitmarkerSize;
-	int hitmarkerTimer;
+	float hitmarkerSize;
+	double hitmarkerTimer;
 
 	Boss boss;
 	Monster *MonsterPtr[MOBNUM];
@@ -251,24 +251,31 @@ private:
 	};
 
 	//monster Animations
-	double spinToWin;
+	float spinToWin;
 
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
-	double fodderArmSwing;
+	float fodderArmSwing;
 	int dodSwingTimer;
 	bool dodLeft;
-	double dodgerArmSwing;
-	double dodgerLegSwing;
+	float dodgerArmSwing;
+	float dodgerLegSwing;
 	int arcSwingTimer;
 	bool arcLeft;
-	double archerArmSwing;
-	double archerLegSwing;
+	float archerArmSwing;
+	float archerLegSwing;
 	int bossSwingTimer;
 	bool bossLeft;
-	double bossArmSwing;
-	double bossLegSwing;
+	float bossArmSwing;
+	float bossLegSwing;
+	float dRot;
+	float fRot;
+	float aRot;
+	float bdRot;
+	float bfRot;
+	float baRot;
+	float bRot;
 
 
 	Player *player;
