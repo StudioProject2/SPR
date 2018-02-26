@@ -218,8 +218,8 @@ private:
 	bool treeLifeOne;
 	bool treeLifeTwo;
 	bool treeLifeThree;
-	double treeY;
-	double treeRotate;
+	float treeY;
+	float treeRotate;
 	int treeFallTimer;
 	int fallingStage;
 
@@ -227,8 +227,8 @@ private:
 	int pickupsTimer;
 	bool pickupsSpawn;
 	bool pickupsFlying;
-	double pickupsY;
-	double pickupsZ;
+	float pickupsY;
+	float pickupsZ;
 
 	//player
 	Player* player;
@@ -236,7 +236,7 @@ private:
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
 	//Player Hurt
-	double playerHurtBounceTime;
+	float playerHurtBounceTime;
 
 	//objectives
 	bool objectiveOne;
@@ -259,17 +259,17 @@ private:
 	double monsterBulletDelay[MOBNUM];
 
 	//Monster Spawn Timer
-	double monsterFodderTime;
-	double monsterTime;
+	float monsterFodderTime;
+	float monsterTime;
 
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
-	double fodderArmSwing;
+	float fodderArmSwing;
 	int dodSwingTimer;
 	bool dodLeft;
-	double dodgerArmSwing;
-	double dodgerLegSwing;
+	float dodgerArmSwing;
+	float dodgerLegSwing;
 
 	ISoundEngine* engine = createIrrKlangDevice();
 };
