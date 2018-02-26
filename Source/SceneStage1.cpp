@@ -1292,6 +1292,11 @@ void SceneStage1::Exit()
 
 	}
 
+	if (engine)
+	{
+		engine->drop();
+	}
+
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 }

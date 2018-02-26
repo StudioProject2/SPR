@@ -1942,6 +1942,10 @@ void SceneStage2::Exit()
 		meshList[i] = NULL;
 	}
 
-	//glDeleteVertexArrays(1, &m_vertexArrayID);
+	if (engine)
+	{
+		engine->drop();
+	}
+
 	glDeleteProgram(m_programID);
 }

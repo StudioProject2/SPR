@@ -144,6 +144,7 @@ public:
 	virtual void Render();
 	virtual void Exit();
 
+
 private:
 	unsigned m_vertexArrayID;
 	//unsigned m_vertexBuffer[NUM_GEOMETRY];
@@ -166,7 +167,6 @@ private:
 
 	double elaspeTime;
 	double muteButtonTime;
-	double selectTime;
 	//Spawner
 	bool spawn = false;
 
@@ -181,7 +181,7 @@ private:
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	ISoundEngine* engine = createIrrKlangDevice();
+	ISoundEngine* engine;
 };
 
 #endif

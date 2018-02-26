@@ -1906,7 +1906,12 @@ void SceneBoss::Exit()
 		meshList[i] = NULL;
 
 	}
-	engine->drop();
+
+	if (engine)
+	{
+		engine->drop();
+	}
+
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
 	glDeleteProgram(m_programID);
 }
