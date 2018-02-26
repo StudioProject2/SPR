@@ -23,7 +23,7 @@ using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 5
+#define MOBNUM2 5
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 #define MOBNUM_TO_KILL 5
@@ -200,18 +200,18 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double bulletBounceTime;
-	int monDead;
+	float monDead;
 	bool gameOver;
 
 	//hit markers
-	int hitmarkerSize;
-	int hitmarkerTimer;
+	float hitmarkerSize;
+	float hitmarkerTimer;
 
 	//Interaction text size
-	int interactionSize;
+	float interactionSize;
 
 	//tree and flowers logic
-	int flowersAmt;
+	float flowersAmt;
 	bool flowerOneLife;
 	bool flowerTwoLife;
 	bool flowerThreeLife;
@@ -220,11 +220,11 @@ private:
 	bool treeLifeThree;
 	float treeY;
 	float treeRotate;
-	int treeFallTimer;
-	int fallingStage;
+	float treeFallTimer;
+	float fallingStage;
 
 	//pickups logic
-	int pickupsTimer;
+	float pickupsTimer;
 	bool pickupsSpawn;
 	bool pickupsFlying;
 	float pickupsY;
@@ -236,7 +236,7 @@ private:
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
 	//Player Hurt
-	float playerHurtBounceTime;
+	double playerHurtBounceTime;
 
 	//objectives
 	bool objectiveOne;
@@ -249,24 +249,24 @@ private:
 	bool movingUp;
 
 	//Monster Arrays
-	Monster *MonsterPtr[MOBNUM];
-	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterPtr[MOBNUM2];
+	Monster *MonsterFodderPtr[MOBNUM2];
 	//MonsterHitBoxes
-	Box *monsterBoxPtr[MOBNUM];
-	Box *monsterFodderBoxPtr[MOBNUM];
+	Box *monsterBoxPtr[MOBNUM2];
+	Box *monsterFodderBoxPtr[MOBNUM2];
 	//Monster Bullets
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-	double monsterBulletDelay[MOBNUM];
+	double monsterBulletDelay[MOBNUM2];
 
 	//Monster Spawn Timer
-	float monsterFodderTime;
-	float monsterTime;
+	double monsterFodderTime;
+	double monsterTime;
 
 	//Monster Animations Logic
-	int fodSwingTimer;
+	float fodSwingTimer;
 	bool fodLeft;
 	float fodderArmSwing;
-	int dodSwingTimer;
+	float dodSwingTimer;
 	bool dodLeft;
 	float dodgerArmSwing;
 	float dodgerLegSwing;

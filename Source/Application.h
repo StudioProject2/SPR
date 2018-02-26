@@ -19,7 +19,7 @@ public:
 	void Exit();
 	//static void GetMousePos(double &xpos, double &ypos);
 	static bool IsKeyPressed(unsigned short key);
-	static void SetMousePosition(double xPos, double yPos);
+	static void SetMousePosition(float xPos, float yPos);
 	static void GetMousePosition(double &xPos, double &yPos);
 	static int sceneChange;
 	static int whatScene;
