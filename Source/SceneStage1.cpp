@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <sstream>
 #include <cmath>
+
 using namespace std;
 
 SceneStage1::SceneStage1()
@@ -35,7 +36,8 @@ void SceneStage1::Init()
 	deltaTime = 0.0;
 	bulletBounceTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
-
+	yArrowTranslate = 40;
+	movingUp = true;
 	hitmarkerSize = 0;
 
 	for (int i = 0; i < MOBNUM; i++)
@@ -58,7 +60,8 @@ void SceneStage1::Init()
 	isNearExit = false;
 
 	completeObjectives = false;
-
+	breakCage = 0.0;
+	//************************************COMPG**************************************************
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
@@ -316,6 +319,9 @@ void SceneStage1::Init()
 	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
 	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
 
+	//ARROW
+	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
+	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
 
 	//Monsters
 
@@ -347,12 +353,32 @@ void SceneStage1::Update(double dt)
 	UpdateMonsters();
 	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
-
+	UpdateMonsterAnimations();
 	camera.Update(dt);
 	UpdateInteractions();
 
+	if (!inCage && breakCage < 90)
+	{
+		breakCage += (float)(100 * dt);
+	}
 
-	//Application::sceneChange = Application::STAGE2;
+	//Update Arrows
+	if (movingUp == true)
+	{
+		yArrowTranslate += (float)(30 * dt);
+	}
+	if (movingUp == false)
+	{
+		yArrowTranslate -= (float)(30 * dt);
+	}
+	if (yArrowTranslate > 50)
+	{
+		movingUp = false;
+	}
+	if (yArrowTranslate < 30)
+	{
+		movingUp = true;
+	}
 
 }
 void SceneStage1::UpdateBullets()
@@ -507,6 +533,10 @@ void SceneStage1::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - 10;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/femaleHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -534,6 +564,10 @@ void SceneStage1::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.1;
 			}
 		}
@@ -598,8 +632,6 @@ void SceneStage1::UpdateInteractions()
 	}
 
 }
-
-
 void SceneStage1::UpdateMonsterAnimations()
 {
 	if (!fodLeft)
@@ -853,8 +885,6 @@ void SceneStage1::Render()
 
 	RenderBullets();
 
-	RenderHitmarker();
-
 	if (gameOver)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
@@ -936,12 +966,15 @@ void SceneStage1::Render()
 
 	//CAGE
 	modelStack.PushMatrix();
-	modelStack.Translate(500, -20, 500);
+	modelStack.Translate(500, -10, 500);
 	modelStack.Scale(20, 20, 20);
 	RenderMesh(meshList[GEO_CAGE], false);
-		modelStack.PushMatrix();
-		RenderMesh(meshList[GEO_CAGEDOOR], false);
-		modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(-3.2, 0.2, 0);
+	modelStack.Rotate(breakCage, 0, 0, 1);
+	modelStack.Translate(3.2, -0.2, 0);
+	RenderMesh(meshList[GEO_CAGEDOOR], false);
+	modelStack.PopMatrix();
 	modelStack.PopMatrix();
 
 	if (nearCageDoor == true)
@@ -959,13 +992,22 @@ void SceneStage1::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to escape to grass field", Color(0, 1, 1), 2.5, 5, 5);
 	}
 
+	if (mobDead >= 10)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(-600, yArrowTranslate + 60, 0);
+		modelStack.Rotate(90, 0, 1, 0);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_ARROW], false);
+		modelStack.PopMatrix();
+	}
+
 	//Player 
 	RenderTopTeeth();
 	RenderBottomTeeth();
-
 	RenderObjectives();
-
 	RenderPlayerHealth();
+	RenderHitmarker();
 
 
 	//DEBUGGING CUBE
@@ -974,7 +1016,6 @@ void SceneStage1::Render()
 	//modelStack.Scale(30, 30, 30);
 	//RenderMesh(meshList[GEO_CUBE], false);
 	//modelStack.PopMatrix();
-
 
 	//FPS
 	std::ostringstream sFps;
@@ -1116,6 +1157,7 @@ void SceneStage1::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, 
 	modelStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 }
+
 void SceneStage1::RenderBullets()
 {
 	for (int i = 0; i < NO_OF_BULLETS; i++)
@@ -1131,7 +1173,8 @@ void SceneStage1::RenderBullets()
 }
 void SceneStage1::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "x", Color(1, 0, 0), hitmarkerSize, 8.5, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
 }
 void SceneStage1::RenderTopTeeth()
 {
@@ -1185,20 +1228,20 @@ void SceneStage1::RenderObjectives()
 	monsLeft << std::fixed << std::setprecision(1);
 	monsLeft << "kill 5 Humans(" << mobDead << "/10)";
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 1, 0), 2, 34, 29);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 1, 0), 2, 32, 28);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 1, 0), 2, 34, 28);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 1, 0), 2, 32, 27);
 	
 	if (inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2, 26);
 	}
 	if (mobDead < 10 && !inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 1, 0), 2, 27, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 1, 0), 2, 27, 26);
 	}
 	if (mobDead >= 10 && !inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], escape2, Color(0, 1, 0), 2, 26, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], escape2, Color(0, 1, 0), 2, 26, 26);
 	}
 	modelStack.PopMatrix();
 }

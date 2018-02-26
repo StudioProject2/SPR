@@ -41,7 +41,6 @@ void SceneStage3::Init()
 	archerLegSwing = 0.0;
 	//Timer
 	elaspeTime = 0.0;
-
 	hitmarkerSize = 0;
 
 	//Player
@@ -69,6 +68,8 @@ void SceneStage3::Init()
 		monsterArcherBulletDelay[i] = elaspeTime + 4.0;
 	}
 
+
+	//****************************COMPGSTUFF************************************
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
@@ -377,6 +378,16 @@ void SceneStage3::Init()
 	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
 	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
 
+	//Fire	
+	meshList[GEO_CUBE2] = MeshBuilder::GenerateOBJ("building", "OBJ//cube.obj");
+	meshList[GEO_CUBE2]->textureID = LoadTGA("Image//fire.tga");
+
+	//ARROW
+	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
+	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
+
+
+
 	//Monsters
 	for (int i = 0; i < 25; i++)
 	{
@@ -405,14 +416,25 @@ void SceneStage3::Init()
 	nearHut3 = false;
 	nearHut4 = false;
 
+	isNearExit = false;
+
 	monsterSpawnDelay1 = 0;
 	monsterSpawnDelay2 = 0;
 	monsterSpawnDelay3 = 0;
 	monsterSpawnDelay4 = 0;
 
-	initialObjectiveTime = 5.0;
+	initialObjectiveTime = 2.0;
 	monstersLeft = 0;
 	hutsBurned = 0;
+
+	scaleAll = 0.0;
+	scaleAll = 0.0;
+	expanding = false;
+	expanding2 = false;
+	yTranslate = 50.0;
+
+	yArrowTranslate = 40;
+	movingUp = true;
 }
 
 bool SceneStage3::isNearObject(Camera3 camera, Box object)
@@ -434,12 +456,30 @@ void SceneStage3::Update(double dt)
 	UpdateMonsterHitbox();
 	UpdateInteractions();
 	UpdateMonsterAnimations();
-	if (player->health <= 0)
-	{
-		gameOver = true;
-	}
+	UpdateFireAnimation(dt);
+
 	camera.Update(dt);
+
+	if (movingUp == true)
+	{
+		yArrowTranslate += (float)(30 * dt);
+	}
+	if (movingUp == false)
+	{
+		yArrowTranslate -= (float)(30 * dt);
+	}
+	if (yArrowTranslate > 50)
+	{
+		movingUp = false;
+	}
+	if (yArrowTranslate < 30)
+	{
+		movingUp = true;
+	}
+
+
 }
+
 void SceneStage3::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -460,7 +500,6 @@ void SceneStage3::UpdateBullets()
 		}
 	}
 }
-
 void SceneStage3::UpdateMonsterBullets()
 {
 	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
@@ -489,6 +528,10 @@ void SceneStage3::UpdateMonsterBullets()
 			if (monsterBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				delete monsterBulletPtr[i];
 				monsterBulletPtr[i] = NULL;
 				
@@ -529,6 +572,10 @@ void SceneStage3::UpdateMonsterBullets()
 			if (monsterArcherBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				delete monsterArcherBulletPtr[i];
 				monsterArcherBulletPtr[i] = NULL;
 
@@ -701,13 +748,10 @@ void SceneStage3::UpdateMonsters()
 			}
 		}
 	}
-	
 }
-
 void SceneStage3::UpdateMonsterHitbox()
 {
 	bool isHit = false;
-	Box *playerBox =new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 	int monNum;
 	hitmarkerSize = 0;
 
@@ -725,6 +769,10 @@ void SceneStage3::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/highHumanHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -756,6 +804,10 @@ void SceneStage3::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/femaleHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -787,6 +839,10 @@ void SceneStage3::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterArcherPtr[mon]).health = (*MonsterArcherPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/humanHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -804,7 +860,9 @@ void SceneStage3::UpdateMonsterHitbox()
 		}
 	}
 
-	//FULL ON CHEESE
+	Box *playerBox = new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+
+	//If Monster in player
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (monsterBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
@@ -812,6 +870,10 @@ void SceneStage3::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}
@@ -821,6 +883,10 @@ void SceneStage3::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}
@@ -830,6 +896,10 @@ void SceneStage3::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterArcherBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}
@@ -843,13 +913,13 @@ void SceneStage3::UpdateMonsterHitbox()
 	}
 
 }
-
 void SceneStage3::UpdateInteractions()
 {
 	Box hut1 = Box(Vector3(200, -10, 0), 70);
 	Box hut2 = Box(Vector3(200, -10, 200), 70);
 	Box hut3 = Box(Vector3(-200, -10, 0), 70);
 	Box hut4 = Box(Vector3(-200, -10, 200), 70);
+	Box exit = Box(Vector3(0, 0, -910), 26);
 
 	if (isNearObject(camera, hut1))
 	{
@@ -883,31 +953,44 @@ void SceneStage3::UpdateInteractions()
 	{
 		nearHut4 = false;
 	}
+	if (isNearObject(camera, exit))
+	{
+		isNearExit = true;
+	}
+	else
+	{
+		isNearExit = false;
+	}
 
 	if (nearHut1 && Application::IsKeyPressed('E') && !hut1Burned)
 	{
 		hut1Burned = true;
 		hutsBurned++;
-		monsterSpawnDelay1 = elaspeTime + 1.0;
+		monsterSpawnDelay1 = elaspeTime;
 	}
 	if (nearHut2 && Application::IsKeyPressed('E') && !hut2Burned)
 	{
 		hut2Burned = true;
 		hutsBurned++;
-		monsterSpawnDelay2 = elaspeTime + 1.0;
+		monsterSpawnDelay2 = elaspeTime;
 	}
 	if (nearHut3 && Application::IsKeyPressed('E') && !hut3Burned)
 	{
 		hut3Burned = true;
 		hutsBurned++;
-		monsterSpawnDelay3 = elaspeTime + 1.0;
+		monsterSpawnDelay3 = elaspeTime;
 	}
 	if (nearHut4 && Application::IsKeyPressed('E') && !hut4Burned)
 	{
 		hut4Burned = true;
 		hutsBurned++;
-		monsterSpawnDelay4 = elaspeTime + 1.0;
-
+		monsterSpawnDelay4 = elaspeTime;
+	}
+	if (Application::IsKeyPressed('E') && isNearExit && hutsBurned == 4 && monstersLeft == 0)
+	{
+		Application::sceneChange = Application::STAGE4;
+	}
+}
 void SceneStage3::UpdateMonsterAnimations()
 {
 	if (!fodLeft)
@@ -988,6 +1071,205 @@ void SceneStage3::UpdateMonsterAnimations()
 			arcLeft = false;
 		}
 	}
+}
+void SceneStage3::UpdateFireAnimation(double dt)
+{
+	if (expanding == false)
+	{
+		scaleAll -= (float)(10 * dt);
+	}
+	if (expanding == true)
+	{
+		scaleAll += (float)(10 * dt);
+	}
+
+	if (expanding2 == false)
+	{
+		scaleAll2 -= (float)(6 * dt);
+	}
+	if (expanding2 == true)
+	{
+		scaleAll2 += (float)(6 * dt);
+	}
+
+	if (scaleAll > 30)
+	{
+		expanding = false;
+	}
+	if (scaleAll < 20)
+	{
+		expanding = true;
+	}
+
+	if (scaleAll2 > 30)
+	{
+		expanding2 = false;
+	}
+	if (scaleAll2 < 20)
+	{
+		expanding2 = true;
+	}
+
+	if (yTranslate > 200)
+	{
+		yTranslate = 50;
+	}
+	else
+	{
+		yTranslate += (float)(60 * dt);
+	}
+
+	if (yTranslate2 > 180)
+	{
+		yTranslate2 = 50;
+	}
+	else
+	{
+		yTranslate2 += (float)(50 * dt);
+	}
+
+	if (yTranslate3 > 250)
+	{
+		yTranslate3 = 50;
+	}
+	else
+	{
+		yTranslate3 += (float)(80 * dt);
+	}
+}
+
+//BASE RENDER FUNCTIONS
+void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
+{
+	Mtx44 MVP, modelView, modelView_inverse_transpose;
+
+	MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
+	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+	modelView = viewStack.Top() * modelStack.Top();
+	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, &modelView.a[0]);
+	if (enableLight)
+	{
+		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
+		modelView_inverse_transpose = modelView.GetInverse().GetTranspose();
+		glUniformMatrix4fv(m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, &modelView_inverse_transpose.a[0]);
+
+		//load material
+		glUniform3fv(m_parameters[U_MATERIAL_AMBIENT], 1, &mesh->material.kAmbient.r);
+		glUniform3fv(m_parameters[U_MATERIAL_DIFFUSE], 1, &mesh->material.kDiffuse.r);
+		glUniform3fv(m_parameters[U_MATERIAL_SPECULAR], 1, &mesh->material.kSpecular.r);
+		glUniform1f(m_parameters[U_MATERIAL_SHININESS], mesh->material.kShininess);
+	}
+	else
+	{
+		glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	}
+
+
+	if (mesh->textureID > 0)
+	{
+		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+		glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	}
+	else
+	{
+		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 0);
+	}
+	mesh->Render();
+	if (mesh->textureID > 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+}
+void SceneStage3::RenderText(Mesh* mesh, std::string text, Color color)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+
+	glDisable(GL_DEPTH_TEST);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		Mtx44 characterSpacing;
+		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
+		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+	glEnable(GL_DEPTH_TEST);
+}
+void SceneStage3::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+
+	glDisable(GL_DEPTH_TEST);
+
+	//Add these code just after glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity(); //Reset modelStack
+	modelStack.Scale(size, size, size);
+	modelStack.Translate(x, y, 0);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		Mtx44 characterSpacing;
+		characterSpacing.SetToTranslation(i * 0.7f, 0, 0); //1.0f is the spacing of each character, you may change this value
+		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+	glEnable(GL_DEPTH_TEST);
+}
+void SceneStage3::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
+{
+	glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+	modelStack.Scale(sizex, sizey, 0);
+	modelStack.Translate(x, y, 0);
+	RenderMesh(mesh, false); //UI should not have light
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+	glEnable(GL_DEPTH_TEST);
 }
 
 void SceneStage3::Render()
@@ -1113,20 +1395,6 @@ void SceneStage3::Render()
 	modelStack.Rotate(90, 0, 1, 0);
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_FLOOR], true);
-	modelStack.PopMatrix();
-
-	//LIGHTBALLS
-	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
 	modelStack.PopMatrix();
 
 	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
@@ -1381,7 +1649,7 @@ void SceneStage3::Render()
 			modelStack.PopMatrix();
 		}
 	}
-
+	
 	//FENCES
 	for (int i = 0; i < 1800; i += 30)
 	{
@@ -1391,7 +1659,7 @@ void SceneStage3::Render()
 		modelStack.Scale(20, 20, 20);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
-
+		
 		modelStack.PushMatrix();
 		modelStack.Translate(300, -10, -900 + i);
 		modelStack.Rotate(270, 0, 1, 0);
@@ -1403,22 +1671,39 @@ void SceneStage3::Render()
 	for (int i = 0; i < 660; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate( -i - 100, -10, 890);
+		modelStack.Translate( -i - 50, -10, 890);
 		modelStack.Scale(20, 20, 20);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(+i + 100, -10, 890);
+		modelStack.Translate(+i + 50, -10, 890);
 		modelStack.Scale(20, 20, 20);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
+		
+		if (hutsBurned != 4 || monstersLeft != 0)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(300 - i, -10, -910);
+			modelStack.Scale(20, 20, 20);
+			RenderMesh(meshList[GEO_FENCE], true);
+			modelStack.PopMatrix();
+		}
+		else
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(-i - 50, -10, -910);
+			modelStack.Scale(20, 20, 20);
+			RenderMesh(meshList[GEO_FENCE], true);
+			modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		modelStack.Translate(300 - i, -10, -910);
-		modelStack.Scale(20, 20, 20);
-		RenderMesh(meshList[GEO_FENCE], true);
-		modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(+i + 50, -10, -910);
+			modelStack.Scale(20, 20, 20);
+			RenderMesh(meshList[GEO_FENCE], true);
+			modelStack.PopMatrix();
+		}
 		
 	}
 
@@ -1473,9 +1758,27 @@ void SceneStage3::Render()
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
+	//DEBUGGING CUBE
+	modelStack.PushMatrix();
+	modelStack.PushMatrix();
+	modelStack.Translate(0, 0, -910);
+	modelStack.Scale(56, 56, 56);
+	//RenderMesh(meshList[GEO_CUBE], true);
+	modelStack.PopMatrix();
+
+	if (hutsBurned == 4 && monstersLeft == 0)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(0, yArrowTranslate + 15, -910);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_ARROW], false);
+		modelStack.PopMatrix();
+	}
+
 	RenderBullets();
 	RenderTopTeeth();
 	RenderBottomTeeth();
+	RenderFire();
 	RenderPlayerHealth();
 	RenderHitmarker();
 	RenderNearHut();
@@ -1483,13 +1786,19 @@ void SceneStage3::Render()
 
 	if (elaspeTime < initialObjectiveTime)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(0.0f, 0.0f, 0.0f), 4, 2, 7);
+		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(0.0f, 1.0f, 0.0f), 4, 5, 7);
 	}
 
 	if (gameOver)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
 	}
+
+	if (isNearExit == true && hutsBurned == 4 && monstersLeft == 0)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0, 1, 1), 2.5, 8, 5);
+	}
+
 }
 void SceneStage3::RenderTopTeeth()
 {
@@ -1559,170 +1868,338 @@ void SceneStage3::RenderPlayerHealth()
 	//RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5, 48, 1, 1);
 	//RenderTextOnScreen(meshList[GEO_TEXT], "x" + to_string(player->health), Color(0, 0, 0), 2, 4, 24);
 }
-
 void SceneStage3::RenderNearHut()
 {
 	if (elaspeTime > initialObjectiveTime && ((nearHut1 && !hut1Burned) || (nearHut2 && !hut2Burned) || (nearHut3 && !hut3Burned) || (nearHut4 && !hut4Burned)))
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to burn", Color(0.0f, 0.0f, 0.0f), 4, 4, 7);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to burn", Color(0.0f, 1.0f, 0.0f), 4, 4, 7);
 	}
 }
-
 void SceneStage3::RenderObjectives()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 0, 0), 2, 32, 25);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 0, 0), 2, 31, 24);
+
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 1, 0), 2, 34, 28);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 1, 0), 2, 32, 27);
 	if (hutsBurned != 4)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Burn the huts", Color(0.1, 0.1, 0.1), 2, 28, 23);
-		RenderTextOnScreen(meshList[GEO_TEXT], "Huts burned:" + to_string(hutsBurned) + "/4", Color(0.1, 0.1, 0.1), 2, 26, 22);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Burn the huts", Color(0, 1, 0), 2, 31, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Huts burned:" + to_string(hutsBurned) + "/4", Color(0, 1, 0), 2, 30, 25);
 	}
 	else if (monstersLeft != 0)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Kill all humans", Color(0.1, 0.1, 0.1), 2, 26, 23);
-		RenderTextOnScreen(meshList[GEO_TEXT], "Humans left:" + to_string(monstersLeft), Color(0.1, 0.1, 0.1), 2, 27, 22);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Kill all humans", Color(0, 1, 0), 2, 30, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Humans left:" + to_string(monstersLeft), Color(0, 1, 0), 2, 30, 25);
 	}
 	else
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Go to the next part", Color(0.1, 0.1, 0.1), 3, 4, 12);
-		RenderTextOnScreen(meshList[GEO_TEXT], "of the village", Color(0.1, 0.1, 0.1), 3, 5.5, 11);
-		RenderTextOnScreen(meshList[GEO_TEXT], "and kill the chief!", Color(0.1, 0.1, 0.1), 3, 4.5, 10);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Go further in the village", Color(0, 1, 0), 2, 28, 26);
+	RenderTextOnScreen(meshList[GEO_TEXT], "And find the Chief!", Color(0, 1, 0), 2, 28, 25);
 	}
-}
 
-void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
+}
+void SceneStage3::RenderFire()
 {
-	Mtx44 MVP, modelView, modelView_inverse_transpose;
-
-	MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
-	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
-	modelView = viewStack.Top() * modelStack.Top();
-	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, &modelView.a[0]);
-	if (enableLight)
+	//FIRE
+	if (hut1Burned)
 	{
-		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
-		modelView_inverse_transpose = modelView.GetInverse().GetTranspose();
-		glUniformMatrix4fv(m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, &modelView_inverse_transpose.a[0]);
+		modelStack.PushMatrix();
+		modelStack.Translate(200, 0, 20);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
 
-		//load material
-		glUniform3fv(m_parameters[U_MATERIAL_AMBIENT], 1, &mesh->material.kAmbient.r);
-		glUniform3fv(m_parameters[U_MATERIAL_DIFFUSE], 1, &mesh->material.kDiffuse.r);
-		glUniform3fv(m_parameters[U_MATERIAL_SPECULAR], 1, &mesh->material.kSpecular.r);
-		glUniform1f(m_parameters[U_MATERIAL_SHININESS], mesh->material.kShininess);
-	}
-	else
-	{
-		glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+		modelStack.PushMatrix();
+		modelStack.Translate(200, 0, -20);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(180, 0, 0);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(220, 0, 0);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate / 0.9, 20);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate / 0.8, -25);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(190, yTranslate2, -25);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(210, yTranslate2, 25);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(185, yTranslate3, 15);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(215, yTranslate3, -15);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
 	}
 
+	if (hut2Burned)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(200, 0, 20 + 200);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
 
-	if (mesh->textureID > 0)
-	{
-		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-		glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-	}
-	else
-	{
-		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 0);
-	}
-	mesh->Render();
-	if (mesh->textureID > 0)
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
+		modelStack.PushMatrix();
+		modelStack.Translate(200, 0, -20 + 200);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(180, 0, 0 + 200);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(220, 0, 0 + 200);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate / 0.9, 20 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200, yTranslate / 0.8, -25 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(190, yTranslate2, -25 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(210, yTranslate2, 25 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(185, yTranslate3, 15 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(215, yTranslate3, -15 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
 	}
 
+	if (hut3Burned)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, 0, 20);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, 0, -20);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(180 - 400, 0, 0);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(220 - 400, 0, 0);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate / 0.9, 20);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate / 0.8, -25);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(190 - 400, yTranslate2, -25);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(210 - 400, yTranslate2, 25);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(185 - 400, yTranslate3, 15);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(215 - 400, yTranslate3, -15);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+	}
+
+	if (hut4Burned)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, 0, 20 + 200);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, 0, -20 + 200);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(180 - 400, 0, 0 + 200);
+		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(220 - 400, 0, 0 + 200);
+		modelStack.Scale(scaleAll, scaleAll, scaleAll);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate / 0.9, 20 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(200 - 400, yTranslate / 0.8, -25 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(190 - 400, yTranslate2, -25 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(210 - 400, yTranslate2, 25 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(185 - 400, yTranslate3, 15 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(215 - 400, yTranslate3, -15 + 200);
+		modelStack.Scale(2, 2, 2);
+		RenderMesh(meshList[GEO_CUBE2], false);
+		modelStack.PopMatrix();
+	}
 }
-void SceneStage3::RenderText(Mesh* mesh, std::string text, Color color)
-{
-	if (!mesh || mesh->textureID <= 0) //Proper error check
-		return;
-
-	glDisable(GL_DEPTH_TEST);
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
-	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
-	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-	for (unsigned i = 0; i < text.length(); ++i)
-	{
-		Mtx44 characterSpacing;
-		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
-		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
-		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
-
-		mesh->Render((unsigned)text[i] * 6, 6);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
-	glEnable(GL_DEPTH_TEST);
-}
-void SceneStage3::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
-{
-	if (!mesh || mesh->textureID <= 0) //Proper error check
-		return;
-
-	glDisable(GL_DEPTH_TEST);
-
-	//Add these code just after glDisable(GL_DEPTH_TEST);
-	Mtx44 ortho;
-	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
-	projectionStack.PushMatrix();
-	projectionStack.LoadMatrix(ortho);
-	viewStack.PushMatrix();
-	viewStack.LoadIdentity(); //No need camera for ortho mode
-	modelStack.PushMatrix();
-	modelStack.LoadIdentity(); //Reset modelStack
-	modelStack.Scale(size, size, size);
-	modelStack.Translate(x, y, 0);
-
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
-	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
-	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-	for (unsigned i = 0; i < text.length(); ++i)
-	{
-		Mtx44 characterSpacing;
-		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
-		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
-		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
-
-		mesh->Render((unsigned)text[i] * 6, 6);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
-	projectionStack.PopMatrix();
-	viewStack.PopMatrix();
-	modelStack.PopMatrix();
-
-	glEnable(GL_DEPTH_TEST);
-}
-void SceneStage3::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
-{
-	glDisable(GL_DEPTH_TEST);
-	Mtx44 ortho;
-	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
-	projectionStack.PushMatrix();
-	projectionStack.LoadMatrix(ortho);
-	viewStack.PushMatrix();
-	viewStack.LoadIdentity(); //No need camera for ortho mode
-	modelStack.PushMatrix();
-	modelStack.LoadIdentity();
-	modelStack.Scale(sizex, sizey, 0);
-	modelStack.Translate(x, y, 0);
-	RenderMesh(mesh, false); //UI should not have light
-	projectionStack.PopMatrix();
-	viewStack.PopMatrix();
-	modelStack.PopMatrix();
-	glEnable(GL_DEPTH_TEST);
-}
-
 void SceneStage3::RenderBullets()
 {
 	for (int i = 0; i < NO_OF_BULLETS; i++)
@@ -1736,7 +2213,6 @@ void SceneStage3::RenderBullets()
 		}
 	}
 }
-
 void SceneStage3::RenderHitmarker()
 {
 	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);

@@ -16,6 +16,11 @@
 #include "monsterBullet.h"
 #include "bullet.h"
 #include "Player.h"
+#include "irrKlang.h"
+
+#pragma comment(lib, "irrKlang.lib")
+
+using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
@@ -100,6 +105,7 @@ class SceneStage3 : public Scene
 	enum GEOMETRY_TYPE
 	{
 		GEO_CUBE,
+		GEO_CUBE2,
 		GEO_SPHERE,
 		GEO_BULLETS,
 
@@ -133,6 +139,8 @@ class SceneStage3 : public Scene
 		GEO_TEXT,
 
 		GEO_PLAYERHEALTH,
+
+		GEO_ARROW,
 
 		NUM_GEOMETRY,
 	};
@@ -208,6 +216,8 @@ private:
 	bool nearHut3;
 	bool nearHut4;
 
+	bool isNearExit;
+
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
@@ -243,6 +253,23 @@ private:
 	bool arcLeft;
 	double archerArmSwing;
 	double archerLegSwing;
+
+	//Fire
+	void RenderFire();
+	void UpdateFireAnimation(double dt);
+
+	float scaleAll;
+	float scaleAll2;
+	bool expanding;
+	bool expanding2;
+
+	float yTranslate;
+	float yTranslate2;
+	float yTranslate3;
+	float yArrowTranslate;
+	bool movingUp;
+
+	ISoundEngine* engine = createIrrKlangDevice();
 };
 
 #endif
