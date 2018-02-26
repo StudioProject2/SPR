@@ -349,6 +349,10 @@ void SceneStage2::Init()
 	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
 
 
+	//Player Health
+	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
+	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
+
 	//tree
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
 	meshList[GEO_TREE]->textureID = LoadTGA("Image//stage2//objtextures//Tree2.tga");
@@ -888,7 +892,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				playerHurtBounceTime = elaspeTime + 0.5;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 			}
 		}
@@ -901,7 +905,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				playerHurtBounceTime = elaspeTime + 0.5;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 			}
 		}
@@ -1297,6 +1301,7 @@ void SceneStage2::Render()
 	RenderObjectives();
 	RenderPlayerHealth();
 	RenderUi();
+	RenderPlayerHealth();
 	RenderHitmarker();
 
 	if (gameOver)
@@ -1418,7 +1423,8 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
-void SceneStage2::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
+
+void SceneStage2::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
 	Mtx44 ortho;
