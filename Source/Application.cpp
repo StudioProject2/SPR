@@ -44,7 +44,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-void Application::SetMousePosition(double xPos, double yPos)
+void Application::SetMousePosition(float xPos, float yPos)
 {
 	glfwSetCursorPos(m_window, xPos, yPos);
 }

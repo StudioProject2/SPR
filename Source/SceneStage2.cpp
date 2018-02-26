@@ -82,13 +82,13 @@ void SceneStage2::Init()
 
 
 	//INIT monsters
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		MonsterPtr[i] = NULL;
 		monsterBoxPtr[i] = NULL;
 		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		MonsterFodderPtr[i] = NULL;
 		monsterFodderBoxPtr[i] = NULL;
@@ -477,7 +477,7 @@ void SceneStage2::Update(double dt)
 {
 	if (objectiveThree)
 	{
-		for (int mon = 0; mon < MOBNUM; mon++)
+		for (int mon = 0; mon < MOBNUM2; mon++)
 		{
 			delete MonsterPtr[mon];
 			delete monsterBoxPtr[mon];
@@ -681,7 +681,7 @@ void SceneStage2::UpdateMonsterBullets()
 {
 	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -731,7 +731,7 @@ void SceneStage2::UpdateMonsters()
 	//Monster DODGER
 	if (elaspeTime > monsterTime)
 	{
-		for (int i = 0; i < MOBNUM; i++)
+		for (int i = 0; i < MOBNUM2; i++)
 		{
 			if (MonsterPtr[i] == NULL)
 			{
@@ -742,7 +742,7 @@ void SceneStage2::UpdateMonsters()
 			}
 		}
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -750,7 +750,7 @@ void SceneStage2::UpdateMonsters()
 			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 10, 10, 12);
 		}
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -768,7 +768,7 @@ void SceneStage2::UpdateMonsters()
 	//Monster Fodder
 	if (elaspeTime > monsterFodderTime)
 	{
-		for (int i = 0; i < MOBNUM; i++)
+		for (int i = 0; i < MOBNUM2; i++)
 		{
 			if (MonsterFodderPtr[i] == NULL)
 			{
@@ -779,7 +779,7 @@ void SceneStage2::UpdateMonsters()
 			}
 		}
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
@@ -787,7 +787,7 @@ void SceneStage2::UpdateMonsters()
 			*monsterFodderBoxPtr[i] = Box(MonsterFodderPtr[i]->pos, 10, 10, 12);
 		}
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
@@ -811,7 +811,7 @@ void SceneStage2::UpdateMonsterHitbox()
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++) //checks every bullet
 	{
-		for (int mon = 0; mon < MOBNUM; mon++)	//against every monster
+		for (int mon = 0; mon < MOBNUM2; mon++)	//against every monster
 		{
 			if (!isHit && elaspeTime > bulletBounceTime)	//checks if they intersect
 			{
@@ -845,7 +845,7 @@ void SceneStage2::UpdateMonsterHitbox()
 	//Monster Fodder
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
-		for (int mon = 0; mon < MOBNUM; mon++)
+		for (int mon = 0; mon < MOBNUM2; mon++)
 		{
 			if (!isHit && elaspeTime > bulletBounceTime)
 			{
@@ -879,7 +879,7 @@ void SceneStage2::UpdateMonsterHitbox()
 	//When player touch monster hitbox
 	Box *playerBox = new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (monsterBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
 		{
@@ -1117,11 +1117,11 @@ void SceneStage2::UpdateInteractions()
 	}
 	else if (treeFallTimer > 0 && fallingStage == 2)
 	{
-		treeFallTimer -= 1;
+		treeFallTimer -= 1.f;
 		treeY -= 0.4f;
-		treeRotate -= 0.4;
-		interactionSize = 0;
-		light[0].position.Set(0 + treeY, 150, 0);
+		treeRotate -= 0.4f;
+		interactionSize = 0.f;
+		light[0].position.Set(0.f + treeY, 150.f, 0.f);
 		if (treeFallTimer == 0)
 		{
 			treeLifeTwo = false;
@@ -1131,9 +1131,9 @@ void SceneStage2::UpdateInteractions()
 	}
 	else if (treeFallTimer > 0 && fallingStage == 3)
 	{
-		treeFallTimer -= 1;
-		treeRotate -= 0.8;
-		interactionSize = 0;
+		treeFallTimer -= 1.f;
+		treeRotate -= 0.8f;
+		interactionSize = 0.f;
 		if (treeFallTimer == 0)
 		{
 			pickupsSpawn = true;
@@ -1467,16 +1467,16 @@ void SceneStage2::RenderPlayerHealth()
 	int vertical = player->health / 50;
 	int horizontal = (player->health - (vertical * 50)) / 10;
 
-	for (int i = 0; i < vertical; i++)
+	for (float i = 0; i < vertical; i++)
 	{
-		for (int j = 0; j < 5; j++)
+		for (float j = 0; j < 5; j++)
 		{
-			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (j * 4.3f), 48 - (i * 4), 1.f, 1.f);
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (j * 4.3f), 48.f - (i * 4.f), 1.f, 1.f);
 		}
 	}
-	for (int i = 0; i < horizontal; i++)
+	for (float i = 0; i < horizontal; i++)
 	{
-		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (i * 4.3f), 48 - (vertical * 4.f), 1, 1);
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (i * 4.3f), 48.f - (vertical * 4.f), 1.f, 1.f);
 	}
 
 }
@@ -1484,34 +1484,34 @@ void SceneStage2::RenderSkybox()
 {
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, -1000);
+	modelStack.Translate(0.f, 0.f, -1000.f);
 	RenderMesh(meshList[GEO_FRONT], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(-1000, 0, 0);
-	modelStack.Rotate(90, 0, 1, 0);
+	modelStack.Translate(-1000.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_LEFT], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(1000, 0, 0);
-	modelStack.Rotate(-90, 0, 1, 0);
+	modelStack.Translate(1000.f, 0.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_RIGHT], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 1000);
-	modelStack.Rotate(180, 0, 1, 0);
+	modelStack.Translate(0.f, 0.f, 1000.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_BACK], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 1000, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(90, 1, 0, 0);
+	modelStack.Translate(0.f, 1000.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_TOP], true);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
+	modelStack.Translate(0.f, -10.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_BOTTOM], true);
 	modelStack.PopMatrix();
 
@@ -1519,7 +1519,7 @@ void SceneStage2::RenderSkybox()
 void SceneStage2::RenderObj()
 {
 	//boundaries
-	for (int i = 0; i < 1401; i += 350)
+	for (float i = 0; i < 1401; i += 350)
 	{
 		modelStack.PushMatrix();
 		modelStack.Translate(-810.f, -10.f, -700.f + i);
@@ -1535,7 +1535,7 @@ void SceneStage2::RenderObj()
 		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
 	}
-	for (int i = 0; i < 1401; i += 350)
+	for (float i = 0; i < 1401; i += 350)
 	{
 		
 		modelStack.PushMatrix();
@@ -1563,9 +1563,9 @@ void SceneStage2::RenderObj()
 	modelStack.PopMatrix();
 
 	//grass
-	for (int x = 0; x < 1351; x += 225)
+	for (float x = 0; x < 1351; x += 225)
 	{
-		for (int z = 0; z < 1351; z += 225)
+		for (float z = 0; z < 1351; z += 225)
 		{
 			modelStack.PushMatrix();
 			modelStack.Translate(-675.f + x, -10.f, -675.f + z);
@@ -1576,7 +1576,7 @@ void SceneStage2::RenderObj()
 	}
 
 	//rocks
-	for (int i = 0; i < 360; i += 10)
+	for (float i = 0; i < 360; i += 10)
 	{
 		modelStack.PushMatrix();
 		modelStack.Translate(0.f, -10.f, 0.f);
@@ -1690,7 +1690,7 @@ void SceneStage2::RenderMonster()
 	float dRot;
 	float fRot;
 
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
@@ -1698,7 +1698,7 @@ void SceneStage2::RenderMonster()
 			B.y = MonsterPtr[i]->pos.y;
 
 			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				dRot = 180 + rotation;
@@ -1758,7 +1758,7 @@ void SceneStage2::RenderMonster()
 			modelStack.PopMatrix();
 		}
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
@@ -1766,7 +1766,7 @@ void SceneStage2::RenderMonster()
 			B.y = MonsterFodderPtr[i]->pos.y;
 
 			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				fRot = 180 + rotation;
@@ -1780,24 +1780,24 @@ void SceneStage2::RenderMonster()
 				fRot = rotation;
 
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y - 10, (*MonsterFodderPtr[i]).pos.z);
-			modelStack.Rotate(fRot + 90, 0, 1, 0);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y - 10.f, (*MonsterFodderPtr[i]).pos.z);
+			modelStack.Rotate(fRot + 90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_FODDER_BODY], true);
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, 0.05);
-				modelStack.Translate(0, 1.5, 0);
-				modelStack.Rotate(fodderArmSwing + 300, 0, 0, 1);
-				modelStack.Translate(0, -1.5, 0);
+				modelStack.Translate(0.f, 0.f, 0.05f);
+				modelStack.Translate(0.f, 1.5f, 0.f);
+				modelStack.Rotate(fodderArmSwing + 300.f, 0.f, 0.f, 1.f);
+				modelStack.Translate(0.f, -1.5f, 0.f);
 				RenderMesh(meshList[GEO_FODDER_HAND], true);
 				modelStack.PopMatrix();
 
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, -0.05);
-				modelStack.Rotate(180, 0, 1, 0);
-				modelStack.Translate(0, 1.5, 0);
-				modelStack.Rotate(fodderArmSwing - 60, 0, 0, 1);
-				modelStack.Translate(0, -1.5, 0);
+				modelStack.Translate(0.f, 0.f, -0.05f);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				modelStack.Translate(0.f, 1.5f, 0.f);
+				modelStack.Rotate(fodderArmSwing - 60.f, 0.f, 0.f, 1.f);
+				modelStack.Translate(0.f, -1.5f, 0.f);
 				RenderMesh(meshList[GEO_FODDER_HAND], true);
 				modelStack.PopMatrix();
 			modelStack.PopMatrix();
@@ -1808,7 +1808,7 @@ void SceneStage2::RenderMonster()
 void SceneStage2::RenderMonsterBullets()
 {
 	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
-	double dRot;
+	float dRot;
 
 	for (int i = 0; i < MOBBULLETNUM; i++)
 	{
@@ -1817,8 +1817,8 @@ void SceneStage2::RenderMonsterBullets()
 			Vector3 B = monsterBulletPtr[i]->pos - camera.position;
 			B.y = monsterBulletPtr[i]->pos.y;
 
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				dRot = 180 + rotation;
@@ -1833,9 +1833,9 @@ void SceneStage2::RenderMonsterBullets()
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
-			modelStack.Rotate(dRot, 0, 1, 0);
-			modelStack.Rotate(90, 1, 0, 0);
-			modelStack.Scale(2, 2, 2);
+			modelStack.Rotate(dRot, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
@@ -1844,8 +1844,8 @@ void SceneStage2::RenderMonsterBullets()
 }
 void SceneStage2::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0.f, 1.f, 1.f), 5.f, 8.3f, 6.1f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1.f, 0.f, 0.f), hitmarkerSize, 8.3f, 6.1f);
 }
 void SceneStage2::RenderUi()
 {
@@ -1866,8 +1866,8 @@ void SceneStage2::RenderPickups()
 	if (pickupsSpawn)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(0, pickupsY, pickupsZ);
-		modelStack.Scale(5, 2, 5);
+		modelStack.Translate(0.f, pickupsY, pickupsZ);
+		modelStack.Scale(5.f, 2.f, 5.f);
 		RenderMesh(meshList[GEO_PICKUP], false);
 		modelStack.PopMatrix();
 	}
@@ -1882,40 +1882,40 @@ void SceneStage2::RenderObjectives()
 	barrierLeft << std::fixed << std::setprecision(1);
 	barrierLeft << "the glowing roots (" << flowersAmt << "/3)";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 0.8, 1), 2, 34, 29);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 0.8, 1), 2, 32, 28);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0.f, 0.8f, 1.f), 2.f, 34.f, 29.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0.f, 0.8f, 1.f), 2.f, 32.f, 28.f);
 	if (!objectiveOne)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 0.8, 1), 2, 26.2, 27);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0.f, 0.8f, 1.f), 2.f, 26.2f, 27.f);
 	}
 	if (objectiveOne && !objectiveTwo)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0, 0.3, 1), 2, 29, 27);
-		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0, 0.8, 1), 2, 24.2, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0.f, 0.3f, 1.f), 2.f, 29.f, 27.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0.f, 0.8f, 1.f), 2.f, 24.2f, 26.f);
 	}
 	if (objectiveTwo && !objectiveThree)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0, 0, 0), 3, 10.5, 18);
+		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0.f, 0.8f, 1.f), 3.f, 10.5f, 18.f);
 	}
 	if (objectiveThree)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Head towards the opening", Color(0, 0, 0), 3, 10.5, 18);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Head towards the opening", Color(0.f, 0.8f, 1.f), 3.f, 10.5f, 18.f);
 	}
 	modelStack.PopMatrix();
 	if (objectiveFour)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0, 1, 1), 2.5, 8, 5);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0.f, 1.f, 1.f), 2.5f, 8.f, 5.f);
 	}
 }
 
 void SceneStage2::Exit()
 {
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		delete MonsterPtr[i];
 		delete monsterBoxPtr[i];
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM2; i++)
 	{
 		delete MonsterFodderPtr[i];
 		delete monsterFodderBoxPtr[i];

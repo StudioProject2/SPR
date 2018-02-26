@@ -431,7 +431,7 @@ void Camera3::JumpUp(double dt)
 
 	if (position.y < jumpPos + 12)
 	{
-		position.y = position.y + (jumpSpeed * dt);
+		position.y = position.y + (jumpSpeed * (float)dt);
 		target = position + view;
 		jumpSpeed -= jumpOffset;
 	}
@@ -450,7 +450,7 @@ void Camera3::JumpDown(double dt)
 
 	if (position.y > jumpPos + 2 && !_collidedY)
 	{
-		position.y = position.y - (jumpSpeed * dt);
+		position.y = position.y - (jumpSpeed * (float)dt);
 		target = position + view;
 		jumpSpeed += jumpOffset;
 	}
@@ -473,7 +473,7 @@ void Camera3::DropDown(double dt)
 	Vector3 view = (target - position).Normalized();
 	if (position.y > FLOOR_POSITION && !_collidedY)
 	{
-		position.y = position.y - (jumpSpeed * dt);
+		position.y = position.y - (jumpSpeed * (float)dt);
 		target = position + view;
 		jumpSpeed += jumpOffset;
 	}
@@ -599,8 +599,8 @@ void Camera3::Update(double dt)
 
 	xmousepos = xmousepos - 400.0;
 	ymousepos = ymousepos - 300.0;
-	double xyaw = (double)((-(xmousepos - oldxmousepos)) * 0.05);
-	double yyaw = (double)((-(ymousepos - oldymousepos)) * 0.05);
+	float xyaw = (float)((-(xmousepos - oldxmousepos)) * 0.05);
+	float yyaw = (float)((-(ymousepos - oldymousepos)) * 0.05);
 
 	if (firstrun == false)
 	{
@@ -623,8 +623,8 @@ void Camera3::Update(double dt)
 			view = rotation * view;
 			target = position + view;
 		}
-		oldxmousepos = xmousepos;
-		oldymousepos = ymousepos;
+		oldxmousepos = (float)xmousepos;
+		oldymousepos = (float)ymousepos;
 	}
 
 	firstrun = false;
