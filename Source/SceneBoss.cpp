@@ -553,7 +553,7 @@ void SceneBoss::Update(double dt)
 
 	if (player->health <= 0)
 	{
-		gameOver = true;
+		Application::sceneChange = Application::LOSE;
 	}
 
 	if (boss.getHealth() <= 0)
