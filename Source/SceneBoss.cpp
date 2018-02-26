@@ -25,6 +25,7 @@ void SceneBoss::Init()
 {
 	//Monster spawn
 	srand((unsigned int)time(NULL));
+
 	//Monster Animation
 	fodSwingTimer = 0;
 	fodLeft = false;
@@ -44,22 +45,26 @@ void SceneBoss::Init()
 	bossLeft = false;
 	bossArmSwing = 0.0;
 	bossLegSwing = 0.0;
+
 	//Timer
 	spinToWin = 0;
 	elaspeTime = 0.0;
-	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
 	bossMovementChangeTime = elaspeTime + 10.0;
-	bossMovement = STRAIGHT;
 	bossPlayerShootTime = elaspeTime + 3.0;
 	bossRingShootTime = elaspeTime + 3.0;
-	bossGroundAttackTime = elaspeTime + 0.001;
-	bossBox = new Box;
 	groundSignalBlinkTime = elaspeTime + 0.5;
 	bossChangeGroundTargetTime = elaspeTime + 5.0;
 	bossGroundAttackDelayTime = elaspeTime + 1.0;
+	bulletBounceTime = 0.0;
+	monsterFodderTime = elaspeTime + 3.0;
+	monsterArcherTime = elaspeTime + 3.0;
+
+	bossMovement = STRAIGHT;
+	bossBox = new Box;
 	printGroundSignal = true;
 	win = false;
+	gameOver = false;
 
 	player = Player::getInstance();
 	hitmarkerSize = 0;
@@ -70,11 +75,6 @@ void SceneBoss::Init()
 		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
 
-	//STUFF THEO ADDED
-	monDead = 0;
-	bulletBounceTime = 0.0;
-	monsterFodderTime = elaspeTime + 3.0;
-	monsterArcherTime = elaspeTime + 3.0;
 	//MonsterArcher and MonsterFodder 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -86,10 +86,6 @@ void SceneBoss::Init()
 		MonsterArcherPtr[i] = NULL;
 		monsterArcherBoxPtr[i] = NULL;
 		monsterArcherBulletDelay[i] = elaspeTime + 4.0;
-	}
-	for (int i = 0; i < DIRECTBULLETNUM; i++)
-	{
-		monsterArcherBulletPtr[i] = NULL;
 	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -439,8 +435,6 @@ void SceneBoss::Init()
 		groundBulletPtr[i] = NULL;
 	}
 
-	gameOver = false;
-
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
@@ -453,13 +447,12 @@ void SceneBoss::Init()
 void SceneBoss::Update(double dt)
 {
 	spinToWin += 30;
-	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
-	deltaTime = dt;
-	deltaTime = dt;
 	start.isShooting = true;
 
 	UpdateBullets();
+
+	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
 
 	if (boss.getHealth() <= 500 && !win && !gameOver)
 	{
@@ -479,8 +472,6 @@ void SceneBoss::Update(double dt)
 	}
 	
 	UpdateBossHealth();
-	
-	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
 
 	for (int i = 0; i < DIRECTBULLETNUM; i++)
 	{
@@ -583,21 +574,13 @@ void SceneBoss::Update(double dt)
 		groundSignalBlinkTime = elaspeTime + 0.5;
 	}
 
-	if (Application::IsKeyPressed('1'))
-	{
-		glEnable(GL_CULL_FACE);
-	}
-	if (Application::IsKeyPressed('2'))
-	{
-		glDisable(GL_CULL_FACE);
-	}
-
 	camera.Update(dt);
 }
 
 void SceneBoss::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
+	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
 
 	for (int i = 0; i < NO_OF_BULLETS; i++)
 	{
@@ -665,7 +648,7 @@ void SceneBoss::UpdateMonsterBullets()
 	{
 		if (MonsterPtr[i] != NULL)
 		{
-			for (int j = 0; j < RINGBULLETNUM; j++)
+			for (int j = 0; j < DIRECTBULLETNUM; j++)
 			{
 				if (elaspeTime > monsterBulletDelay[i] && directBulletPtr[j] == NULL && i != 0)
 				{
@@ -676,8 +659,6 @@ void SceneBoss::UpdateMonsterBullets()
 			}
 		}
 	}
-	
-	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
 
 	//Monster Archer
 	for (int i = 0; i < MOBNUM; i++)
@@ -686,32 +667,11 @@ void SceneBoss::UpdateMonsterBullets()
 		{
 			for (int j = 0; j < DIRECTBULLETNUM; j++)
 			{
-				if (elaspeTime > monsterArcherBulletDelay[i] && monsterArcherBulletPtr[j] == NULL)
+				if (elaspeTime > monsterArcherBulletDelay[i] && directBulletPtr[j] == NULL)
 				{
-					monsterArcherBulletPtr[j] = new monsterBullet(MonsterArcherPtr[i]->pos, camera.position);
+					directBulletPtr[j] = new monsterBullet(MonsterArcherPtr[i]->pos, camera.position);
 					monsterArcherBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
-				}
-			}
-		}
-	}
-	for (int i = 0; i < DIRECTBULLETNUM; i++)
-	{
-		if (monsterArcherBulletPtr[i] != NULL)
-		{
-			monsterArcherBulletPtr[i]->move();
-			if (monsterArcherBulletPtr[i]->isBulletInBox(playerBox))
-			{
-				player->health -= 10;
-				delete monsterArcherBulletPtr[i];
-				monsterArcherBulletPtr[i] = NULL;
-			}
-			if (monsterArcherBulletPtr[i] != NULL)
-			{
-				if (monsterArcherBulletPtr[i]->bulletCollide())
-				{
-					delete monsterArcherBulletPtr[i];
-					monsterArcherBulletPtr[i] = NULL;
 				}
 			}
 		}
@@ -793,7 +753,6 @@ void SceneBoss::UpdateMonsters()
 				delete monsterFodderBoxPtr[i];
 				MonsterFodderPtr[i] = NULL;
 				monsterFodderBoxPtr[i] = NULL;
-				monDead++;
 				monsterFodderTime = elaspeTime + 7.0;
 			}
 		}
@@ -832,7 +791,6 @@ void SceneBoss::UpdateMonsters()
 				delete monsterArcherBoxPtr[i];
 				MonsterArcherPtr[i] = NULL;
 				monsterArcherBoxPtr[i] = NULL;
-				monDead++;
 				monsterArcherTime = elaspeTime + 7.0;
 			}
 		}
@@ -879,7 +837,7 @@ void SceneBoss::UpdateBossHitbox()
 	bool isHit = false;
 	int monNum;
 	hitmarkerSize = 0;
-	*bossBox = Box(Vector3(boss.getPos()), 10);
+	*bossBox = Box(Vector3(boss.getPos()), 10, 10, 25);
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
@@ -967,7 +925,7 @@ void SceneBoss::UpdateBossBullets()
 		bossGroundAttackDelayTime = elaspeTime + 2.0;
 		return;
 	}
-	if (elaspeTime > bossGroundAttackTime && elaspeTime > bossGroundAttackDelayTime) // shoot from ground up
+	if (elaspeTime > bossGroundAttackDelayTime) // shoot from ground up
 	{
 		if (groundAreaCenter != NULL)
 		{
@@ -981,7 +939,6 @@ void SceneBoss::UpdateBossBullets()
 				if (groundBulletPtr[i] == NULL)
 				{
 					groundBulletPtr[i] = new monsterBullet(randomGroundBullet, randomGroundBulletTarget);
-					//bossGroundAttackTime = elaspeTime + 0.0000001;
 					return;
 				}
 			}
@@ -1301,9 +1258,6 @@ void SceneBoss::Render()
 
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
-	//RenderMesh(meshList[GEO_AXES], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, -1000);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
@@ -1370,7 +1324,6 @@ void SceneBoss::Render()
 	modelStack.Scale(8, 8, 8);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
-
 
 	for (int i = 0; i < 1800; i += 30)
 	{
@@ -1516,37 +1469,6 @@ void SceneBoss::Render()
 					modelStack.Translate(0, -1.5, 0);
 					RenderMesh(meshList[GEO_ARCHER_LEG], true);
 					modelStack.PopMatrix();
-			modelStack.PopMatrix();
-		}
-	}
-	//Render Monster Archer Bullets
-	for (int i = 0; i < DIRECTBULLETNUM; i++)
-	{
-		if (monsterArcherBulletPtr[i] != NULL)
-		{
-			Vector3 B = monsterArcherBulletPtr[i]->pos - camera.position;
-			B.y = monsterArcherBulletPtr[i]->pos.y;
-
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
-
-			if (B.x > 0 && B.z < 0)
-				bdRot = 180 + rotation;
-			else if (B.x > 0 && B.z > 0)
-				bdRot = 180 + rotation;
-			else if (B.x < 0 && B.z > 0)
-				bdRot = 180 - rotation;
-			else if (B.x < 0 && B.z < 0)
-				bdRot = 180 - rotation;
-			else
-				bdRot = rotation;
-
-			modelStack.PushMatrix();
-			modelStack.Translate((*monsterArcherBulletPtr[i]).pos.x, (*monsterArcherBulletPtr[i]).pos.y, (*monsterArcherBulletPtr[i]).pos.z);
-			modelStack.Rotate(bdRot, 0, 1, 0);
-			modelStack.Rotate(90, 1, 0, 0);
-			modelStack.Scale(2, 2, 2);
-			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
 	}
@@ -1740,26 +1662,8 @@ void SceneBoss::Render()
 	RenderBullets();
 	RenderTopTeeth();
 	RenderBottomTeeth();
-
-	//FPS
-	/*std::ostringstream sFps;
-	sFps << std::fixed << std::setprecision(3);
-	sFps << 1.0 / deltaTime << "fps";
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(0, 0, 0), 2, 1, 29);
-	modelStack.PopMatrix();*/
-
-	/*modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Boss Health:" + to_string(boss.getHealth()), Color(1, 0, 0), 2.5, 9, 23);
-	modelStack.PopMatrix();*/
-
 	RenderPlayerHealth();
 	RenderBossHealth();
-
-	/*modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Player Health:" + to_string(player->health), Color(0, 1, 1), 2.5, 8, 1);
-	modelStack.PopMatrix();*/
-
 	RenderHitmarker();
 
 	if (gameOver)
@@ -1816,13 +1720,9 @@ void SceneBoss::RenderBottomTeeth()
 	modelStack.PopMatrix();
 
 }
+
 void SceneBoss::RenderPlayerHealth()
 {
-	/*for (int i = 0; i < player->health; i += 10)
-	{
-		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2 + (i * 1.5 / 10), 48, 1, 1);
-	}*/
-
 	int vertical = player->health / 50;
 	int horizontal = (player->health - (vertical * 50)) / 10;
 
@@ -1837,9 +1737,6 @@ void SceneBoss::RenderPlayerHealth()
 	{
 		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
 	}
-
-	//RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5, 48, 1, 1);
-	//RenderTextOnScreen(meshList[GEO_TEXT], "x" + to_string(player->health), Color(0, 0, 0), 2, 4, 24);
 }
 
 void SceneBoss::RenderBossHealth()
