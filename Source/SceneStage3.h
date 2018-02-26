@@ -24,7 +24,7 @@ using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 30
+#define MOBNUM3 30
 #define MOB_SIZE 10
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
@@ -156,9 +156,6 @@ public:
 
 private:
 	unsigned m_vertexArrayID;
-	//unsigned m_vertexBuffer[NUM_GEOMETRY];
-	//unsigned m_colorBuffer[NUM_GEOMETRY];
-	//unsigned m_indexBuffer;
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
@@ -193,7 +190,6 @@ private:
 	void UpdateInteractions();
 	void UpdateMonsterAnimations();
 
-	//void UpdatePlayerMonsterCol();
 	void RenderBullets();
 	void RenderHitmarker();
 	void RenderTopTeeth();
@@ -218,23 +214,23 @@ private:
 
 	bool isNearExit;
 
-	int hitmarkerSize;
-	int hitmarkerTimer;
+	float hitmarkerSize;
+	float hitmarkerTimer;
 
 	//Monsters
-	Monster *MonsterPtr[MOBNUM];
-	Monster *MonsterFodderPtr[MOBNUM];
-	Monster *MonsterArcherPtr[MOBNUM];
+	Monster *MonsterPtr[MOBNUM3];
+	Monster *MonsterFodderPtr[MOBNUM3];
+	Monster *MonsterArcherPtr[MOBNUM3];
 	//Monter Hitboxes
-	Box *monsterBoxPtr[MOBNUM];
-	Box *monsterFodderBoxPtr[MOBNUM];
-	Box *monsterArcherBoxPtr[MOBNUM];
+	Box *monsterBoxPtr[MOBNUM3];
+	Box *monsterFodderBoxPtr[MOBNUM3];
+	Box *monsterArcherBoxPtr[MOBNUM3];
 
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	monsterBullet *monsterArcherBulletPtr[MOBBULLETNUM];
 
-	double monsterBulletDelay[MOBNUM];
-	double monsterArcherBulletDelay[MOBNUM];
+	double monsterBulletDelay[MOBNUM3];
+	double monsterArcherBulletDelay[MOBNUM3];
 
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
@@ -244,15 +240,20 @@ private:
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
-	double fodderArmSwing;
+	float fodderArmSwing;
 	int dodSwingTimer;
 	bool dodLeft;
-	double dodgerArmSwing;
-	double dodgerLegSwing;
+	float dodgerArmSwing;
+	float dodgerLegSwing;
 	int arcSwingTimer;
 	bool arcLeft;
-	double archerArmSwing;
-	double archerLegSwing;
+	float archerArmSwing;
+	float archerLegSwing;
+	float dRot;
+	float fRot;
+	float aRot;
+	float bRot;
+	float bdRot;
 
 	//Fire
 	void RenderFire();
@@ -269,7 +270,7 @@ private:
 	float yArrowTranslate;
 	bool movingUp;
 
-	ISoundEngine* engine = createIrrKlangDevice();
+	ISoundEngine* engine;
 
 };
 

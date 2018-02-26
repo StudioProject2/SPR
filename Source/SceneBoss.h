@@ -279,7 +279,7 @@ private:
 
 
 	Player *player;
-	ISoundEngine* engine = createIrrKlangDevice();
+	ISoundEngine* engine;
 };
 
 #endif

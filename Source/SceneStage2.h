@@ -23,7 +23,7 @@ using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 5
+#define MOBNUM2 5
 #define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 #define MOBNUM_TO_KILL 5
@@ -154,18 +154,6 @@ private:
 	unsigned m_parameters[U_TOTAL];
 	MS modelStack, viewStack, projectionStack;
 
-	//inits
-	Camera3 camera;
-	double elaspeTime;
-	double tempElaspeTime;
-	double deltaTime;
-	double bulletBounceTime;
-	int monDead;
-	int monLeft;
-
-	bool nextStage;
-	bool gameOver;
-
 	//Base-Render function
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
@@ -201,7 +189,6 @@ private:
 	void RenderObj();
 	void RenderMisc();
 	void RenderUi();
-	void RenderPlayerHealth();
 	void RenderPickups();
 	void RenderObjectives();
 	void RenderTopTeeth();
@@ -213,35 +200,35 @@ private:
 	double tempElaspeTime;
 	double deltaTime;
 	double bulletBounceTime;
-	int monDead;
+	float monDead;
 	bool gameOver;
 
 	//hit markers
-	int hitmarkerSize;
-	int hitmarkerTimer;
+	float hitmarkerSize;
+	float hitmarkerTimer;
 
 	//Interaction text size
-	int interactionSize;
+	float interactionSize;
 
 	//tree and flowers logic
-	int flowersAmt;
+	float flowersAmt;
 	bool flowerOneLife;
 	bool flowerTwoLife;
 	bool flowerThreeLife;
 	bool treeLifeOne;
 	bool treeLifeTwo;
 	bool treeLifeThree;
-	double treeY;
-	double treeRotate;
-	int treeFallTimer;
-	int fallingStage;
+	float treeY;
+	float treeRotate;
+	float treeFallTimer;
+	float fallingStage;
 
 	//pickups logic
-	int pickupsTimer;
+	float pickupsTimer;
 	bool pickupsSpawn;
 	bool pickupsFlying;
-	double pickupsY;
-	double pickupsZ;
+	float pickupsY;
+	float pickupsZ;
 
 	//player
 	Player* player;
@@ -262,29 +249,29 @@ private:
 	bool movingUp;
 
 	//Monster Arrays
-	Monster *MonsterPtr[MOBNUM];
-	Monster *MonsterFodderPtr[MOBNUM];
+	Monster *MonsterPtr[MOBNUM2];
+	Monster *MonsterFodderPtr[MOBNUM2];
 	//MonsterHitBoxes
-	Box *monsterBoxPtr[MOBNUM];
-	Box *monsterFodderBoxPtr[MOBNUM];
+	Box *monsterBoxPtr[MOBNUM2];
+	Box *monsterFodderBoxPtr[MOBNUM2];
 	//Monster Bullets
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-	double monsterBulletDelay[MOBNUM];
+	double monsterBulletDelay[MOBNUM2];
 
 	//Monster Spawn Timer
 	double monsterFodderTime;
 	double monsterTime;
 
 	//Monster Animations Logic
-	int fodSwingTimer;
+	float fodSwingTimer;
 	bool fodLeft;
-	double fodderArmSwing;
-	int dodSwingTimer;
+	float fodderArmSwing;
+	float dodSwingTimer;
 	bool dodLeft;
-	double dodgerArmSwing;
-	double dodgerLegSwing;
+	float dodgerArmSwing;
+	float dodgerLegSwing;
 
-	ISoundEngine* engine = createIrrKlangDevice();
+	ISoundEngine* engine;
 };
 
 #endif

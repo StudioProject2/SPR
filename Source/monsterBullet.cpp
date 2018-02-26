@@ -54,6 +54,10 @@ bool monsterBullet::bulletCollide()
 	{
 		return bulletCollideStage4();
 	}
+	else
+	{
+		return false;
+	}
 }
 bool monsterBullet::bulletCollideStage1()
 {
