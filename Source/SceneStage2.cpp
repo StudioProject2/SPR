@@ -42,7 +42,6 @@ void SceneStage2::Init()
 	dodLeft = false;
 	dodgerArmSwing = 0.0;
 	dodgerLegSwing = 0.0;
-
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
@@ -50,12 +49,10 @@ void SceneStage2::Init()
 	hitmarkerSize = 0;
 	bulletBounceTime = 0.0;
 	playerHurtBounceTime = 0.0;
-	//Sizes
+	//Interaction text Size
 	interactionSize = 0;
-	//counter
+	//monster objective counter
 	monDead = 0;
-	monLeft = 0;
-	nextStage = false;
 	//tree and flower
 	flowersAmt = 0;
 	flowerOneLife = true;
@@ -98,13 +95,22 @@ void SceneStage2::Init()
 	}
 	monsterFodderTime = 0.0;
 
+	for (int i = 0; i < 25; i++)
+	{
+		monsterBulletPtr[i] = NULL;
+	}
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		bulletPtr[bul] = new bullet();
+		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+		bulletBoxPtr[bul]->position.y += bulletPtr[bul]->offsetY;
+	}
+
+	//*****************************************Init Lights and Meshes*******************************************************
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-	//Enable culling
-	//glEnable(GL_CULL_FACE);
-	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -114,7 +120,6 @@ void SceneStage2::Init()
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
 	projectionStack.LoadMatrix(projection);
 
-
 	Color colour;
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 
@@ -122,11 +127,6 @@ void SceneStage2::Init()
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 
 	m_parameters[U_NUMLIGHTS] = glGetUniformLocation(m_programID, "numLights");
-	m_parameters[U_LIGHT0_TYPE] = glGetUniformLocation(m_programID, "lights[0].type");
-	m_parameters[U_LIGHT0_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[0].spotDirection");
-	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
-	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
-	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
 	m_parameters[U_MVP] = glGetUniformLocation(m_programID, "MVP");
 	m_parameters[U_MODELVIEW] = glGetUniformLocation(m_programID, "MV");
 	m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE] = glGetUniformLocation(m_programID, "MV_inverse_transpose");
@@ -134,6 +134,12 @@ void SceneStage2::Init()
 	m_parameters[U_MATERIAL_DIFFUSE] = glGetUniformLocation(m_programID, "material.kDiffuse");
 	m_parameters[U_MATERIAL_SPECULAR] = glGetUniformLocation(m_programID, "material.kSpecular");
 	m_parameters[U_MATERIAL_SHININESS] = glGetUniformLocation(m_programID, "material.kShininess");
+	
+	m_parameters[U_LIGHT0_TYPE] = glGetUniformLocation(m_programID, "lights[0].type");
+	m_parameters[U_LIGHT0_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[0].spotDirection");
+	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
+	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
+	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
 	m_parameters[U_LIGHT0_POSITION] = glGetUniformLocation(m_programID, "lights[0].position_cameraspace");
 	m_parameters[U_LIGHT0_COLOR] = glGetUniformLocation(m_programID, "lights[0].color");
 	m_parameters[U_LIGHT0_POWER] = glGetUniformLocation(m_programID, "lights[0].power");
@@ -178,8 +184,6 @@ void SceneStage2::Init()
 	m_parameters[U_LIGHT3_KL] = glGetUniformLocation(m_programID, "lights[3].kL");
 	m_parameters[U_LIGHT3_KQ] = glGetUniformLocation(m_programID, "lights[3].kQ");
 
-	//TEXT STUFF
-	// Get a handle for our "textColor" uniform
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
 
@@ -189,6 +193,7 @@ void SceneStage2::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
+	//***************************************First Light*****************************************
 	light[0].type = Light::LIGHT_POINT;
 	light[0].position.Set(0, 150, 0);
 	light[0].color.Set(0, 1, 0);
@@ -287,7 +292,6 @@ void SceneStage2::Init()
 	}
 
 	//Others
-	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
 	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
@@ -379,7 +383,7 @@ void SceneStage2::Init()
 	meshList[GEO_ROCK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_ROCK]->material.kShininess = 1.f;
 
-	//monster
+	//monster models
 	meshList[GEO_FODDER_BODY] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
 	meshList[GEO_FODDER_BODY]->textureID = LoadTGA("Image//MonsterTextures//FodderTexture.tga");
 	meshList[GEO_FODDER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
@@ -417,13 +421,10 @@ void SceneStage2::Init()
 	meshList[GEO_DODGER_WEAPON]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_DODGER_WEAPON]->material.kShininess = 1.f;
 
-	//pickups
+	//pickup model
 	meshList[GEO_PICKUP] = MeshBuilder::GenerateOBJ("pickups", "OBJ//PickupOBJ.obj");
 	meshList[GEO_PICKUP]->textureID = LoadTGA("Image//HealthPickupTexture.tga");
 
-	//Debuggging
-	meshList[GEO_TEST] = MeshBuilder::GenerateHem("test", Color(1.0f, 1.0f, 1.0f), 10, 10, 1); 
-	
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
@@ -431,18 +432,6 @@ void SceneStage2::Init()
 	//Objective Indicator
 	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
 	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
-
-	for (int i = 0; i < 25; i++)
-	{
-		monsterBulletPtr[i] = NULL;
-	}
-
-	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
-	{
-		bulletPtr[bul] = new bullet();
-		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
-		bulletBoxPtr[bul]->position.y += bulletPtr[bul]->offsetY;
-	}
 }
 
 bool SceneStage2::isNearObject(Camera3 camera, Box object)
@@ -492,7 +481,6 @@ void SceneStage2::Update(double dt)
 			monsterBoxPtr[mon] = NULL;
 		}
 	}
-	monLeft = MOBNUM_TO_KILL - monDead;
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
@@ -1942,6 +1930,9 @@ void SceneStage2::RenderObjectives()
 
 void SceneStage2::Exit()
 {
+	for (int mon = 0; mon < MOBNUM; mon++)
+	{
+	}
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
 		if (meshList[i] != NULL)
@@ -1949,7 +1940,6 @@ void SceneStage2::Exit()
 			delete meshList[i];
 		}
 		meshList[i] = NULL;
-
 	}
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);

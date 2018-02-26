@@ -100,25 +100,9 @@ class SceneStage2 : public Scene
 		U_TOTAL,
 	};
 
-	//Place this above NUM_GEOMETRY
-	/*
-		GEO_FODDER_BODY,
-		GEO_FODDER_HAND,
-		GEO_DODGER_BODY,
-		GEO_DODGER_HAND,
-		GEO_DODGER_LEG,
-		GEO_ARCHER_BODY,
-		GEO_ARCHER_HAND,
-		GEO_ARCHER_LEG,
-	*/
 	enum GEOMETRY_TYPE
 	{
-		GEO_AXES,
-		GEO_QUAD,
-		GEO_CUBE,
 		GEO_SPHERE,
-		GEO_TEST,
-		GEO_LIGHTBALL,
 
 		GEO_BULLETS,
 
@@ -168,25 +152,7 @@ private:
 	Mesh* meshList[NUM_GEOMETRY];
 	unsigned m_programID;
 	unsigned m_parameters[U_TOTAL];
-
 	MS modelStack, viewStack, projectionStack;
-	
-	//inits
-	Camera3 camera;
-	double elaspeTime;
-	double tempElaspeTime;
-	double deltaTime;
-	double bulletBounceTime;
-	double monster1BulletTime;
-	double monster2BulletTime;
-	double monster3BulletTime;
-	double monster4BulletTime;
-	double monster5BulletTime;
-	int monDead;
-	int monLeft;
-
-	bool nextStage;
-	bool gameOver;
 
 	//Base-Render function
 	Light light[4];
@@ -210,7 +176,6 @@ private:
 	void UpdateCollision();
 	void UpdateObjective();
 	void UpdatePickups();
-
 	void UpdateMonsterAnimations();
 
 	//Renders
@@ -229,11 +194,20 @@ private:
 	void RenderTopTeeth();
 	void RenderBottomTeeth();
 
+	//inits
+	Camera3 camera;
+	double elaspeTime;
+	double tempElaspeTime;
+	double deltaTime;
+	double bulletBounceTime;
+	int monDead;
+	bool gameOver;
+
 	//hit markers
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
-	//text size
+	//Interaction text size
 	int interactionSize;
 
 	//tree and flowers logic
@@ -258,6 +232,11 @@ private:
 
 	//player
 	Player* player;
+	bullet *bulletPtr[NO_OF_BULLETS];
+	bullet start;
+	Box *bulletBoxPtr[NO_OF_BULLETS];
+	//Player Hurt
+	double playerHurtBounceTime;
 
 	//objectives
 	bool objectiveOne;
@@ -272,16 +251,14 @@ private:
 	//Monster Arrays
 	Monster *MonsterPtr[MOBNUM];
 	Monster *MonsterFodderPtr[MOBNUM];
-
 	//MonsterHitBoxes
 	Box *monsterBoxPtr[MOBNUM];
 	Box *monsterFodderBoxPtr[MOBNUM];
-
 	//Monster Bullets
 	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
 	double monsterBulletDelay[MOBNUM];
 
-	//Monster Times
+	//Monster Spawn Timer
 	double monsterFodderTime;
 	double monsterTime;
 
@@ -294,14 +271,7 @@ private:
 	double dodgerArmSwing;
 	double dodgerLegSwing;
 
-	bullet *bulletPtr[NO_OF_BULLETS];
-	bullet start;
-	Box *bulletBoxPtr[NO_OF_BULLETS];
-
 	ISoundEngine* engine = createIrrKlangDevice();
-
-	//Player Hurt
-	double playerHurtBounceTime;
 };
 
 #endif
