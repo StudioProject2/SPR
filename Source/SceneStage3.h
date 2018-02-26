@@ -270,6 +270,7 @@ private:
 	bool movingUp;
 
 	ISoundEngine* engine = createIrrKlangDevice();
+
 };
 
 #endif

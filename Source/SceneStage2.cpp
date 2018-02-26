@@ -42,24 +42,17 @@ void SceneStage2::Init()
 	dodLeft = false;
 	dodgerArmSwing = 0.0;
 	dodgerLegSwing = 0.0;
-
 	//Timer
 	elaspeTime = 0.0;
 	deltaTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
 	hitmarkerSize = 0;
 	bulletBounceTime = 0.0;
-	LoadingTimer = 0;
 	playerHurtBounceTime = 0.0;
-	//Sizes
-	sizeDotOne = 0;
-	sizeDotTwo = 0;
-	sizeDotThree = 0;
+	//Interaction text Size
 	interactionSize = 0;
-	//counter
+	//monster objective counter
 	monDead = 0;
-	monLeft = 0;
-	nextStage = false;
 	//tree and flower
 	flowersAmt = 0;
 	flowerOneLife = true;
@@ -85,6 +78,7 @@ void SceneStage2::Init()
 	objectiveOne = false;
 	objectiveTwo = false;
 	objectiveThree = false;
+	objectiveFour = false;
 
 
 	//INIT monsters
@@ -101,13 +95,22 @@ void SceneStage2::Init()
 	}
 	monsterFodderTime = 0.0;
 
+	for (int i = 0; i < 25; i++)
+	{
+		monsterBulletPtr[i] = NULL;
+	}
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		bulletPtr[bul] = new bullet();
+		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
+		bulletBoxPtr[bul]->position.y += bulletPtr[bul]->offsetY;
+	}
+
+	//*****************************************Init Lights and Meshes*******************************************************
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-	// Generate a default VAO for now
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-	//Enable culling
-	//glEnable(GL_CULL_FACE);
-	// Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -117,7 +120,6 @@ void SceneStage2::Init()
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
 	projectionStack.LoadMatrix(projection);
 
-
 	Color colour;
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 
@@ -125,11 +127,6 @@ void SceneStage2::Init()
 	m_parameters[U_COLOR_TEXTURE] = glGetUniformLocation(m_programID, "colorTexture");
 
 	m_parameters[U_NUMLIGHTS] = glGetUniformLocation(m_programID, "numLights");
-	m_parameters[U_LIGHT0_TYPE] = glGetUniformLocation(m_programID, "lights[0].type");
-	m_parameters[U_LIGHT0_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[0].spotDirection");
-	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
-	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
-	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
 	m_parameters[U_MVP] = glGetUniformLocation(m_programID, "MVP");
 	m_parameters[U_MODELVIEW] = glGetUniformLocation(m_programID, "MV");
 	m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE] = glGetUniformLocation(m_programID, "MV_inverse_transpose");
@@ -137,6 +134,12 @@ void SceneStage2::Init()
 	m_parameters[U_MATERIAL_DIFFUSE] = glGetUniformLocation(m_programID, "material.kDiffuse");
 	m_parameters[U_MATERIAL_SPECULAR] = glGetUniformLocation(m_programID, "material.kSpecular");
 	m_parameters[U_MATERIAL_SHININESS] = glGetUniformLocation(m_programID, "material.kShininess");
+	
+	m_parameters[U_LIGHT0_TYPE] = glGetUniformLocation(m_programID, "lights[0].type");
+	m_parameters[U_LIGHT0_SPOTDIRECTION] = glGetUniformLocation(m_programID, "lights[0].spotDirection");
+	m_parameters[U_LIGHT0_COSCUTOFF] = glGetUniformLocation(m_programID, "lights[0].cosCutoff");
+	m_parameters[U_LIGHT0_COSINNER] = glGetUniformLocation(m_programID, "lights[0].cosInner");
+	m_parameters[U_LIGHT0_EXPONENT] = glGetUniformLocation(m_programID, "lights[0].exponent");
 	m_parameters[U_LIGHT0_POSITION] = glGetUniformLocation(m_programID, "lights[0].position_cameraspace");
 	m_parameters[U_LIGHT0_COLOR] = glGetUniformLocation(m_programID, "lights[0].color");
 	m_parameters[U_LIGHT0_POWER] = glGetUniformLocation(m_programID, "lights[0].power");
@@ -181,8 +184,6 @@ void SceneStage2::Init()
 	m_parameters[U_LIGHT3_KL] = glGetUniformLocation(m_programID, "lights[3].kL");
 	m_parameters[U_LIGHT3_KQ] = glGetUniformLocation(m_programID, "lights[3].kQ");
 
-	//TEXT STUFF
-	// Get a handle for our "textColor" uniform
 	m_parameters[U_TEXT_ENABLED] = glGetUniformLocation(m_programID, "textEnabled");
 	m_parameters[U_TEXT_COLOR] = glGetUniformLocation(m_programID, "textColor");
 
@@ -192,6 +193,7 @@ void SceneStage2::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
+	//***************************************First Light*****************************************
 	light[0].type = Light::LIGHT_POINT;
 	light[0].position.Set(0, 150, 0);
 	light[0].color.Set(0, 1, 0);
@@ -290,7 +292,6 @@ void SceneStage2::Init()
 	}
 
 	//Others
-	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
 	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
@@ -344,6 +345,9 @@ void SceneStage2::Init()
 	meshList[GEO_PLAYER_TEETH]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_PLAYER_TEETH]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
 	meshList[GEO_PLAYER_TEETH]->material.kShininess = 1.0f;
+	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
+	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
+
 
 	//Player Health
 	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
@@ -383,7 +387,7 @@ void SceneStage2::Init()
 	meshList[GEO_ROCK]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_ROCK]->material.kShininess = 1.f;
 
-	//monster
+	//monster models
 	meshList[GEO_FODDER_BODY] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
 	meshList[GEO_FODDER_BODY]->textureID = LoadTGA("Image//MonsterTextures//FodderTexture.tga");
 	meshList[GEO_FODDER_BODY]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
@@ -421,30 +425,17 @@ void SceneStage2::Init()
 	meshList[GEO_DODGER_WEAPON]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_DODGER_WEAPON]->material.kShininess = 1.f;
 
-	//pickups
+	//pickup model
 	meshList[GEO_PICKUP] = MeshBuilder::GenerateOBJ("pickups", "OBJ//PickupOBJ.obj");
 	meshList[GEO_PICKUP]->textureID = LoadTGA("Image//HealthPickupTexture.tga");
 
-	//Debuggging
-	meshList[GEO_TEST] = MeshBuilder::GenerateHem("test", Color(1.0f, 1.0f, 1.0f), 10, 10, 1); 
-	
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
-	//Monsters
-
-	for (int i = 0; i < 25; i++)
-	{
-		monsterBulletPtr[i] = NULL;
-	}
-
-	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
-	{
-		bulletPtr[bul] = new bullet();
-		bulletBoxPtr[bul] = new Box(bulletPtr[bul]->throws, BULLET_SIZE, BULLET_SIZE, BULLET_SIZE);
-		bulletBoxPtr[bul]->position.y += bulletPtr[bul]->offsetY;
-	}
+	//Objective Indicator
+	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
+	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
 }
 
 bool SceneStage2::isNearObject(Camera3 camera, Box object)
@@ -494,7 +485,6 @@ void SceneStage2::Update(double dt)
 			monsterBoxPtr[mon] = NULL;
 		}
 	}
-	monLeft = MOBNUM_TO_KILL - monDead;
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
@@ -530,27 +520,6 @@ void SceneStage2::Update(double dt)
 	UpdateCollision();
 
 	UpdateObjective();
-	
-	if (LoadingTimer > 0)
-	{
-		LoadingTimer -= 1;
-		if (LoadingTimer < 90)
-		{
-			sizeDotOne = 3;
-		}
-		if (LoadingTimer < 60)
-		{
-			sizeDotTwo = 3;
-		}
-		if (LoadingTimer < 30)
-		{
-			sizeDotThree = 3;
-		}
-		if (LoadingTimer == 0)
-		{
-			Application::sceneChange = 4;
-		}
-	}
 
 	if (gameOver)
 	{
@@ -558,6 +527,23 @@ void SceneStage2::Update(double dt)
 		player->damage = 10;
 		player->points = 0;
 		Application::sceneChange = 0;
+	}
+
+	if (movingUp == true)
+	{
+		yArrowTranslate += (float)(30 * dt);
+	}
+	if (movingUp == false)
+	{
+		yArrowTranslate -= (float)(30 * dt);
+	}
+	if (yArrowTranslate > 50)
+	{
+		movingUp = false;
+	}
+	if (yArrowTranslate < 30)
+	{
+		movingUp = true;
 	}
 }
 
@@ -579,23 +565,6 @@ void SceneStage2::UpdateObjective()
 		if (!treeLifeThree)
 		{
 			objectiveThree = true;
-		}
-	}
-	if (!nextStage && objectiveThree)
-	{
-		nextStage = true;
-		if (nextStage)
-		{
-			for (int bul = 0; bul < NO_OF_BULLETS; bul++)
-			{
-				if (bulletPtr[bul] != NULL)
-				{
-					delete bulletPtr[bul];
-					delete bulletBoxPtr[bul];
-					bulletPtr[bul] = NULL;
-					bulletBoxPtr[bul] = NULL;
-				}
-			}
 		}
 	}
 
@@ -955,11 +924,25 @@ void SceneStage2::UpdateInteractions()
 	Box flowerOfLifeOne;
 	Box treeOfLife;
 	Box healthPack;
+	Box exit;
 
 	interactionSize = 0;
 	bool inRange = false;
 	bool inPickupRange = false;
+	bool inExit = false;
 
+	if (objectiveThree)
+	{
+		exit = Box(Vector3(0, 0, -790), 1000, 26);
+	}
+	if (!inExit)
+	{
+		inExit = isNearObject(camera, exit);
+	}
+	if (inExit)
+	{
+		objectiveFour = true;
+	}
 	if (pickupsSpawn)
 	{
 		healthPack = Box(Vector3(0, pickupsY, pickupsZ), 10, 10);
@@ -970,7 +953,6 @@ void SceneStage2::UpdateInteractions()
 	}
 	if (inPickupRange)
 	{
-		LoadingTimer = 120;
 		pickupsSpawn = false;
 		player->health += 40;
 	}
@@ -1159,6 +1141,13 @@ void SceneStage2::UpdateInteractions()
 			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 		}
 	}
+
+	if (Application::IsKeyPressed('E') && inExit && objectiveFour)
+	{
+		Application::sceneChange = Application::STAGE3;
+	}
+
+
 }
 void SceneStage2::UpdatePickups()
 {
@@ -1295,11 +1284,22 @@ void SceneStage2::Render()
 	}
 	RenderMonsterBullets();
 	
+	//Exit Indicator
+	if (objectiveThree)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(0, yArrowTranslate + 15, -910);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_ARROW], false);
+		modelStack.PopMatrix();
+	}
+
 	//Player
 	RenderBullets();
 	RenderTopTeeth();
 	RenderBottomTeeth();
 	RenderObjectives();
+	RenderPlayerHealth();
 	RenderUi();
 	RenderPlayerHealth();
 	RenderHitmarker();
@@ -1423,6 +1423,7 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
+
 void SceneStage2::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
@@ -1442,7 +1443,6 @@ void SceneStage2::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, 
 	modelStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
 }
-
 
 void SceneStage2::RenderTopTeeth()
 {
@@ -1485,6 +1485,25 @@ void SceneStage2::RenderBottomTeeth()
 	projectionStack.PopMatrix();
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
+
+}
+void SceneStage2::RenderPlayerHealth()
+{
+	
+	int vertical = player->health / 50;
+	int horizontal = (player->health - (vertical * 50)) / 10;
+
+	for (int i = 0; i < vertical; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
+		}
+	}
+	for (int i = 0; i < horizontal; i++)
+	{
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
+	}
 
 }
 void SceneStage2::RenderSkybox()
@@ -1544,17 +1563,21 @@ void SceneStage2::RenderObj()
 	}
 	for (int i = 0; i < 1401; i += 350)
 	{
+		
 		modelStack.PushMatrix();
 		modelStack.Translate(650 - i, -10, 810);
 		modelStack.Scale(10, 30, 10);
 		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(650 - i, -10, -810);
-		modelStack.Scale(10, 30, 10);
-		RenderMesh(meshList[GEO_GRASS_LINE], true);
-		modelStack.PopMatrix();
+		
+		if (!objectiveThree)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(650 - i, -10, -810);
+			modelStack.Scale(10, 30, 10);
+			RenderMesh(meshList[GEO_GRASS_LINE], true);
+			modelStack.PopMatrix();
+		}
 	}
 
 	//tree of LIFE
@@ -1860,14 +1883,6 @@ void SceneStage2::RenderUi()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Next Stage", Color(1, 1, 1), sizeDotOne, 17, 2);
-	RenderTextOnScreen(meshList[GEO_TEXT], "Loading", Color(1, 1, 1), sizeDotOne, 17, 1);
-	RenderTextOnScreen(meshList[GEO_TEXT], ".", Color(1, 1, 1), sizeDotOne, 24, 1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "..", Color(1, 1, 1), sizeDotTwo, 24, 1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "...", Color(1, 1, 1), sizeDotThree, 24, 1);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to", Color(1, 1, 1), interactionSize, 6, 7);
 	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
 	modelStack.PopMatrix();
@@ -1933,11 +1948,22 @@ void SceneStage2::RenderObjectives()
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0, 0, 0), 3, 10.5, 18);
 	}
+	if (objectiveThree)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Head towards the opening", Color(0, 0, 0), 3, 10.5, 18);
+	}
 	modelStack.PopMatrix();
+	if (objectiveFour)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0, 1, 1), 2.5, 8, 5);
+	}
 }
 
 void SceneStage2::Exit()
 {
+	for (int mon = 0; mon < MOBNUM; mon++)
+	{
+	}
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
 		if (meshList[i] != NULL)
@@ -1945,7 +1971,6 @@ void SceneStage2::Exit()
 			delete meshList[i];
 		}
 		meshList[i] = NULL;
-
 	}
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);
