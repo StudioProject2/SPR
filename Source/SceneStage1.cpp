@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <sstream>
 #include <cmath>
+
 using namespace std;
 
 SceneStage1::SceneStage1()
@@ -532,6 +533,10 @@ void SceneStage1::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - 10;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/femaleHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -559,6 +564,10 @@ void SceneStage1::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.1;
 			}
 		}

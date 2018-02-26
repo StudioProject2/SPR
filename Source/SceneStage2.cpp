@@ -349,6 +349,10 @@ void SceneStage2::Init()
 	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
 
 
+	//Player Health
+	meshList[GEO_PLAYERHEALTH] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 2.0f, 2.0f, 1.0f);
+	meshList[GEO_PLAYERHEALTH]->textureID = LoadTGA("Image//playerHealth.tga");
+
 	//tree
 	meshList[GEO_TREE] = MeshBuilder::GenerateOBJ("tree", "OBJ//stage2//Tree.obj");
 	meshList[GEO_TREE]->textureID = LoadTGA("Image//stage2//objtextures//Tree2.tga");
@@ -888,7 +892,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				playerHurtBounceTime = elaspeTime + 0.5;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 			}
 		}
@@ -901,7 +905,7 @@ void SceneStage2::UpdateMonsterHitbox()
 				playerHurtBounceTime = elaspeTime + 0.5;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 			}
 		}
@@ -1297,6 +1301,7 @@ void SceneStage2::Render()
 	RenderObjectives();
 	RenderPlayerHealth();
 	RenderUi();
+	RenderPlayerHealth();
 	RenderHitmarker();
 
 	if (gameOver)
@@ -1418,7 +1423,8 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
-void SceneStage2::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
+
+void SceneStage2::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
 	Mtx44 ortho;
@@ -1880,6 +1886,31 @@ void SceneStage2::RenderUi()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to", Color(1, 1, 1), interactionSize, 6, 7);
 	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
 	modelStack.PopMatrix();
+}
+void SceneStage2::RenderPlayerHealth()
+{
+	/*for (int i = 0; i < player->health; i += 10)
+	{
+	RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2 + (i * 1.5 / 10), 48, 1, 1);
+	}*/
+
+	int vertical = player->health / 50;
+	int horizontal = (player->health - (vertical * 50)) / 10;
+
+	for (int i = 0; i < vertical; i++)
+	{
+		for (int j = 0; j < 5; j++)
+		{
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
+		}
+	}
+	for (int i = 0; i < horizontal; i++)
+	{
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
+	}
+
+	//RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5, 48, 1, 1);
+	//RenderTextOnScreen(meshList[GEO_TEXT], "x" + to_string(player->health), Color(0, 0, 0), 2, 4, 24);
 }
 void SceneStage2::RenderPickups()
 {

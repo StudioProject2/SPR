@@ -154,12 +154,24 @@ private:
 	unsigned m_parameters[U_TOTAL];
 	MS modelStack, viewStack, projectionStack;
 
+	//inits
+	Camera3 camera;
+	double elaspeTime;
+	double tempElaspeTime;
+	double deltaTime;
+	double bulletBounceTime;
+	int monDead;
+	int monLeft;
+
+	bool nextStage;
+	bool gameOver;
+
 	//Base-Render function
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	void RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey);
+	void RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey);
 
 	//AB box checkers
 	bool isInObjectZ(Camera3 camera, Box object);
@@ -189,6 +201,7 @@ private:
 	void RenderObj();
 	void RenderMisc();
 	void RenderUi();
+	void RenderPlayerHealth();
 	void RenderPickups();
 	void RenderObjectives();
 	void RenderTopTeeth();

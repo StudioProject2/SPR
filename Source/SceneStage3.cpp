@@ -528,6 +528,10 @@ void SceneStage3::UpdateMonsterBullets()
 			if (monsterBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				delete monsterBulletPtr[i];
 				monsterBulletPtr[i] = NULL;
 				
@@ -568,6 +572,10 @@ void SceneStage3::UpdateMonsterBullets()
 			if (monsterArcherBulletPtr[i]->isBulletInBox(playerBox))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				delete monsterArcherBulletPtr[i];
 				monsterArcherBulletPtr[i] = NULL;
 
@@ -761,6 +769,10 @@ void SceneStage3::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/highHumanHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -792,6 +804,10 @@ void SceneStage3::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/femaleHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -823,6 +839,10 @@ void SceneStage3::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterArcherPtr[mon]).health = (*MonsterArcherPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/humanHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -850,6 +870,10 @@ void SceneStage3::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}
@@ -859,6 +883,10 @@ void SceneStage3::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}
@@ -868,6 +896,10 @@ void SceneStage3::UpdateMonsterHitbox()
 			if (bulletPtr[0]->isBulletHit(playerBox, monsterArcherBoxPtr[i]))
 			{
 				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
 				playerHurtBounceTime = elaspeTime + 0.5;
 			}
 		}

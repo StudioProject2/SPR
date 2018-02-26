@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <sstream>
 
-using namespace irrklang;
 using namespace std;
 
 SceneBoss::SceneBoss()
@@ -493,7 +492,7 @@ void SceneBoss::Update(double dt)
 				player->health -= DIRECTBULLETDMG;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 				delete directBulletPtr[i];
 				directBulletPtr[i] = NULL;
@@ -519,7 +518,7 @@ void SceneBoss::Update(double dt)
 				player->health -= RINGBULLETDMG;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 				delete ringBulletPtr[i];
 				ringBulletPtr[i] = NULL;
@@ -545,7 +544,7 @@ void SceneBoss::Update(double dt)
 				player->health -= GROUNDBULLETDMG;
 				if (!Application::muted)
 				{
-					engine->play2D("Sound/dinosaurRoar1.wav", false);
+					engine->play2D("Sound/dinosaurHiss.wav", false);
 				}
 				delete groundBulletPtr[i];
 				groundBulletPtr[i] = NULL;
@@ -1019,7 +1018,7 @@ void SceneBoss::UpdateMonsterHitbox()
 					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
 					if (!Application::muted)
 					{
-						engine->play2D("Sound/humanHit.wav", false);
+						engine->play2D("Sound/highHumanHit.wav", false);
 					}
 					isHit = false;
 				}
@@ -1042,6 +1041,10 @@ void SceneBoss::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterFodderPtr[mon]).health = (*MonsterFodderPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/femaleHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
@@ -1073,6 +1076,10 @@ void SceneBoss::UpdateMonsterHitbox()
 				if (isHit)
 				{
 					(*MonsterArcherPtr[mon]).health = (*MonsterArcherPtr[mon]).health - player->damage;
+					if (!Application::muted)
+					{
+						engine->play2D("Sound/humanHit.wav", false);
+					}
 					cout << "HIT " << endl;
 				}
 				if (isHit)
