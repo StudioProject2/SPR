@@ -1887,31 +1887,6 @@ void SceneStage2::RenderUi()
 	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
 	modelStack.PopMatrix();
 }
-void SceneStage2::RenderPlayerHealth()
-{
-	/*for (int i = 0; i < player->health; i += 10)
-	{
-	RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2 + (i * 1.5 / 10), 48, 1, 1);
-	}*/
-
-	int vertical = player->health / 50;
-	int horizontal = (player->health - (vertical * 50)) / 10;
-
-	for (int i = 0; i < vertical; i++)
-	{
-		for (int j = 0; j < 5; j++)
-		{
-			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
-		}
-	}
-	for (int i = 0; i < horizontal; i++)
-	{
-		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
-	}
-
-	//RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5, 48, 1, 1);
-	//RenderTextOnScreen(meshList[GEO_TEXT], "x" + to_string(player->health), Color(0, 0, 0), 2, 4, 24);
-}
 void SceneStage2::RenderPickups()
 {
 	if (pickupsSpawn)
