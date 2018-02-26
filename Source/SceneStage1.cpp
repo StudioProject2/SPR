@@ -359,7 +359,7 @@ void SceneStage1::Update(double dt)
 
 	if (!inCage && breakCage < 90)
 	{
-		breakCage += (float)(78 * dt);
+		breakCage += (float)(100 * dt);
 	}
 
 	//Update Arrows
@@ -619,10 +619,6 @@ void SceneStage1::UpdateInteractions()
 	{
 		if (inCage == true && isNearObject(camera, cageDoor) == true)
 		{
-			if (!Application::muted)
-			{
-				engine->play2D("Sound/gateCrash.wav", false);
-			}
 			inCage = false;
 		}
 	}
