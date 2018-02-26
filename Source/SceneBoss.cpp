@@ -87,10 +87,6 @@ void SceneBoss::Init()
 		monsterArcherBoxPtr[i] = NULL;
 		monsterArcherBulletDelay[i] = elaspeTime + 4.0;
 	}
-	for (int i = 0; i < DIRECTBULLETNUM; i++)
-	{
-		monsterArcherBulletPtr[i] = NULL;
-	}
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
@@ -842,7 +838,7 @@ void SceneBoss::UpdateBossHitbox()
 	bool isHit = false;
 	int monNum;
 	hitmarkerSize = 0;
-	*bossBox = Box(Vector3(boss.getPos()), 10, 10, 20);
+	*bossBox = Box(Vector3(boss.getPos()), 10, 10, 25);
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
@@ -1330,14 +1326,6 @@ void SceneBoss::Render()
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
-	Vector3 bossPos = boss.getPos();
-	modelStack.PushMatrix();
-	modelStack.Translate(bossPos.x, bossPos.y, bossPos.z);
-	modelStack.Scale(10, 25, 10);
-	RenderMesh(meshList[GEO_CUBE], true);
-	modelStack.PopMatrix();
-
-
 	for (int i = 0; i < 1800; i += 30)
 	{
 		modelStack.PushMatrix();
@@ -1482,37 +1470,6 @@ void SceneBoss::Render()
 					modelStack.Translate(0, -1.5, 0);
 					RenderMesh(meshList[GEO_ARCHER_LEG], true);
 					modelStack.PopMatrix();
-			modelStack.PopMatrix();
-		}
-	}
-	//Render Monster Archer Bullets
-	for (int i = 0; i < DIRECTBULLETNUM; i++)
-	{
-		if (monsterArcherBulletPtr[i] != NULL)
-		{
-			Vector3 B = monsterArcherBulletPtr[i]->pos - camera.position;
-			B.y = monsterArcherBulletPtr[i]->pos.y;
-
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
-
-			if (B.x > 0 && B.z < 0)
-				bdRot = 180 + rotation;
-			else if (B.x > 0 && B.z > 0)
-				bdRot = 180 + rotation;
-			else if (B.x < 0 && B.z > 0)
-				bdRot = 180 - rotation;
-			else if (B.x < 0 && B.z < 0)
-				bdRot = 180 - rotation;
-			else
-				bdRot = rotation;
-
-			modelStack.PushMatrix();
-			modelStack.Translate((*monsterArcherBulletPtr[i]).pos.x, (*monsterArcherBulletPtr[i]).pos.y, (*monsterArcherBulletPtr[i]).pos.z);
-			modelStack.Rotate(bdRot, 0, 1, 0);
-			modelStack.Rotate(90, 1, 0, 0);
-			modelStack.Scale(2, 2, 2);
-			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
 	}

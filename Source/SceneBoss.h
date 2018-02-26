@@ -237,7 +237,6 @@ private:
 	Monster *MonsterArcherPtr[MOBNUM];
 	Box *monsterFodderBoxPtr[MOBNUM];
 	Box *monsterArcherBoxPtr[MOBNUM];
-	monsterBullet *monsterArcherBulletPtr[DIRECTBULLETNUM];
 	double monsterArcherBulletDelay[MOBNUM];
 	double monsterFodderTime;
 	double monsterArcherTime;
