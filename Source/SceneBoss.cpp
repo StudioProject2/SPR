@@ -836,7 +836,6 @@ void SceneBoss::UpdateBossMovement()
 void SceneBoss::UpdateBossHitbox()
 {
 	bool isHit = false;
-	int monNum;
 	hitmarkerSize = 0;
 	*bossBox = Box(Vector3(boss.getPos()), 10, 10, 25);
 
@@ -921,7 +920,7 @@ void SceneBoss::UpdateBossBullets()
 
 	if (elaspeTime > bossChangeGroundTargetTime)
 	{
-		groundAreaCenter = Vector3(((rand() % 500) - 250), 0, ((rand() % 1700) - 850));
+		groundAreaCenter = Vector3(((float)(rand() % 500) - 250), 0, ((float)(rand() % 1700) - 850));
 		bossChangeGroundTargetTime = elaspeTime + 7.0;
 		bossGroundAttackDelayTime = elaspeTime + 2.0;
 		return;
@@ -949,8 +948,8 @@ void SceneBoss::UpdateBossBullets()
 
 void SceneBoss::UpdateBossHealth()
 {
-	bossHealthScale = boss.getHealth() / 44.4;
-	bossHealthTranslate = ((40 - ((1000 - (double)boss.getHealth()) / 45)) / bossHealthScale);
+	bossHealthScale = (float)boss.getHealth() / 44.4f;
+	bossHealthTranslate = ((40.f - ((1000.f - (float)boss.getHealth()) / 45.f)) / bossHealthScale);
 }
 
 void SceneBoss::UpdateMonsterHitbox()
@@ -1259,86 +1258,86 @@ void SceneBoss::Render()
 
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, -1000);
+	modelStack.Translate(0.f, 0.f, -1000.f);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(-1000, 0, 0);
-	modelStack.Rotate(90, 0, 1, 0);
+	modelStack.Translate(-1000.f, 0.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_LEFT], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(1000, 0, 0);
-	modelStack.Rotate(-90, 0, 1, 0);
+	modelStack.Translate(1000.f, 0.f, 0.f);
+	modelStack.Rotate(-90.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_RIGHT], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 1000);
-	modelStack.Rotate(180, 0, 1, 0);
+	modelStack.Translate(0.f, 0.f, 1000.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 	RenderMesh(meshList[GEO_BACK], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 1000, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(90, 1, 0, 0);
+	modelStack.Translate(0.f, 1000.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_TOP], false);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
+	modelStack.Translate(0.f, -10.f, 0.f);
+	modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+	modelStack.Rotate(-90.f, 1.f, 0.f, 0.f);
 	RenderMesh(meshList[GEO_BOTTOM], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(200, -10, 0);
-	modelStack.Scale(8, 8, 8);
+	modelStack.Translate(200.f, -10.f, 0.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(200, -10, 200);
-	modelStack.Scale(8, 8, 8);
+	modelStack.Translate(200.f, -10.f, 200.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(200, -10, -200);
-	modelStack.Scale(8, 8, 8);
+	modelStack.Translate(200.f, -10.f, -200.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-200, -10, 0);
-	modelStack.Scale(8, 8, 8);
+	modelStack.Translate(-200.f, -10.f, 0.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-200, -10, 200);
-	modelStack.Scale(8, 8, 8);
+	modelStack.Translate(-200.f, -10.f, 200.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	modelStack.Translate(-200, -10, -200);
-	modelStack.Scale(8, 8, 8);
+	modelStack.Translate(-200.f, -10.f, -200.f);
+	modelStack.Scale(8.f, 8.f, 8.f);
 	RenderMesh(meshList[GEO_BUILDING], true);
 	modelStack.PopMatrix();
 
 	for (int i = 0; i < 1800; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(-300, -10, -900 + i);
+		modelStack.Translate(-300.f, -10.f, -900.f + (float)(i));
 		modelStack.Rotate(90, 0, 1, 0);
 		modelStack.Scale(20, 20, 20);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(300, -10, -900 + i);
-		modelStack.Rotate(270, 0, 1, 0);
-		modelStack.Scale(20, 20, 20);
+		modelStack.Translate(300.f, -10.f, -900.f + (float)(i));
+		modelStack.Rotate(270.f, 0.f, 1.f, 0.f);
+		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 	}
@@ -1346,29 +1345,20 @@ void SceneBoss::Render()
 	for (int i = 0; i < 660; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(300 - i, -10, 890);
-		modelStack.Scale(20, 20, 20);
+		modelStack.Translate(300.f - (float)(i), -10.f, 890.f);
+		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(300 - i, -10, -910);
-		modelStack.Scale(20, 20, 20);
+		modelStack.Translate(300.f - (float)(i), -10.f, -910.f);
+		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
 	}
 
 	//Monsters
-	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
-	double dRot;
-	double fRot;
-	double aRot;
-
-	double bdRot;
-	double bfRot;
-	double baRot;
-
-	double bRot;
+	Vector3 defaultView = Vector3(0.f, 0.f, 1.f).Normalize();
 
 	for (int i = 0; i < MOBNUM; i++)
 	{
@@ -1377,8 +1367,8 @@ void SceneBoss::Render()
 			Vector3 B = MonsterFodderPtr[i]->pos - camera.position;
 			B.y = MonsterFodderPtr[i]->pos.y;
 
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				fRot = 180 + rotation;
@@ -1393,22 +1383,22 @@ void SceneBoss::Render()
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y - 10, (*MonsterFodderPtr[i]).pos.z);
-			modelStack.Rotate(fRot + 90, 0, 1, 0);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Rotate(fRot + 90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_FODDER_BODY], true);
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, 0.05);
-				modelStack.Translate(0, 1.5, 0);
-				modelStack.Rotate(fodderArmSwing + 300, 0, 0, 1);
-				modelStack.Translate(0, -1.5, 0);
+				modelStack.Translate(0.f, 0.f, 0.05f);
+				modelStack.Translate(0.f, 1.5f, 0.f);
+				modelStack.Rotate(fodderArmSwing + 300.f, 0.f, 0.f, 1.f);
+				modelStack.Translate(0.f, -1.5f, 0.f);
 				RenderMesh(meshList[GEO_FODDER_HAND], true);
 				modelStack.PopMatrix();
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, -0.05);
-				modelStack.Rotate(180, 0, 1, 0);
-				modelStack.Translate(0, 1.5, 0);
-				modelStack.Rotate(fodderArmSwing - 60, 0, 0, 1);
-				modelStack.Translate(0, -1.5, 0);
+				modelStack.Translate(0.f, 0.f, -0.05f);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				modelStack.Translate(0.f, 1.5f, 0.f);
+				modelStack.Rotate(fodderArmSwing - 60.f, 0.f, 0.f, 1.f);
+				modelStack.Translate(0.f, -1.5f, 0.f);
 				RenderMesh(meshList[GEO_FODDER_HAND], true);
 				modelStack.PopMatrix();
 			modelStack.PopMatrix();
@@ -1421,8 +1411,8 @@ void SceneBoss::Render()
 			Vector3 B = MonsterArcherPtr[i]->pos - camera.position;
 			B.y = MonsterArcherPtr[i]->pos.y;
 
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				aRot = 180 + rotation;
@@ -1437,37 +1427,37 @@ void SceneBoss::Render()
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y - 10, (*MonsterArcherPtr[i]).pos.z);
-			modelStack.Rotate(aRot + 90, 0, 1, 0);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Rotate(aRot + 90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_ARCHER_BODY], true);
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, 4.3);
-				modelStack.Rotate(180, 0, 1, 0);
-				modelStack.Translate(0, 2, 0);
-				modelStack.Rotate(80, 0, 0, 1);
-				modelStack.Translate(0, -2, 0);
+				modelStack.Translate(0.f, 0.f, 4.3f);
+				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+				modelStack.Translate(0.f, 2.f, 0.f);
+				modelStack.Rotate(80.f, 0.f, 0.f, 1.f);
+				modelStack.Translate(0.f, -2.f, 0.f);
 				RenderMesh(meshList[GEO_ARCHER_HAND], true);
 					modelStack.PushMatrix();
-					modelStack.Translate(0, 1, 3);
-					modelStack.Rotate(90, 0, 1, 0);
-					modelStack.Rotate(160, 1, 0, 0);
-					modelStack.Scale(0.5, 0.5, 0.5);
+					modelStack.Translate(0.f, 1.f, 3.f);
+					modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+					modelStack.Rotate(160.f, 1.f, 0.f, 0.f);
+					modelStack.Scale(0.5f, 0.5f, 0.5f);
 					RenderMesh(meshList[GEO_ARCHER_WEAPON], true);
 					modelStack.PopMatrix();
 				modelStack.PopMatrix();
 					modelStack.PushMatrix();
-					modelStack.Translate(0, 0, -0.05);
-					modelStack.Translate(0, 1.5, 0);
-					modelStack.Rotate(archerLegSwing + 340, 0, 0, 1);
-					modelStack.Translate(0, -1.5, 0);
+					modelStack.Translate(0.f, 0.f, -0.05f);
+					modelStack.Translate(0.f, 1.5f, 0.f);
+					modelStack.Rotate(archerLegSwing + 340.f, 0.f, 0.f, 1.f);
+					modelStack.Translate(0.f, -1.5f, 0.f);
 					RenderMesh(meshList[GEO_ARCHER_LEG], true);
 					modelStack.PopMatrix();
 					modelStack.PushMatrix();
-					modelStack.Translate(0, 0, 4.3);
-					modelStack.Rotate(180, 0, 1, 0);
-					modelStack.Translate(0, 1.5, 0);
-					modelStack.Rotate(archerLegSwing - 20, 0, 0, 1);
-					modelStack.Translate(0, -1.5, 0);
+					modelStack.Translate(0.f, 0.f, 4.3f);
+					modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+					modelStack.Translate(0.f, 1.5f, 0.f);
+					modelStack.Rotate(archerLegSwing - 20.f, 0.f, 0.f, 1.f);
+					modelStack.Translate(0.f, -1.5f, 0.f);
 					RenderMesh(meshList[GEO_ARCHER_LEG], true);
 					modelStack.PopMatrix();
 			modelStack.PopMatrix();
@@ -1482,8 +1472,8 @@ void SceneBoss::Render()
 			Vector3 B = MonsterPtr[i]->pos - camera.position;
 			B.y = MonsterPtr[i]->pos.y;
 
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				dRot = 180 + rotation;
@@ -1498,46 +1488,46 @@ void SceneBoss::Render()
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterPtr[i]).pos.x, (*MonsterPtr[i]).pos.y - 10, (*MonsterPtr[i]).pos.z);
-			modelStack.Rotate(dRot + 90, 0, 1, 0);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Rotate(dRot + 90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_DODGER_BODY], true);
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0.2, 0);
-			modelStack.Translate(0, 2, 0);
-			modelStack.Rotate(dodgerArmSwing + 300, 0, 0, 1);
-			modelStack.Translate(0, -2, 0);
+			modelStack.Translate(0.f, 0.2f, 0.f);
+			modelStack.Translate(0.f, 2.f, 0.f);
+			modelStack.Rotate(dodgerArmSwing + 300.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -2.f, 0.f);
 			RenderMesh(meshList[GEO_DODGER_HAND], true);
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0.2, 0);
-			modelStack.Rotate(180, 0, 1, 0);
-			modelStack.Translate(0, 2, 0);
-			modelStack.Rotate(dodgerArmSwing - 60, 0, 0, 1);
-			modelStack.Translate(0, -2, 0);
+			modelStack.Translate(0.f, 0.2f, 0.f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Translate(0.f, 2.f, 0.f);
+			modelStack.Rotate(dodgerArmSwing - 60.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -2.f, 0.f);
 			RenderMesh(meshList[GEO_DODGER_HAND], true);
 			modelStack.PushMatrix();
-			modelStack.Translate(1, 1.5, 0.8);
-			modelStack.Rotate(180, 0, 1, 0);
-			modelStack.Rotate(90, 0, 0, 1);
-			modelStack.Scale(0.5, 0.5, 0.5);
+			modelStack.Translate(1.0f, 1.5f, 0.8f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+			modelStack.Scale(0.5f, 0.5f, 0.5f);
 			RenderMesh(meshList[GEO_DODGER_WEAPON], true);
 			modelStack.PopMatrix();
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0, -0.05);
-			modelStack.Translate(0, 1.5, 0);
-			modelStack.Rotate(dodgerLegSwing + 340, 0, 0, 1);
-			modelStack.Translate(0, -1.5, 0);
+			modelStack.Translate(0.f, 0.f, -0.05f);
+			modelStack.Translate(0.f, 1.5f, 0.f);
+			modelStack.Rotate(dodgerLegSwing + 340.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -1.5f, 0.f);
 			RenderMesh(meshList[GEO_DODGER_LEG], true);
 			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0, 0.05);
-			modelStack.Rotate(180, 0, 1, 0);
-			modelStack.Translate(0, 1.5, 0);
-			modelStack.Rotate(dodgerLegSwing - 20, 0, 0, 1);
-			modelStack.Translate(0, -1.5, 0);
+			modelStack.Translate(0.f, 0.f, 0.05f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Translate(0.f, 1.5f, 0.f);
+			modelStack.Rotate(dodgerLegSwing - 20.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -1.5f, 0.f);
 			RenderMesh(meshList[GEO_DODGER_LEG], true);
 			modelStack.PopMatrix();
 			modelStack.PopMatrix();
@@ -1551,8 +1541,8 @@ void SceneBoss::Render()
 			Vector3 B = directBulletPtr[i]->pos - camera.position;
 			B.y = directBulletPtr[i]->pos.y;
 
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				bfRot = 180 + rotation;
@@ -1567,9 +1557,9 @@ void SceneBoss::Render()
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*directBulletPtr[i]).pos.x, (*directBulletPtr[i]).pos.y, (*directBulletPtr[i]).pos.z);
-			modelStack.Rotate(bfRot, 0, 1, 0);
-			modelStack.Rotate(90, 1, 0, 0);
-			modelStack.Scale(2, 2, 2);
+			modelStack.Rotate(bfRot, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
 			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
@@ -1581,9 +1571,9 @@ void SceneBoss::Render()
 		{
 			modelStack.PushMatrix();
 			modelStack.Translate((*ringBulletPtr[i]).pos.x, (*ringBulletPtr[i]).pos.y, (*ringBulletPtr[i]).pos.z);
-			modelStack.Rotate(spinToWin, 0, 1, 0);
-			modelStack.Rotate(90, 0, 0, 1);
-			modelStack.Scale(2, 2, 2);
+			modelStack.Rotate(spinToWin, 0.f, 1.f, 0.f);
+			modelStack.Rotate(90.f, 0.f, 0.f, 1.f);
+			modelStack.Scale(2.f, 2.f, 2.f);
 			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
 		}
@@ -1595,7 +1585,7 @@ void SceneBoss::Render()
 		{
 			modelStack.PushMatrix();
 			modelStack.Translate((*groundBulletPtr[i]).pos.x, (*groundBulletPtr[i]).pos.y, (*groundBulletPtr[i]).pos.z);
-			modelStack.Scale(2, 2, 2);
+			modelStack.Scale(2.f, 2.f, 2.f);
 			RenderMesh(meshList[GEO_SPHERE], true);
 			modelStack.PopMatrix();
 		}
@@ -1605,8 +1595,8 @@ void SceneBoss::Render()
 		Vector3 B = boss.getPos() - camera.position;
 		B.y = boss.getPos().y;
 
-		double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-		rotation = rotation * (180 / 3.14);
+		float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+		rotation = rotation * (180.f / 3.14f);
 
 		if (B.x > 0 && B.z < 0)
 			bRot = 180 + rotation;
@@ -1620,32 +1610,32 @@ void SceneBoss::Render()
 			bRot = rotation;
 		modelStack.PushMatrix();
 		modelStack.Translate(boss.getPos().x, boss.getPos().y + 5, boss.getPos().z);
-		modelStack.Rotate(bRot + 90, 0, 1, 0);
-		modelStack.Scale(10, 10, 10);
+		modelStack.Rotate(bRot + 90.f, 0.f, 1.f, 0.f);
+		modelStack.Scale(10.f, 10.f, 10.f);
 		RenderMesh(meshList[GEO_BOSS_BODY], true);
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0.2, -0.05);
-			modelStack.Translate(0, 0.5, 0);
-			modelStack.Rotate(bossArmSwing + 330, 0, 0, 1);
-			modelStack.Translate(0, -0.5, 0);
+			modelStack.Translate(0.f, 0.2f, -0.05f);
+			modelStack.Translate(0.f, 0.5f, 0.f);
+			modelStack.Rotate(bossArmSwing + 330.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -0.5f, 0.f);
 			RenderMesh(meshList[GEO_BOSS_HAND], true);
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0.2, 0.05);
-			modelStack.Rotate(180, 0, 1, 0);
-			modelStack.Translate(0, 0.5, 0);
-			modelStack.Rotate(bossArmSwing - 30, 0, 0, 1);
-			modelStack.Translate(0, -0.5, 0);
+			modelStack.Translate(0.f, 0.2f, 0.05f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Translate(0.f, 0.5f, 0.f);
+			modelStack.Rotate(bossArmSwing - 30.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -0.5f, 0.f);
 			RenderMesh(meshList[GEO_BOSS_HAND], true);
 			modelStack.PopMatrix();
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, -0.05);
-				modelStack.Rotate(bossLegSwing + 340, 0, 0, 1);
+				modelStack.Translate(0.f, 0.f, -0.05f);
+				modelStack.Rotate(bossLegSwing + 340.f, 0.f, 0.f, 1.f);
 				RenderMesh(meshList[GEO_BOSS_LEG], true);
 				modelStack.PopMatrix();
 				modelStack.PushMatrix();
-				modelStack.Translate(0, 0, -0.4);
-				modelStack.Rotate(-bossLegSwing -340, 0, 0, 1);
+				modelStack.Translate(0.f, 0.f, -0.4f);
+				modelStack.Rotate(-bossLegSwing -340.f, 0.f, 0.f, 1.f);
 				RenderMesh(meshList[GEO_BOSS_LEG], true);
 				modelStack.PopMatrix();
 		modelStack.PopMatrix();
@@ -1654,8 +1644,8 @@ void SceneBoss::Render()
 	if (printGroundSignal && groundAreaCenter != NULL)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(groundAreaCenter.x, groundAreaCenter.y - 9.9, groundAreaCenter.z);
-		modelStack.Rotate(90, 1, 0, 0);
+		modelStack.Translate(groundAreaCenter.x, groundAreaCenter.y - 9.9f, groundAreaCenter.z);
+		modelStack.Rotate(90.f, 1.f, 0.f, 0.f);
 		RenderMesh(meshList[GEO_GROUNDSIGNAL], false);
 		modelStack.PopMatrix();
 	}
@@ -1689,10 +1679,10 @@ void SceneBoss::RenderTopTeeth()
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
 
-	modelStack.Translate(-1.3, 8, -17);
-	modelStack.Rotate(180, 1, 0, 0);
-	modelStack.Rotate(180, 0, 1, 0);
-	modelStack.Scale(1.5, 1, 1);
+	modelStack.Translate(-1.3f, 8.f, -17.f);
+	modelStack.Rotate(180.f, 1.f, 0.f, 0.f);
+	modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+	modelStack.Scale(1.5f, 1.f, 1.f);
 
 	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
 	projectionStack.PopMatrix();
@@ -1712,8 +1702,8 @@ void SceneBoss::RenderBottomTeeth()
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
 
-	modelStack.Translate(1.3, -8, -17);
-	modelStack.Scale(1.5, 1, 1);
+	modelStack.Translate(1.3f, -8.f, -17.f);
+	modelStack.Scale(1.5f, 1.f, 1.f);
 
 	RenderMesh(meshList[GEO_PLAYER_TEETH], true);
 	projectionStack.PopMatrix();
@@ -1731,21 +1721,21 @@ void SceneBoss::RenderPlayerHealth()
 	{
 		for (int j = 0; j < 5; j++)
 		{
-			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (j * 4.3f), 48.f - (i * 4.f), 1.f, 1.f);
 		}
 	}
 	for (int i = 0; i < horizontal; i++)
 	{
-		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (i * 4.3f), 48.f - (vertical * 4.f), 1.f, 1.f);
 	}
 }
 
 void SceneBoss::RenderBossHealth()
 {
-	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBAR], 1.6, 3.2, 25, 18);
-	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBACK], 1.78, 72, 22.5, 0.8);
-	RenderMeshOnScreen(meshList[GEO_BOSSHEALTH], bossHealthTranslate, 72, bossHealthScale, 0.8);
-	RenderTextOnScreen(meshList[GEO_TEXT], "Chieftain:" + to_string(boss.getHealth()) + "/1000", Color(1.0f, 1.0f, 1.0f), 2, 12, 28.8);
+	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBAR], 1.6f, 3.2f, 25.f, 18.f);
+	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBACK], 1.78f, 72.f, 22.5f, 0.8f);
+	RenderMeshOnScreen(meshList[GEO_BOSSHEALTH], bossHealthTranslate, 72.f, bossHealthScale, 0.8f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Chieftain:" + to_string(boss.getHealth()) + "/1000", Color(1.0f, 1.0f, 1.0f), 2.f, 12.f, 28.8f);
 }
 
 void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
@@ -1900,8 +1890,8 @@ void SceneBoss::RenderBullets()
 
 void SceneBoss::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0.f, 1.f, 1.f), 5.f, 8.3f, 6.1f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1.f, 0.f, 0.f), hitmarkerSize, 8.3f, 6.1f);
 }
 
 void SceneBoss::Exit()

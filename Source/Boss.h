@@ -37,9 +37,9 @@ private:
 	double bossChargeTime;
 
 	//Collision for mob
-	double prevPosX;
-	double prevPosY;
-	double prevPosZ;
+	float prevPosX;
+	float prevPosY;
+	float prevPosZ;
 	bool _collidedX;
 	bool _collidedY;
 	bool _collidedZ;
