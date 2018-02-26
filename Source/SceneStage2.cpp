@@ -49,12 +49,8 @@ void SceneStage2::Init()
 	monsterTime = elaspeTime + 3.0;
 	hitmarkerSize = 0;
 	bulletBounceTime = 0.0;
-	LoadingTimer = 0;
 	playerHurtBounceTime = 0.0;
 	//Sizes
-	sizeDotOne = 0;
-	sizeDotTwo = 0;
-	sizeDotThree = 0;
 	interactionSize = 0;
 	//counter
 	monDead = 0;
@@ -85,6 +81,7 @@ void SceneStage2::Init()
 	objectiveOne = false;
 	objectiveTwo = false;
 	objectiveThree = false;
+	objectiveFour = false;
 
 
 	//INIT monsters
@@ -428,7 +425,9 @@ void SceneStage2::Init()
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
 
-	//Monsters
+	//Objective Indicator
+	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
+	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
 
 	for (int i = 0; i < 25; i++)
 	{
@@ -526,27 +525,6 @@ void SceneStage2::Update(double dt)
 	UpdateCollision();
 
 	UpdateObjective();
-	
-	if (LoadingTimer > 0)
-	{
-		LoadingTimer -= 1;
-		if (LoadingTimer < 90)
-		{
-			sizeDotOne = 3;
-		}
-		if (LoadingTimer < 60)
-		{
-			sizeDotTwo = 3;
-		}
-		if (LoadingTimer < 30)
-		{
-			sizeDotThree = 3;
-		}
-		if (LoadingTimer == 0)
-		{
-			Application::sceneChange = 4;
-		}
-	}
 
 	if (gameOver)
 	{
@@ -554,6 +532,23 @@ void SceneStage2::Update(double dt)
 		player->damage = 10;
 		player->points = 0;
 		Application::sceneChange = 0;
+	}
+
+	if (movingUp == true)
+	{
+		yArrowTranslate += (float)(30 * dt);
+	}
+	if (movingUp == false)
+	{
+		yArrowTranslate -= (float)(30 * dt);
+	}
+	if (yArrowTranslate > 50)
+	{
+		movingUp = false;
+	}
+	if (yArrowTranslate < 30)
+	{
+		movingUp = true;
 	}
 }
 
@@ -575,23 +570,6 @@ void SceneStage2::UpdateObjective()
 		if (!treeLifeThree)
 		{
 			objectiveThree = true;
-		}
-	}
-	if (!nextStage && objectiveThree)
-	{
-		nextStage = true;
-		if (nextStage)
-		{
-			for (int bul = 0; bul < NO_OF_BULLETS; bul++)
-			{
-				if (bulletPtr[bul] != NULL)
-				{
-					delete bulletPtr[bul];
-					delete bulletBoxPtr[bul];
-					bulletPtr[bul] = NULL;
-					bulletBoxPtr[bul] = NULL;
-				}
-			}
 		}
 	}
 
@@ -951,11 +929,25 @@ void SceneStage2::UpdateInteractions()
 	Box flowerOfLifeOne;
 	Box treeOfLife;
 	Box healthPack;
+	Box exit;
 
 	interactionSize = 0;
 	bool inRange = false;
 	bool inPickupRange = false;
+	bool inExit = false;
 
+	if (objectiveThree)
+	{
+		exit = Box(Vector3(0, 0, -790), 1000, 26);
+	}
+	if (!inExit)
+	{
+		inExit = isNearObject(camera, exit);
+	}
+	if (inExit)
+	{
+		objectiveFour = true;
+	}
 	if (pickupsSpawn)
 	{
 		healthPack = Box(Vector3(0, pickupsY, pickupsZ), 10, 10);
@@ -966,7 +958,6 @@ void SceneStage2::UpdateInteractions()
 	}
 	if (inPickupRange)
 	{
-		LoadingTimer = 120;
 		pickupsSpawn = false;
 		player->health += 40;
 	}
@@ -1155,6 +1146,13 @@ void SceneStage2::UpdateInteractions()
 			glUniform1f(m_parameters[U_LIGHT0_POWER], light[0].power);
 		}
 	}
+
+	if (Application::IsKeyPressed('E') && inExit && objectiveFour)
+	{
+		Application::sceneChange = Application::STAGE3;
+	}
+
+
 }
 void SceneStage2::UpdatePickups()
 {
@@ -1291,6 +1289,16 @@ void SceneStage2::Render()
 	}
 	RenderMonsterBullets();
 	
+	//Exit Indicator
+	if (objectiveThree)
+	{
+		modelStack.PushMatrix();
+		modelStack.Translate(0, yArrowTranslate + 15, -910);
+		modelStack.Scale(20, 20, 20);
+		RenderMesh(meshList[GEO_ARROW], false);
+		modelStack.PopMatrix();
+	}
+
 	//Player
 	RenderBullets();
 	RenderTopTeeth();
@@ -1523,17 +1531,21 @@ void SceneStage2::RenderObj()
 	}
 	for (int i = 0; i < 1401; i += 350)
 	{
+		
 		modelStack.PushMatrix();
 		modelStack.Translate(650 - i, -10, 810);
 		modelStack.Scale(10, 30, 10);
 		RenderMesh(meshList[GEO_GRASS_LINE], true);
 		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(650 - i, -10, -810);
-		modelStack.Scale(10, 30, 10);
-		RenderMesh(meshList[GEO_GRASS_LINE], true);
-		modelStack.PopMatrix();
+		
+		if (!objectiveThree)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(650 - i, -10, -810);
+			modelStack.Scale(10, 30, 10);
+			RenderMesh(meshList[GEO_GRASS_LINE], true);
+			modelStack.PopMatrix();
+		}
 	}
 
 	//tree of LIFE
@@ -1839,14 +1851,6 @@ void SceneStage2::RenderUi()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Next Stage", Color(1, 1, 1), sizeDotOne, 17, 2);
-	RenderTextOnScreen(meshList[GEO_TEXT], "Loading", Color(1, 1, 1), sizeDotOne, 17, 1);
-	RenderTextOnScreen(meshList[GEO_TEXT], ".", Color(1, 1, 1), sizeDotOne, 24, 1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "..", Color(1, 1, 1), sizeDotTwo, 24, 1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "...", Color(1, 1, 1), sizeDotThree, 24, 1);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to", Color(1, 1, 1), interactionSize, 6, 7);
 	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
 	modelStack.PopMatrix();
@@ -1887,7 +1891,15 @@ void SceneStage2::RenderObjectives()
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0, 0, 0), 3, 10.5, 18);
 	}
+	if (objectiveThree)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Head towards the opening", Color(0, 0, 0), 3, 10.5, 18);
+	}
 	modelStack.PopMatrix();
+	if (objectiveFour)
+	{
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0, 1, 1), 2.5, 8, 5);
+	}
 }
 
 void SceneStage2::Exit()

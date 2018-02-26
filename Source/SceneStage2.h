@@ -137,6 +137,8 @@ class SceneStage2 : public Scene
 		GEO_ROCK,
 		GEO_PICKUP,
 
+		GEO_ARROW,
+
 		GEO_FODDER_BODY,
 		GEO_FODDER_HAND,
 		GEO_DODGER_BODY,
@@ -229,10 +231,6 @@ private:
 	int hitmarkerTimer;
 
 	//text size
-	int LoadingTimer;
-	int sizeDotOne;
-	int sizeDotTwo;
-	int sizeDotThree;
 	int interactionSize;
 
 	//tree and flowers logic
@@ -262,6 +260,11 @@ private:
 	bool objectiveOne;
 	bool objectiveTwo;
 	bool objectiveThree;
+	bool objectiveFour;
+
+	//indicator arrow
+	float yArrowTranslate;
+	bool movingUp;
 
 	//Monster Arrays
 	Monster *MonsterPtr[MOBNUM];
