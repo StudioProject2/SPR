@@ -482,7 +482,7 @@ void SceneBoss::Update(double dt)
 		UpdateBossHitbox();
 	}
 
-	//UpdateEnemyBullets();
+	UpdateEnemyBullets();
 	UpdateMonsterAnimations();
 	UpdateBossHealth();
 

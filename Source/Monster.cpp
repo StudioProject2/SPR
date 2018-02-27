@@ -187,8 +187,8 @@ void Monster::boundsCheckStage1()
 
 		do
 		{
-			spawnPtX = (rand() % 1400 - 700) + 1.0;
-			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+			spawnPtX = (rand() % 1400 - 700) + 1.0f;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0f;
 
 			pos = Vector3(spawnPtX, 0, spawnPtZ);
 			dirChanger = 0;
@@ -247,8 +247,8 @@ void Monster::boundsCheckStage2()
 
 		do
 		{
-			spawnPtX = (rand() % 1400 - 700) + 1.0;
-			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+			spawnPtX = (rand() % 1400 - 700) + 1.0f;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0f;
 
 			pos = Vector3(spawnPtX, 0, spawnPtZ);
 			dirChanger = 0;
@@ -310,8 +310,8 @@ void Monster::boundsCheckStage3()
 
 		do
 		{
-			spawnPtX = (rand() % 1400 - 700) + 1.0;
-			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+			spawnPtX = (rand() % 1400 - 700) + 1.0f;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0f;
 
 			pos = Vector3(spawnPtX, 0, spawnPtZ);
 			dirChanger = 0;
@@ -387,8 +387,8 @@ void Monster::boundsCheckBoss()
 
 		do
 		{
-			spawnPtX = (rand() % 1400 - 700) + 1.0;
-			spawnPtZ = (rand() % 1400 - 700) + 1.0;
+			spawnPtX = (rand() % 1400 - 700) + 1.0f;
+			spawnPtZ = (rand() % 1400 - 700) + 1.0f;
 
 			pos = Vector3(spawnPtX, 0, spawnPtZ);
 			dirChanger = 0;
