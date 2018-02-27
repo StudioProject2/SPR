@@ -451,106 +451,32 @@ void SceneBoss::Update(double dt)
 	elaspeTime += dt;
 	start.isShooting = true;
 
+	if (win)
+	{
+		Application::sceneChange = Application::WIN;
+	}
+	if (gameOver)
+	{
+		Application::sceneChange = Application::LOSE;
+	}
 	UpdateBullets();
 
-	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
-
-	if (boss.getHealth() <= 500 && !win && !gameOver)
+	if (boss.getHealth() <= 500 && !gameOver)//Spawn and update monsters only when boss is below 500hp and player didn't lose
 	{
 		UpdateMonsters();
-		UpdateMonsterBullets();
+		UpdateCreateMonsterBullets();
 		UpdateMonsterHitbox();
 	}
-	if (boss.getHealth() > 0 && !win && !gameOver)
+	if (boss.getHealth() > 0 && !gameOver)
 	{
 		UpdateBossMovement();
 		UpdateBossBullets();
 		UpdateBossHitbox();
 	}
-	if (!win && !gameOver)
-	{
-		UpdateMonsterAnimations();
-	}
-	
+
+	UpdateEnemyBullets();
+	UpdateMonsterAnimations();
 	UpdateBossHealth();
-
-	for (int i = 0; i < DIRECTBULLETNUM; i++)
-	{
-		if (directBulletPtr[i] != NULL)
-		{
-			directBulletPtr[i]->move();
-			if (directBulletPtr[i]->isBulletInBox(playerBox))
-			{
-				player->health -= DIRECTBULLETDMG;
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/dinosaurHiss.wav", false);
-				}
-				delete directBulletPtr[i];
-				directBulletPtr[i] = NULL;
-			}
-			if (directBulletPtr[i] != NULL)
-			{
-				if (directBulletPtr[i]->bulletCollideStage4())
-				{
-					delete directBulletPtr[i];
-					directBulletPtr[i] = NULL;
-				}
-			}
-		}
-	}
-
-	for (int i = 0; i < RINGBULLETNUM; i++)
-	{
-		if (ringBulletPtr[i] != NULL)
-		{
-			ringBulletPtr[i]->move();
-			if (ringBulletPtr[i]->isBulletInBox(playerBox))
-			{
-				player->health -= RINGBULLETDMG;
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/dinosaurHiss.wav", false);
-				}
-				delete ringBulletPtr[i];
-				ringBulletPtr[i] = NULL;
-			}
-			if (ringBulletPtr[i] != NULL)
-			{
-				if (ringBulletPtr[i]->bulletCollide())
-				{
-					delete ringBulletPtr[i];
-					ringBulletPtr[i] = NULL;
-				}
-			}
-		}
-	}
-
-	for (int i = 0; i < GROUNDBULLETNUM; i++)
-	{
-		if (groundBulletPtr[i] != NULL)
-		{
-			groundBulletPtr[i]->move();
-			if (groundBulletPtr[i]->isBulletInBox(playerBox))
-			{
-				player->health -= GROUNDBULLETDMG;
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/dinosaurHiss.wav", false);
-				}
-				delete groundBulletPtr[i];
-				groundBulletPtr[i] = NULL;
-			}
-			if (groundBulletPtr[i] != NULL)
-			{
-				if (groundBulletPtr[i]->bulletCollide())
-				{
-					delete groundBulletPtr[i];
-					groundBulletPtr[i] = NULL;
-				}
-			}
-		}
-	}
 
 	if (player->health <= 0)
 	{
@@ -578,6 +504,7 @@ void SceneBoss::Update(double dt)
 	camera.Update(dt);
 }
 
+//UPDATE PLAYER BULLET
 void SceneBoss::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -600,59 +527,18 @@ void SceneBoss::UpdateBullets()
 	}
 }
 
-void SceneBoss::UpdateMonsterBullets()
+//CREATE BULLETS
+void SceneBoss::UpdateCreateMonsterBullets()
 {
-
-	for (int i = 0; i < MOBNUM; i++)
-	{
-		if (MonsterPtr[i] != NULL)
-		{
-			for (int j = 0; j < RINGBULLETNUM; j++)
-			{
-				if (elaspeTime > monsterBulletDelay[i] && ringBulletPtr[j] == NULL && i == 0)
-				{
-					if (ringBulletPtr[j + 1] == NULL
-					&& ringBulletPtr[j + 2] == NULL
-					&& ringBulletPtr[j + 3] == NULL
-					&& ringBulletPtr[j + 4] == NULL
-					&& ringBulletPtr[j + 5] == NULL
-					&& ringBulletPtr[j + 6] == NULL
-					&& ringBulletPtr[j + 7] == NULL)
-					{
-						Vector3 bullet1 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
-						Vector3 bullet2 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
-						Vector3 bullet3 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z);
-						Vector3 bullet4 = Vector3(MonsterPtr[i]->pos.x, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
-						Vector3 bullet5 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
-						Vector3 bullet6 = Vector3(MonsterPtr[i]->pos.x - 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z + 1);
-						Vector3 bullet7 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
-						Vector3 bullet8 = Vector3(MonsterPtr[i]->pos.x + 1, MonsterPtr[i]->pos.y, MonsterPtr[i]->pos.z - 1);
-
-						ringBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, bullet1);
-						ringBulletPtr[j + 1] = new monsterBullet(MonsterPtr[i]->pos, bullet2);
-						ringBulletPtr[j + 2] = new monsterBullet(MonsterPtr[i]->pos, bullet3);
-						ringBulletPtr[j + 3] = new monsterBullet(MonsterPtr[i]->pos, bullet4);
-						ringBulletPtr[j + 4] = new monsterBullet(MonsterPtr[i]->pos, bullet5);
-						ringBulletPtr[j + 5] = new monsterBullet(MonsterPtr[i]->pos, bullet6);
-						ringBulletPtr[j + 6] = new monsterBullet(MonsterPtr[i]->pos, bullet7);
-						ringBulletPtr[j + 7] = new monsterBullet(MonsterPtr[i]->pos, bullet8);
-
-						monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
-						return;
-					}
-				}
-			}
-		}
-	}
-
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
 			for (int j = 0; j < DIRECTBULLETNUM; j++)
 			{
-				if (elaspeTime > monsterBulletDelay[i] && directBulletPtr[j] == NULL && i != 0)
+				if (elaspeTime > monsterBulletDelay[i] && directBulletPtr[j] == NULL)
 				{
+					//Create bullet and reset bounce time
 					directBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
 					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
@@ -670,6 +556,7 @@ void SceneBoss::UpdateMonsterBullets()
 			{
 				if (elaspeTime > monsterArcherBulletDelay[i] && directBulletPtr[j] == NULL)
 				{
+					//Create bullet and reset bounce time
 					directBulletPtr[j] = new monsterBullet(MonsterArcherPtr[i]->pos, camera.position);
 					monsterArcherBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
 					return;
@@ -679,6 +566,7 @@ void SceneBoss::UpdateMonsterBullets()
 	}
 }
 
+//CREATE MONSTERS, MOVE IT IF IT EXISTS AND UPDATE HITBOX FOR MONSTER
 void SceneBoss::UpdateMonsters()
 {
 	//MonsterNormal
@@ -799,21 +687,23 @@ void SceneBoss::UpdateMonsters()
 
 }
 
+//CHANGES STATE OF BOSS AND MOVE IT BASED ON THAT STATE
 void SceneBoss::UpdateBossMovement()
 {
-	if (elaspeTime > bossMovementChangeTime)
+	if (elaspeTime > bossMovementChangeTime) //Bounce time of 15s
 	{
-		if (bossMovement == CHARGE)
+		if (bossMovement == CHARGE) //Reset to first state if boss is at last state
 		{
 			bossMovement = STRAIGHT;
 		}
 		else
 		{
+			//Reset boss y position and change its state
 			boss.resetY();
 			bossMovement++;
 		}
-		boss.resetVariables();
-		bossMovementChangeTime = elaspeTime + 15.0;
+		boss.resetVariables(); //Reset variables for boss
+		bossMovementChangeTime = elaspeTime + 15.0; //Reset bounce time
 	}
 
 	if (bossMovement == STRAIGHT)
@@ -834,11 +724,12 @@ void SceneBoss::UpdateBossMovement()
 	}
 }
 
+//UPDATES BOSS HITBOX AND CHECKS FOR COLLISIONS
 void SceneBoss::UpdateBossHitbox()
 {
 	bool isHit = false;
 	hitmarkerSize = 0;
-	*bossBox = Box(Vector3(boss.getPos()), 10, 10, 25);
+	*bossBox = Box(Vector3(boss.getPos()), 10, 10, 25); //Update hitbox for boss
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
@@ -860,6 +751,7 @@ void SceneBoss::UpdateBossHitbox()
 		boss.setHealth(boss.getHealth() - 1);
 		hitmarkerTimer = 50;
 	}
+
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -867,6 +759,7 @@ void SceneBoss::UpdateBossHitbox()
 	}
 }
 
+//CREATE BULLETS, MOVE IT IF IT EXISTS AND CHECK FOR COLLISIONS
 void SceneBoss::UpdateBossBullets()
 {
 	if (elaspeTime > bossPlayerShootTime && bossMovement != ASCEND) //shoot at player
@@ -875,6 +768,7 @@ void SceneBoss::UpdateBossBullets()
 		{
 			if (directBulletPtr[i] == NULL)
 			{
+				//Create bullet, reset bounce time
 				directBulletPtr[i] = new monsterBullet(boss.getPos(), camera.position);
 				bossPlayerShootTime = elaspeTime + 2.0;
 				return;
@@ -895,6 +789,7 @@ void SceneBoss::UpdateBossBullets()
 				&& ringBulletPtr[i + 6] == NULL
 				&& ringBulletPtr[i + 7] == NULL)
 			{
+				//Create bullet targets
 				Vector3 bullet1 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z);
 				Vector3 bullet2 = Vector3(boss.getPos().x, boss.getPos().y, boss.getPos().z + 1);
 				Vector3 bullet3 = Vector3(boss.getPos().x - 1, boss.getPos().y, boss.getPos().z);
@@ -904,6 +799,7 @@ void SceneBoss::UpdateBossBullets()
 				Vector3 bullet7 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z - 1);
 				Vector3 bullet8 = Vector3(boss.getPos().x + 1, boss.getPos().y, boss.getPos().z - 1);
 
+				//Create bullets
 				ringBulletPtr[i] = new monsterBullet(boss.getPos(), bullet1);
 				ringBulletPtr[i + 1] = new monsterBullet(boss.getPos(), bullet2);
 				ringBulletPtr[i + 2] = new monsterBullet(boss.getPos(), bullet3);
@@ -913,6 +809,7 @@ void SceneBoss::UpdateBossBullets()
 				ringBulletPtr[i + 6] = new monsterBullet(boss.getPos(), bullet7);
 				ringBulletPtr[i + 7] = new monsterBullet(boss.getPos(), bullet8);
 
+				//Reset bounce time
 				bossRingShootTime = elaspeTime + 1.0;
 				return;
 			}
@@ -921,6 +818,7 @@ void SceneBoss::UpdateBossBullets()
 
 	if (elaspeTime > bossChangeGroundTargetTime)
 	{
+		//Change ground area center
 		groundAreaCenter = Vector3(((float)(rand() % 500) - 250), 0, ((float)(rand() % 1700) - 850));
 		bossChangeGroundTargetTime = elaspeTime + 7.0;
 		bossGroundAttackDelayTime = elaspeTime + 2.0;
@@ -930,6 +828,7 @@ void SceneBoss::UpdateBossBullets()
 	{
 		if (groundAreaCenter != NULL)
 		{
+			//Set position and target for bullet
 			float randomGroundBulletX = ((rand() % 201) - 100 + groundAreaCenter.x);
 			float randomGroundBulletZ = ((rand() % 201) - 100 + groundAreaCenter.z);
 			Vector3 randomGroundBullet = Vector3(randomGroundBulletX, -5, randomGroundBulletZ);
@@ -939,6 +838,7 @@ void SceneBoss::UpdateBossBullets()
 			{
 				if (groundBulletPtr[i] == NULL)
 				{
+					//Create bullet
 					groundBulletPtr[i] = new monsterBullet(randomGroundBullet, randomGroundBulletTarget);
 					return;
 				}
@@ -947,12 +847,99 @@ void SceneBoss::UpdateBossBullets()
 	}
 }
 
+//UPDATE BOSS HEALTH BAR BASED ON BOSS HEALTH
 void SceneBoss::UpdateBossHealth()
 {
+	//Scale and translate boss health bar
 	bossHealthScale = (float)boss.getHealth() / 44.4f;
 	bossHealthTranslate = ((40.f - ((1000.f - (float)boss.getHealth()) / 45.f)) / bossHealthScale);
 }
 
+//UPDATE MONSTER BULLETS, UPDATE PLAYER HITBOX, MOVE BULLET AND CHECK FOR COLLISIONS
+void SceneBoss::UpdateEnemyBullets()
+{
+	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 7, 7, 10);
+
+	for (int i = 0; i < DIRECTBULLETNUM; i++)
+	{
+		if (directBulletPtr[i] != NULL)
+		{
+			directBulletPtr[i]->move();
+			if (directBulletPtr[i]->isBulletInBox(playerBox))
+			{
+				player->health -= DIRECTBULLETDMG;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
+				delete directBulletPtr[i];
+				directBulletPtr[i] = NULL;
+			}
+			if (directBulletPtr[i] != NULL)
+			{
+				if (directBulletPtr[i]->bulletCollideStage4())
+				{
+					delete directBulletPtr[i];
+					directBulletPtr[i] = NULL;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < RINGBULLETNUM; i++)
+	{
+		if (ringBulletPtr[i] != NULL)
+		{
+			ringBulletPtr[i]->move();
+			if (ringBulletPtr[i]->isBulletInBox(playerBox))
+			{
+				player->health -= RINGBULLETDMG;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
+				delete ringBulletPtr[i];
+				ringBulletPtr[i] = NULL;
+			}
+			if (ringBulletPtr[i] != NULL)
+			{
+				if (ringBulletPtr[i]->bulletCollide())
+				{
+					delete ringBulletPtr[i];
+					ringBulletPtr[i] = NULL;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < GROUNDBULLETNUM; i++)
+	{
+		if (groundBulletPtr[i] != NULL)
+		{
+			groundBulletPtr[i]->move();
+			if (groundBulletPtr[i]->isBulletInBox(playerBox))
+			{
+				player->health -= GROUNDBULLETDMG;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
+				delete groundBulletPtr[i];
+				groundBulletPtr[i] = NULL;
+			}
+			if (groundBulletPtr[i] != NULL)
+			{
+				if (groundBulletPtr[i]->bulletCollide())
+				{
+					delete groundBulletPtr[i];
+					groundBulletPtr[i] = NULL;
+				}
+			}
+		}
+	}
+}
+
+//CHECK FOR COLLISION
 void SceneBoss::UpdateMonsterHitbox()
 {
 	bool isHit = false;
@@ -1062,6 +1049,7 @@ void SceneBoss::UpdateMonsterHitbox()
 	}
 }
 
+//ANIMATION
 void SceneBoss::UpdateMonsterAnimations()
 {
 	if (!fodLeft)
@@ -1172,6 +1160,7 @@ void SceneBoss::UpdateMonsterAnimations()
 	}
 }
 
+//RENDERS
 void SceneBoss::Render()
 {
 	//Clear color & depth buffer every frame
@@ -1657,16 +1646,6 @@ void SceneBoss::Render()
 	RenderPlayerHealth();
 	RenderBossHealth();
 	RenderHitmarker();
-
-	if (gameOver)
-	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
-	}
-
-	if (win)
-	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "YOU WON!", Color(1, 1, 1), 5, 4, 5);
-	}
 }
 
 void SceneBoss::RenderTopTeeth()
@@ -1712,11 +1691,10 @@ void SceneBoss::RenderBottomTeeth()
 	modelStack.PopMatrix();
 
 }
-
 void SceneBoss::RenderPlayerHealth()
 {
-	int vertical = player->health / 50;
-	int horizontal = (player->health - (vertical * 50)) / 10;
+	int vertical = player->health / 50; //Amount of rows (since vertical is int, it will be rounded down)
+	int horizontal = (player->health - (vertical * 50)) / 10; //Amount of hearts on the last line
 
 	for (int i = 0; i < vertical; i++)
 	{
@@ -1730,13 +1708,30 @@ void SceneBoss::RenderPlayerHealth()
 		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (i * 4.3f), 48.f - (vertical * 4.f), 1.f, 1.f);
 	}
 }
-
 void SceneBoss::RenderBossHealth()
 {
 	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBAR], 1.6f, 3.2f, 25.f, 18.f);
 	RenderMeshOnScreen(meshList[GEO_BOSSHEALTHBACK], 1.78f, 72.f, 22.5f, 0.8f);
 	RenderMeshOnScreen(meshList[GEO_BOSSHEALTH], bossHealthTranslate, 72.f, bossHealthScale, 0.8f);
 	RenderTextOnScreen(meshList[GEO_TEXT], "Chieftain:" + to_string(boss.getHealth()) + "/1000", Color(1.0f, 1.0f, 1.0f), 2.f, 12.f, 28.8f);
+}
+void SceneBoss::RenderBullets()
+{
+	for (int i = 0; i < NO_OF_BULLETS; i++)
+	{
+		if (bulletPtr[i] != NULL)
+		{
+			modelStack.PushMatrix();
+			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
+			RenderMesh(meshList[GEO_BULLETS], false);
+			modelStack.PopMatrix();
+		}
+	}
+}
+void SceneBoss::RenderHitmarker()
+{
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0.f, 1.f, 1.f), 5.f, 8.3f, 6.1f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1.f, 0.f, 0.f), hitmarkerSize, 8.3f, 6.1f);
 }
 
 void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
@@ -1783,7 +1778,6 @@ void SceneBoss::RenderMesh(Mesh *mesh, bool enableLight)
 	}
 
 }
-
 void SceneBoss::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -1810,7 +1804,6 @@ void SceneBoss::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
 void SceneBoss::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
@@ -1854,7 +1847,6 @@ void SceneBoss::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, fl
 
 	glEnable(GL_DEPTH_TEST);
 }
-
 void SceneBoss::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);
@@ -1873,26 +1865,6 @@ void SceneBoss::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, fl
 	viewStack.PopMatrix();
 	modelStack.PopMatrix();
 	glEnable(GL_DEPTH_TEST);
-}
-
-void SceneBoss::RenderBullets()
-{
-	for (int i = 0; i < NO_OF_BULLETS; i++)
-	{
-		if (bulletPtr[i] != NULL)
-		{
-			modelStack.PushMatrix();
-			modelStack.Translate(bulletPtr[i]->throws.x, bulletPtr[i]->throws.y, bulletPtr[i]->throws.z);
-			RenderMesh(meshList[GEO_BULLETS], false);
-			modelStack.PopMatrix();
-		}
-	}
-}
-
-void SceneBoss::RenderHitmarker()
-{
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0.f, 1.f, 1.f), 5.f, 8.3f, 6.1f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1.f, 0.f, 0.f), hitmarkerSize, 8.3f, 6.1f);
 }
 
 void SceneBoss::Exit()

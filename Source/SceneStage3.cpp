@@ -423,7 +423,7 @@ void SceneStage3::Init()
 	monsterSpawnDelay3 = 0;
 	monsterSpawnDelay4 = 0;
 
-	initialObjectiveTime = 2.0;
+	initialObjectiveTime = 5.0;
 	monstersLeft = 0;
 	hutsBurned = 0;
 
@@ -1776,7 +1776,7 @@ void SceneStage3::Render()
 
 	if (elaspeTime < initialObjectiveTime)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(0.0f, 1.0f, 0.0f), 4.f, 5.f, 7.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(1.0f, 0.0f, 0.0f), 4.f, 5.f, 7.f);
 	}
 
 	if (gameOver)
@@ -1860,22 +1860,22 @@ void SceneStage3::RenderNearHut()
 void SceneStage3::RenderObjectives()
 {
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0.f, 1.f, 0.f), 2.f, 34.f, 28.f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0.f, 1.f, 0.f), 2.f, 32.f, 27.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0.f, 1.f, 0.f), 2.f, 34.f, 25.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0.f, 1.f, 0.f), 2.f, 32.f, 24.f);
 	if (hutsBurned != 4)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Burn the huts", Color(0.f, 1.f, 0.f), 2.f, 31.f, 26.f);
-		RenderTextOnScreen(meshList[GEO_TEXT], "Huts burned:" + to_string(hutsBurned) + "/4", Color(0.f, 1.f, 0.f), 2.f, 30.f, 25.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Burn the huts", Color(0.f, 1.f, 0.f), 2.f, 31.f, 23.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Huts burned:" + to_string(hutsBurned) + "/4", Color(0.f, 1.f, 0.f), 2.f, 30.f, 22.f);
 	}
 	else if (monstersLeft != 0)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Kill all humans", Color(0.f, 1.f, 0.f), 2.f, 30.f, 26.f);
-		RenderTextOnScreen(meshList[GEO_TEXT], "Humans left:" + to_string(monstersLeft), Color(0.f, 1.f, 0.f), 2.f, 30.f, 25.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Kill all humans", Color(0.f, 1.f, 0.f), 2.f, 30.f, 23.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Humans left:" + to_string(monstersLeft), Color(0.f, 1.f, 0.f), 2.f, 30.f, 22.f);
 	}
 	else
 	{
-	RenderTextOnScreen(meshList[GEO_TEXT], "Go further in the village", Color(0.f, 1.f, 0.f), 2.f, 28.f, 26.f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "And find the Chief!", Color(0.f, 1.f, 0.f), 2.f, 28.f, 25.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Go further in the village", Color(0.f, 1.f, 0.f), 2.f, 28.f, 23.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "And find the Chief!", Color(0.f, 1.f, 0.f), 2.f, 28.f, 22.f);
 	}
 
 }
