@@ -54,5 +54,17 @@ struct Box
 		minZ = position.z - sizeZ;
 		maxZ = position.z + sizeZ;
 	}
+
+	Box(Vector3 _position, float yOffset, float sizeX, float sizeZ, float sizeY)
+	{
+		position = _position;
+		minX = position.x - sizeX;
+		maxX = position.x + sizeX;
+		minY = yOffset - sizeY;
+		maxY = yOffset + sizeY;
+		minZ = position.z - sizeZ;
+		maxZ = position.z + sizeZ;
+	}
+
 };
 #endif

@@ -482,7 +482,7 @@ void SceneBoss::Update(double dt)
 		UpdateBossHitbox();
 	}
 
-	UpdateEnemyBullets();
+	//UpdateEnemyBullets();
 	UpdateMonsterAnimations();
 	UpdateBossHealth();
 
@@ -586,7 +586,7 @@ void SceneBoss::UpdateMonsters()
 			if (MonsterPtr[i] == NULL)
 			{
 				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 				monsterTime = elaspeTime + 5.0;
 				break;
 			}
@@ -598,7 +598,7 @@ void SceneBoss::UpdateMonsters()
 		if (MonsterPtr[i] != NULL)
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -663,7 +663,7 @@ void SceneBoss::UpdateMonsters()
 			if (MonsterArcherPtr[i] == NULL)
 			{
 				MonsterArcherPtr[i] = new MonsterArcher();
-				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, MOB_SIZE, 30, MOB_SIZE);
+				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 				monsterArcherTime = elaspeTime + 5.0;
 				break;
 			}
@@ -674,8 +674,7 @@ void SceneBoss::UpdateMonsters()
 		if (MonsterArcherPtr[i] != NULL)
 		{
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, 30, MOB_SIZE);
-			monsterArcherBoxPtr[i]->position.y + 10; //Hitbox Offset
+			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 

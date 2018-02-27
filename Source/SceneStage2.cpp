@@ -738,7 +738,7 @@ void SceneStage2::UpdateMonsters()
 			if (MonsterPtr[i] == NULL)
 			{
 				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, 10, 10, 30);
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, 7, 10, 10, 15);
 				monsterTime = elaspeTime + 3.0;
 				break;
 			}
@@ -749,7 +749,7 @@ void SceneStage2::UpdateMonsters()
 		if (MonsterPtr[i] != NULL)
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 10, 10, 12);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 7, 10, 10, 15);
 		}
 	}
 	for (int i = 0; i < MOBNUM2; i++)

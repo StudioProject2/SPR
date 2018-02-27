@@ -462,7 +462,7 @@ void SceneStage3::Update(double dt)
 
 	UpdateBullets();
 	UpdateMonsters();
-	UpdateMonsterBullets();
+	//UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 	UpdateInteractions();
 	UpdateMonsterAnimations();
@@ -611,9 +611,9 @@ void SceneStage3::UpdateMonsters()
 	if (monsterSpawnDelay1 != 0 && elaspeTime > monsterSpawnDelay1)
 	{
 		MonsterPtr[0] = new Monster(Vector3(100, 0, 93));
-		monsterBoxPtr[0] = new Box(MonsterPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[0] = new Box(MonsterPtr[0]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[1] = new Monster(Vector3(290, 0, -85));
-		monsterBoxPtr[1] = new Box(MonsterPtr[1]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[1] = new Box(MonsterPtr[1]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[0] = new MonsterFodder(Vector3(272, 0, -80));
 		monsterFodderBoxPtr[0] = new Box(MonsterFodderPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[1] = new MonsterFodder(Vector3(120, 0, 90));
@@ -621,18 +621,18 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[2] = new MonsterFodder(Vector3(115, 0, 100));
 		monsterFodderBoxPtr[2] = new Box(MonsterFodderPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[0] = new MonsterArcher(Vector3(101, 0, -100));
-		monsterArcherBoxPtr[0] = new Box(MonsterArcherPtr[0]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[0] = new Box(MonsterArcherPtr[0]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[1] = new MonsterArcher(Vector3(295, 0, -80));
-		monsterArcherBoxPtr[1] = new Box(MonsterArcherPtr[1]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[1] = new Box(MonsterArcherPtr[1]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay1 = 0;
 	}
 
 	if (monsterSpawnDelay2 != 0 && elaspeTime > monsterSpawnDelay2)
 	{
 		MonsterPtr[2] = new Monster(Vector3(280, 0, 280));
-		monsterBoxPtr[2] = new Box(MonsterPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[2] = new Box(MonsterPtr[2]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[3] = new Monster(Vector3(100, 0, 293));
-		monsterBoxPtr[3] = new Box(MonsterPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[3] = new Box(MonsterPtr[3]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[3] = new MonsterFodder(Vector3(272, 0, 125));
 		monsterFodderBoxPtr[3] = new Box(MonsterFodderPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[4] = new MonsterFodder(Vector3(120, 0, 290));
@@ -640,18 +640,18 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[5] = new MonsterFodder(Vector3(115, 0, 300));
 		monsterFodderBoxPtr[5] = new Box(MonsterFodderPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[2] = new MonsterArcher(Vector3(101, 0, 100));
-		monsterArcherBoxPtr[2] = new Box(MonsterArcherPtr[2]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[2] = new Box(MonsterArcherPtr[2]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[3] = new MonsterArcher(Vector3(285, 0, 295));
-		monsterArcherBoxPtr[3] = new Box(MonsterArcherPtr[3]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[3] = new Box(MonsterArcherPtr[3]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay2 = 0;
 	}
 
 	if (monsterSpawnDelay3 != 0 && elaspeTime > monsterSpawnDelay3)
 	{
 		MonsterPtr[4] = new Monster(Vector3(-300, 0, 93));
-		monsterBoxPtr[4] = new Box(MonsterPtr[4]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[4] = new Box(MonsterPtr[4]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[5] = new Monster(Vector3(-110, 0, -85));
-		monsterBoxPtr[5] = new Box(MonsterPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[5] = new Box(MonsterPtr[5]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[6] = new MonsterFodder(Vector3(-128, 0, -80));
 		monsterFodderBoxPtr[6] = new Box(MonsterFodderPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[7] = new MonsterFodder(Vector3(-280, 0, 90));
@@ -659,18 +659,18 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[8] = new MonsterFodder(Vector3(-295, 0, 100));
 		monsterFodderBoxPtr[8] = new Box(MonsterFodderPtr[8]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[4] = new MonsterArcher(Vector3(-299, 0, -100));
-		monsterArcherBoxPtr[4] = new Box(MonsterArcherPtr[4]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[4] = new Box(MonsterArcherPtr[4]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[5] = new MonsterArcher(Vector3(-105, 0, -80));
-		monsterArcherBoxPtr[5] = new Box(MonsterArcherPtr[5]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[5] = new Box(MonsterArcherPtr[5]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay3 = 0;
 	}
 
 	if (monsterSpawnDelay4 != 0 && elaspeTime > monsterSpawnDelay4)
 	{
 		MonsterPtr[6] = new Monster(Vector3(-300, 0, 280));
-		monsterBoxPtr[6] = new Box(MonsterPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[6] = new Box(MonsterPtr[6]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[7] = new Monster(Vector3(-110, 0, 115));
-		monsterBoxPtr[7] = new Box(MonsterPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[7] = new Box(MonsterPtr[7]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[9] = new MonsterFodder(Vector3(-128, 0, 110));
 		monsterFodderBoxPtr[9] = new Box(MonsterFodderPtr[9]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[10] = new MonsterFodder(Vector3(-280, 0, 295));
@@ -678,18 +678,19 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[11] = new MonsterFodder(Vector3(-295, 0, 100));
 		monsterFodderBoxPtr[11] = new Box(MonsterFodderPtr[11]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[6] = new MonsterArcher(Vector3(-299, 0, 300));
-		monsterArcherBoxPtr[6] = new Box(MonsterArcherPtr[6]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[6] = new Box(MonsterArcherPtr[6]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[7] = new MonsterArcher(Vector3(-105, 0, 120));
-		monsterArcherBoxPtr[7] = new Box(MonsterArcherPtr[7]->pos, MOB_SIZE, 30, MOB_SIZE);
+		monsterArcherBoxPtr[7] = new Box(MonsterArcherPtr[7]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay4 = 0;
 	}
 
+	//Monster
 	for (int i = 0; i < MOBNUM3; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -739,8 +740,7 @@ void SceneStage3::UpdateMonsters()
 		if (MonsterArcherPtr[i] != NULL)
 		{
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, 30, MOB_SIZE);
-			monsterArcherBoxPtr[i]->position.y += 10; //Offset
+			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -1547,6 +1547,12 @@ void SceneStage3::Render()
 				aRot = 180 - rotation;
 			else
 				aRot = rotation;
+
+			modelStack.PushMatrix();
+			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y + 7, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Scale(10.f, 15.f, 10.f);
+			RenderMesh(meshList[GEO_CUBE2], true);
+			modelStack.PopMatrix();
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y + 13, (*MonsterArcherPtr[i]).pos.z);
