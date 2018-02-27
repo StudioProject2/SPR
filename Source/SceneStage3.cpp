@@ -1540,12 +1540,12 @@ void SceneStage3::Render()
 				aRot = rotation;
 
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y - 10, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y + 13, (*MonsterArcherPtr[i]).pos.z);
 			modelStack.Rotate(aRot + 90.f, 0.f, 1.f, 0.f);
 			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_ARCHER_BODY], true);
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 4.3f);
+			modelStack.Translate(0.f, -2.1f, 2.0f);
 			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 			modelStack.Translate(0.f, 2.f, 0.f);
 			modelStack.Rotate(80.f, 0.f, 0.f, 1.f);
@@ -1560,14 +1560,14 @@ void SceneStage3::Render()
 			modelStack.PopMatrix();
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, -0.05f);
+			modelStack.Translate(0.f, -2.8f, -2.15f);
 			modelStack.Translate(0.f, 1.5f, 0.f);
 			modelStack.Rotate(archerLegSwing + 340.f, 0.f, 0.f, 1.f);
-			modelStack.Translate(0.f, -1.5f, 0.f);
+			modelStack.Translate(0.f, -1.f, 0.f);
 			RenderMesh(meshList[GEO_ARCHER_LEG], true);
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 4.3f);
+			modelStack.Translate(0.f, -2.3f, 2.15f);
 			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 			modelStack.Translate(0.f, 1.5f, 0.f);
 			modelStack.Rotate(archerLegSwing - 20.f, 0.f, 0.f, 1.f);
