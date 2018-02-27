@@ -65,8 +65,7 @@ bool monsterBullet::bulletCollide()
 
 bool monsterBullet::bulletCollideStage1()
 {
-	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800
-		)
+	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800)
 	{
 		return true;
 	}
@@ -77,8 +76,7 @@ bool monsterBullet::bulletCollideStage1()
 }
 bool monsterBullet::bulletCollideStage2()
 {
-	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800
-		)
+	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800)
 	{
 		return true;
 	}

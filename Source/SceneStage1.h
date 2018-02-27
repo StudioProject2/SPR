@@ -212,7 +212,9 @@ private:
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
-	double fodderArmSwing;
+	float fodderArmSwing;
+	float fRot;
+	float dRot;
 	
 	//Arrow
 	float yArrowTranslate;

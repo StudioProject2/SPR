@@ -165,7 +165,6 @@ void Application::Run()
 		if (Application::sceneChange == MAINMENU && elaspedTime > sceneChangeDelay)
 		{
 			sceneMenu->Init();
-			ShowCursor(true);
 			scene = sceneMenu;
 			whatScene = MAINMENU;
 			if (!muted && !Application::inMenu)
@@ -179,7 +178,6 @@ void Application::Run()
 		if (Application::sceneChange == LEVELMENU && elaspedTime > sceneChangeDelay)
 		{
 			sceneLevel->Init();
-			ShowCursor(true);
 			scene = sceneLevel;
 			whatScene = LEVELMENU;
 			if (!muted && !Application::inMenu)

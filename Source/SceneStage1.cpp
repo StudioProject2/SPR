@@ -740,8 +740,6 @@ void SceneStage1::Render()
 	modelStack.PopMatrix();
 
 	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
-	double fRot;
-	double dRot;
 
 	//DRAW MOBS
 	for (int i = 0; i < MOBNUM1; i++)
@@ -869,9 +867,9 @@ void SceneStage1::Render()
 	modelStack.Scale(20, 20, 20);
 	RenderMesh(meshList[GEO_CAGE], false);
 	modelStack.PushMatrix();
-	modelStack.Translate(-3.2, 0.2, 0);
+	modelStack.Translate(-3.2f, 0.2f, 0);
 	modelStack.Rotate(breakCage, 0, 0, 1);
-	modelStack.Translate(3.2, -0.2, 0);
+	modelStack.Translate(3.2f, -0.2f, 0);
 	RenderMesh(meshList[GEO_CAGEDOOR], false);
 	modelStack.PopMatrix();
 	modelStack.PopMatrix();
@@ -1057,8 +1055,8 @@ void SceneStage1::RenderBullets()
 }
 void SceneStage1::RenderHitmarker()
 {
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3, 6.1);
-	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), hitmarkerSize, 8.3, 6.1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(0, 1, 1), 5, 8.3f, 6.1f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "o", Color(1, 0, 0), (float)hitmarkerSize, 8.3f, 6.1f);
 }
 void SceneStage1::RenderTopTeeth()
 {
@@ -1071,10 +1069,10 @@ void SceneStage1::RenderTopTeeth()
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
 
-	modelStack.Translate(-1.3, 8, -17);
+	modelStack.Translate(-1.3f, 8, -17);
 	modelStack.Rotate(180, 1, 0, 0);
 	modelStack.Rotate(180, 0, 1, 0);
-	modelStack.Scale(1.5, 1, 1);
+	modelStack.Scale(1.5f, 1, 1);
 
 	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
 	projectionStack.PopMatrix();
@@ -1094,8 +1092,8 @@ void SceneStage1::RenderBottomTeeth()
 	modelStack.PushMatrix();
 	modelStack.LoadIdentity();
 
-	modelStack.Translate(1.3, -8, -17);
-	modelStack.Scale(1.5, 1, 1);
+	modelStack.Translate(1.3f, -8, -17);
+	modelStack.Scale(1.5f, 1, 1);
 
 	RenderMesh(meshList[GEO_PLAYER_TEETH], false);
 	projectionStack.PopMatrix();
@@ -1117,7 +1115,7 @@ void SceneStage1::RenderObjectives()
 	
 	if (inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2, 23);
+		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2f, 23);
 	}
 	if (mobDead < 10 && !inCage)
 	{
@@ -1138,12 +1136,12 @@ void SceneStage1::RenderPlayerHealth()
 	{
 		for (int j = 0; j < 5; j++)
 		{
-			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (j * 4.3), 48 - (i * 4), 1, 1);
+			RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (float)(j * 4.3f), 48 - (float)(i * 4), 1, 1);
 		}
 	}
 	for (int i = 0; i < horizontal; i++)
 	{
-		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5 + (i * 4.3), 48 - (vertical * 4), 1, 1);
+		RenderMeshOnScreen(meshList[GEO_PLAYERHEALTH], 2.5f + (float)(i * 4.3f), 48 - (float)(vertical * 4), 1, 1);
 	}
 }
 
