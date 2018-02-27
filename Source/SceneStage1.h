@@ -24,9 +24,8 @@ using namespace irrklang;
 
 #define NO_OF_BULLETS 20
 #define BULLET_SIZE 1
-#define MOBNUM 10
+#define MOBNUM1 10
 #define MOB_SIZE 10
-#define MOBBULLETNUM 100
 #define MOBBULLETDELAY 2.0
 
 class SceneStage1 : public Scene
@@ -104,25 +103,6 @@ class SceneStage1 : public Scene
 
 	enum GEOMETRY_TYPE
 	{
-		GEO_AXES,
-		GEO_QUAD,
-		GEO_QUAD1,
-		GEO_CUBE,
-		GEO_CIRCLE,
-		GEO_RING,
-		GEO_HEM,
-		GEO_SPHERE,
-		GEO_SPHERE1,
-		GEO_SPHERE2,
-		GEO_SPHERE3,
-		GEO_SPHERE4,
-		GEO_SPHERE5,
-		GEO_SPHERE6,
-		GEO_SPHERE7,
-		GEO_SPHERE8,
-		GEO_LIGHTBALL,
-		GEO_LIGHTBALL2,
-
 		GEO_BULLETS,
 
 		GEO_LEFT,
@@ -133,17 +113,7 @@ class SceneStage1 : public Scene
 		GEO_BACK,
 
 		GEO_FLOOR,
-		GEO_FENCE,
-		GEO_CHAIR,
 		GEO_WALL,
-		GEO_WATCHWALL,
-		GEO_TUNNEL,
-		GEO_BOMB,
-		GEO_TENT,
-		GEO_LAMP,
-		GEO_TANK,
-		GEO_WATCHTOWER,
-		GEO_GUY,
 
 		GEO_FODDER_BODY,
 		GEO_FODDER_HAND,
@@ -158,7 +128,6 @@ class SceneStage1 : public Scene
 		GEO_TEXT,
 
 		GEO_ARROW,
-
 
 		NUM_GEOMETRY,
 	};
@@ -183,12 +152,8 @@ private:
 	Camera3 camera;
 
 	double elaspeTime;
-	double tempElaspeTime;
-	double deltaTime;
 	double monsterTime;
 	double bulletBounceTime;
-
-	bool gameOver;
 
 	Light light[4];
 	void RenderMesh(Mesh *mesh, bool enableLight);
@@ -198,7 +163,6 @@ private:
 
 	void UpdateBullets();
 	void UpdateMonsters();
-	void UpdateMonsterBullets();
 	void UpdateMonsterHitbox();
 	void UpdateMonsterAnimations();
 
@@ -208,17 +172,15 @@ private:
 	int hitmarkerSize;
 	int hitmarkerTimer;
 
-	Monster *MonsterPtr[MOBNUM];
-	Box *monsterBoxPtr[MOBNUM];
-	monsterBullet *monsterBulletPtr[MOBBULLETNUM];
-	double monsterBulletDelay[MOBNUM];
+	Monster *MonsterPtr[MOBNUM1];
+	Box *monsterBoxPtr[MOBNUM1];
 	bullet *bulletPtr[NO_OF_BULLETS];
 	bullet start;
 	Box *bulletBoxPtr[NO_OF_BULLETS];
 
 	//Monster Fodder
-	Monster *MonsterFodderPtr[MOBNUM];
-	Box *monsterFodderBoxPtr[MOBNUM];
+	Monster *MonsterFodderPtr[MOBNUM1];
+	Box *monsterFodderBoxPtr[MOBNUM1];
 	double monsterFodderTime;
 
 	//MonsterCount
@@ -250,7 +212,9 @@ private:
 	//Monster Animations Logic
 	int fodSwingTimer;
 	bool fodLeft;
-	double fodderArmSwing;
+	float fodderArmSwing;
+	float fRot;
+	float dRot;
 	
 	//Arrow
 	float yArrowTranslate;
