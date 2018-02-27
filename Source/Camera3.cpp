@@ -13,6 +13,11 @@ Camera3::~Camera3()
 {
 }
 
+void Camera3::InteractionCheck()
+{
+
+}
+
 void Camera3::Init(const Vector3& pos, const Vector3& target, const Vector3& up)
 {
 	this->position = defaultPosition = pos;
@@ -486,6 +491,7 @@ void Camera3::DropDown(double dt)
 
 void Camera3::Update(double dt)
 {
+	InteractionCheck();
 	Vector3 view = (target - position).Normalized();
 	Vector3 right = view.Cross(up);
 	elaspeTime += dt;

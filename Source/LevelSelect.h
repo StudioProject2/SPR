@@ -164,9 +164,6 @@ private:
 	float rotateStar;
 	float rotateStar2;
 
-	double elaspeTime;
-	double selectTime;
-
 	//Spawner
 	bool spawn = false;
 

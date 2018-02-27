@@ -11,6 +11,9 @@
 
 using namespace std;
 
+double elaspeTime1;
+double deltaTime1;
+
 LevelSelect::LevelSelect()
 {
 
@@ -24,6 +27,8 @@ LevelSelect::~LevelSelect()
 void LevelSelect::Init()
 {
 	//Timer
+	elaspeTime1 = 0.0;
+	deltaTime1 = 0.0;
 
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -256,15 +261,14 @@ void LevelSelect::Init()
 
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
-
-	elaspeTime = 0.0;
-	selectTime = 0.0;
 }
 
 void LevelSelect::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
-	elaspeTime += dt;
+	elaspeTime1 += dt;
+	deltaTime1 = dt;
+
 	//if (Application::IsKeyPressed('1'))
 	//{
 	//	glEnable(GL_CULL_FACE);
@@ -304,18 +308,16 @@ void LevelSelect::Update(double dt)
 	double posy;
 	Application::GetMousePosition(posx, posy);
 
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	if (posx > 245 && posx < 535)
 	{
-		if (posx > 245 && posx < 535)
+		if (posy > 270 && posy < 300)
 		{
-			if (posy > 270 && posy < 300)
+			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				Application::sceneChangeDelay = Application::elaspedTime + 0.1;
 				//Level 1
-				if (!Application::muted && elaspeTime > selectTime)
+				if (!Application::muted)
 				{
 					engine->play2D("Sound/select.wav", false);
-					selectTime = elaspeTime + 0.1;
 				}
 				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE1;
@@ -328,18 +330,15 @@ void LevelSelect::Update(double dt)
 		}
 
 	}
-
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	if (posx > 245 && posx < 535)
 	{
-		if (posx > 245 && posx < 535)
+		if (posy > 340 && posy < 365)
 		{
-			if (posy > 340 && posy < 365)
+			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				Application::sceneChangeDelay = Application::elaspedTime + 0.1;
-				if (!Application::muted && elaspeTime > selectTime)
+				if (!Application::muted)
 				{
 					engine->play2D("Sound/select.wav", false);
-					selectTime = elaspeTime + 0.1;
 				}
 				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE2;
@@ -347,18 +346,15 @@ void LevelSelect::Update(double dt)
 		}
 
 	}
-
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	if (posx > 245 && posx < 565)
 	{
-		if (posx > 245 && posx < 565)
+		if (posy > 405 && posy < 435)
 		{
-			if (posy > 405 && posy < 435)
+			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				Application::sceneChangeDelay = Application::elaspedTime + 0.1;
-				if (!Application::muted && elaspeTime > selectTime)
+				if (!Application::muted)
 				{
 					engine->play2D("Sound/select.wav", false);
-					selectTime = elaspeTime + 0.1;
 				}
 				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE3;
@@ -366,18 +362,15 @@ void LevelSelect::Update(double dt)
 		}
 
 	}
-
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	if (posx > 300 && posx < 460)
 	{
-		if (posx > 300 && posx < 460)
+		if (posy > 465 && posy < 490)
 		{
-			if (posy > 465 && posy < 490)
+			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				Application::sceneChangeDelay = Application::elaspedTime + 0.1;
-				if (!Application::muted && elaspeTime > selectTime)
+				if (!Application::muted)
 				{
 					engine->play2D("Sound/select.wav", false);
-					selectTime = elaspeTime + 0.1;
 				}
 				Application::inMenu = false;
 				Application::sceneChange = Application::STAGE4;
@@ -385,18 +378,15 @@ void LevelSelect::Update(double dt)
 		}
 
 	}
-
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	if (posx > 300 && posx < 465)
 	{
-		if (posx > 300 && posx < 465)
+		if (posy > 535 && posy < 565)
 		{
-			if (posy > 535 && posy < 565)
+			if (Application::IsKeyPressed(VK_LBUTTON))
 			{
-				Application::sceneChangeDelay = Application::elaspedTime + 0.1;
-				if (!Application::muted && elaspeTime > selectTime)
+				if (!Application::muted)
 				{
 					engine->play2D("Sound/select.wav", false);
-					selectTime = elaspeTime + 0.1;
 				}
 				//Back to Main Menu
 				Application::sceneChange = 0;

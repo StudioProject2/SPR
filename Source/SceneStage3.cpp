@@ -259,7 +259,7 @@ void SceneStage3::Init()
 	}
 
 	//Others
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.0f, 0.7f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -1776,7 +1776,7 @@ void SceneStage3::Render()
 
 	if (elaspeTime < initialObjectiveTime)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(0.0f, 1.0f, 0.0f), 4.f, 5.f, 7.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "BURN DOWN THE HUTS", Color(1.0f, 0.0f, 0.0f), 4.f, 5.f, 7.f);
 	}
 
 	if (gameOver)
@@ -2211,6 +2211,11 @@ void SceneStage3::Exit()
 		}
 		meshList[i] = NULL;
 
+	}
+
+	if (engine)
+	{
+		engine->drop();
 	}
 
 	//glDeleteVertexArrays(1, &m_vertexArrayID);

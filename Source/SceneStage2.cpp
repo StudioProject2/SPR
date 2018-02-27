@@ -1893,7 +1893,7 @@ void SceneStage2::RenderObjectives()
 	if (objectiveOne && !objectiveTwo)
 	{
 		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0.f, 0.3f, 1.f), 2.f, 29.f, 23.f);
-		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0.f, 0.3f, 1.f), 2.f, 24.2f, 22.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0.f, 0.8f, 1.f), 2.f, 24.2f, 22.f);
 	}
 	if (objectiveTwo && !objectiveThree)
 	{
@@ -1942,6 +1942,10 @@ void SceneStage2::Exit()
 		meshList[i] = NULL;
 	}
 
-	//glDeleteVertexArrays(1, &m_vertexArrayID);
+	if (engine)
+	{
+		engine->drop();
+	}
+
 	glDeleteProgram(m_programID);
 }
