@@ -180,9 +180,9 @@ void SceneBoss::Init()
 	glEnable(GL_DEPTH_TEST);
 
 	light[0].type = Light::LIGHT_SPOT;
-	light[0].position.Set(-630, 50, -650);
+	light[0].position.Set(0, 800, 0);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 4;
+	light[0].power = 0.5f;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -205,7 +205,7 @@ void SceneBoss::Init()
 	light[1].type = Light::LIGHT_DIRECTIONAL;
 	light[1].position.Set(720, 150, 720);
 	light[1].color.Set(1, 1, 1);
-	light[1].power = 1;
+	light[1].power = 0.f;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -228,7 +228,7 @@ void SceneBoss::Init()
 	light[2].type = Light::LIGHT_POINT;
 	light[2].position.Set(-720, 150, 720);
 	light[2].color.Set(1, 1, 1);
-	light[2].power = 20;
+	light[2].power = 0.f;
 	light[2].kC = 1.f;
 	light[2].kL = 0.01f;
 	light[2].kQ = 0.001f;
@@ -251,7 +251,7 @@ void SceneBoss::Init()
 	light[3].type = Light::LIGHT_POINT;
 	light[3].position.Set(720, 150, -720);
 	light[3].color.Set(1, 1, 1);
-	light[3].power = 20;
+	light[3].power = 0.f;
 	light[3].kC = 1.f;
 	light[3].kL = 0.01f;
 	light[3].kQ = 0.001f;
@@ -299,9 +299,17 @@ void SceneBoss::Init()
 
 	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
 	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
+	meshList[GEO_BUILDING]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_BUILDING]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BUILDING]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_BUILDING]->material.kShininess = 1.0f;
 
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Fence.obj");
 	meshList[GEO_FENCE]->textureID = LoadTGA("Image//Boss Stage/Fence.tga");
+	meshList[GEO_FENCE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FENCE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FENCE]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_FENCE]->material.kShininess = 1.0f;
 
 	//Monsters
 	meshList[GEO_FODDER_BODY] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
@@ -655,7 +663,7 @@ void SceneBoss::UpdateMonsters()
 			if (MonsterArcherPtr[i] == NULL)
 			{
 				MonsterArcherPtr[i] = new MonsterArcher();
-				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, MOB_SIZE, 30, MOB_SIZE);
 				monsterArcherTime = elaspeTime + 5.0;
 				break;
 			}
@@ -666,7 +674,8 @@ void SceneBoss::UpdateMonsters()
 		if (MonsterArcherPtr[i] != NULL)
 		{
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, 30, MOB_SIZE);
+			monsterArcherBoxPtr[i]->position.y + 10; //Hitbox Offset
 		}
 	}
 

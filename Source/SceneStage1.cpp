@@ -148,10 +148,10 @@ void SceneStage1::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_SPOT;
-	light[0].position.Set(-630, 50, -650);
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].position.Set(0, 800, 0);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 4;
+	light[0].power = 0.5f;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -174,7 +174,7 @@ void SceneStage1::Init()
 	light[1].type = Light::LIGHT_POINT;
 	light[1].position.Set(720, 150, 720);
 	light[1].color.Set(1, 1, 1);
-	light[1].power = 20;
+	light[1].power = 0;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -197,7 +197,7 @@ void SceneStage1::Init()
 	light[2].type = Light::LIGHT_POINT;
 	light[2].position.Set(-720, 150, 720);
 	light[2].color.Set(1, 1, 1);
-	light[2].power = 20;
+	light[2].power = 0;
 	light[2].kC = 1.f;
 	light[2].kL = 0.01f;
 	light[2].kQ = 0.001f;
@@ -220,7 +220,7 @@ void SceneStage1::Init()
 	light[3].type = Light::LIGHT_POINT;
 	light[3].position.Set(720, 150, -720);
 	light[3].color.Set(1, 1, 1);
-	light[3].power = 20;
+	light[3].power = 0;
 	light[3].kC = 1.f;
 	light[3].kL = 0.01f;
 	light[3].kQ = 0.001f;
@@ -291,12 +291,24 @@ void SceneStage1::Init()
 	//WALLS
 	meshList[GEO_WALL] = MeshBuilder::GenerateOBJ("cube", "OBJ//bigwall.obj");
 	meshList[GEO_WALL]->textureID = LoadTGA("Image//wall.tga");
+	meshList[GEO_WALL]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_WALL]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_WALL]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_WALL]->material.kShininess = 1.f;
 
 	//Cage
 	meshList[GEO_CAGE] = MeshBuilder::GenerateOBJ("cube", "OBJ//cage1.obj");
 	meshList[GEO_CAGE]->textureID = LoadTGA("Image//cage.tga");
+	meshList[GEO_CAGE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_CAGE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_CAGE]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_CAGE]->material.kShininess = 1.f;
 	meshList[GEO_CAGEDOOR] = MeshBuilder::GenerateOBJ("cube", "OBJ//cageDoor.obj");
 	meshList[GEO_CAGEDOOR]->textureID = LoadTGA("Image//cage.tga");
+	meshList[GEO_CAGEDOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_CAGEDOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_CAGEDOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
+	meshList[GEO_CAGEDOOR]->material.kShininess = 1.f;
 
 	//Player 
 	meshList[GEO_PLAYER_TEETH] = MeshBuilder::GenerateOBJ("teeth", "OBJ//PlayerTeeth.obj");
