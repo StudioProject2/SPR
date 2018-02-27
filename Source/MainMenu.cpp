@@ -11,8 +11,6 @@
 
 using namespace std;
 
-double elaspeTime;
-double deltaTime;
 
 MainMenu::MainMenu()
 {
@@ -28,8 +26,6 @@ void MainMenu::Init()
 {
 	//Timer
 	elaspeTime = 0.0;
-	deltaTime = 0.0;
-
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 	// Generate a default VAO for now
@@ -264,13 +260,13 @@ void MainMenu::Init()
 
 	muteButtonTime = 0.0;
 	elaspeTime = 0.0;
+	selectTime = 0.0;
 }
 
 void MainMenu::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
-	deltaTime = dt;
 
 	//if (Application::IsKeyPressed('1'))
 	//{
@@ -311,15 +307,17 @@ void MainMenu::Update(double dt)
 	double posy;
 	Application::GetMousePosition(posx, posy);
 
-	if (posx > 270 && posx < 490)
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 330 && posy < 370)
+		if (posx > 270 && posx < 490)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 330 && posy < 370)
 			{
-				if (!Application::muted)
+				Application::sceneChangeDelay = Application::elaspedTime + 0.1;
+				if (!Application::muted && elaspeTime > selectTime)
 				{
 					engine->play2D("Sound/select.wav", false);
+					selectTime = elaspeTime + 0.1;
 				}
 				Application::sceneChange = Application::LEVELMENU;
 				std::cout << "you have started the game" << endl;

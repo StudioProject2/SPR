@@ -27,29 +27,31 @@ void SceneStage1::Init()
 {
 	//Monster spawn
 	srand((unsigned int)time(NULL));
+
 	//Monster Animation
 	fodSwingTimer = 0;
 	fodLeft = false;
 	fodderArmSwing = 0.0;
+
 	//Timer
 	elaspeTime = 0.0;
-	deltaTime = 0.0;
 	bulletBounceTime = 0.0;
 	monsterTime = elaspeTime + 3.0;
 	yArrowTranslate = 40;
 	movingUp = true;
 	hitmarkerSize = 0;
 
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM1; i++)
 	{
 		MonsterPtr[i] = NULL;
-		monsterBulletDelay[i] = elaspeTime + 4.0;
 	}
-	for (int i = 0; i < MOBNUM; i++)
+
+	for (int i = 0; i < MOBNUM1; i++)
 	{
 		MonsterFodderPtr[i] = NULL;
 		monsterFodderBoxPtr[i] = NULL;
 	}
+
 	monsterFodderTime = elaspeTime + 3.0;
 
 	mobDead = 0;
@@ -244,8 +246,6 @@ void SceneStage1::Init()
 	}
 
 	//Others
-	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
-	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
 	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
@@ -282,20 +282,11 @@ void SceneStage1::Init()
 	meshList[GEO_FODDER_HAND]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
 	meshList[GEO_FODDER_HAND]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
 	meshList[GEO_FODDER_HAND]->material.kShininess = 1.f;
-	
-	//Bullet
-	meshList[GEO_SPHERE] = MeshBuilder::GenerateOBJ("bullets", "OBJ//MonstersOBJ//MonsterBulletOBJ.obj");
-	meshList[GEO_SPHERE]->textureID = LoadTGA("Image//MonsterTextures//ArcherWeaponTexture.tga");
 
-	//Debuggging Cube
-	meshList[GEO_CUBE] = MeshBuilder::GenerateOBJ("cube", "OBJ//Cube.obj");
 
 	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
-
-	meshList[GEO_GUY] = MeshBuilder::GenerateOBJ("cube", "OBJ//doorman.obj");
-	meshList[GEO_GUY]->textureID = LoadTGA("Image//doorman.tga");
 
 	//WALLS
 	meshList[GEO_WALL] = MeshBuilder::GenerateOBJ("cube", "OBJ//bigwall.obj");
@@ -323,15 +314,6 @@ void SceneStage1::Init()
 	meshList[GEO_ARROW] = MeshBuilder::GenerateOBJ("building", "OBJ//arrow.obj");
 	meshList[GEO_ARROW]->textureID = LoadTGA("Image//green.tga");
 
-	//Monsters
-
-	for (int i = 0; i < 25; i++)
-	{
-		monsterBulletPtr[i] = NULL;
-	}
-
-	gameOver = false;
-
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
 		bulletPtr[bul] = new bullet();
@@ -343,15 +325,11 @@ void SceneStage1::Init()
 //UPDATE FUNCTIONS
 void SceneStage1::Update(double dt)
 {
-	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
-	deltaTime = dt;
-	deltaTime = dt;
 	start.isShooting = true;
 
 	UpdateBullets();
 	UpdateMonsters();
-	UpdateMonsterBullets();
 	UpdateMonsterHitbox();
 	UpdateMonsterAnimations();
 	camera.Update(dt);
@@ -359,7 +337,7 @@ void SceneStage1::Update(double dt)
 
 	if (!inCage && breakCage < 90)
 	{
-		breakCage += (float)(78 * dt);
+		breakCage += (float)(77 * dt);
 	}
 
 	//Update Arrows
@@ -380,7 +358,14 @@ void SceneStage1::Update(double dt)
 		movingUp = true;
 	}
 
+	if (player->health <= 0)
+	{
+		Application::sceneChange = Application::LOSE;
+	}
+
 }
+
+//UPDATE PLAYER BULLET
 void SceneStage1::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -402,44 +387,7 @@ void SceneStage1::UpdateBullets()
 	}
 }
 
-void SceneStage1::UpdateMonsterBullets()
-{
-	Box player = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
-
-	for (int i = 0; i < MOBNUM; i++)
-	{
-		if (MonsterPtr[i] != NULL)
-		{
-			for (int j = 0; j < MOBBULLETNUM; j++)
-			{
-				if (elaspeTime > monsterBulletDelay[i] && monsterBulletPtr[j] == NULL)
-				{
-					monsterBulletPtr[j] = new monsterBullet(MonsterPtr[i]->pos, camera.position);
-					monsterBulletDelay[i] = elaspeTime + MOBBULLETDELAY;
-					return;
-				}
-			}
-		}
-	}
-
-	for (int i = 0; i < MOBBULLETNUM; i++)
-	{
-		if (monsterBulletPtr[i] != NULL)
-		{
-			monsterBulletPtr[i]->move();
-			if (monsterBulletPtr[i]->isBulletInBox(player))
-			{
-				gameOver = true;
-			}
-			if (monsterBulletPtr[i]->bulletCollide())
-			{
-				monsterBulletPtr[i] = NULL;
-				delete monsterBulletPtr[i];
-			}
-		}
-	}
-
-}
+//CREATE MONSTERS, MOVE IT IF IT EXISTS AND UPDATE HITBOX FOR MONSTER
 void SceneStage1::UpdateMonsters()
 {
 	if (inCage == true)
@@ -448,7 +396,7 @@ void SceneStage1::UpdateMonsters()
 	//MonsterFodder
 	if (elaspeTime > monsterFodderTime)
 	{
-		for (int i = 0; i < MOBNUM; i++)
+		for (int i = 0; i < MOBNUM1; i++)
 		{
 			if (MonsterFodderPtr[i] == NULL)
 			{
@@ -459,7 +407,7 @@ void SceneStage1::UpdateMonsters()
 			}
 		}
 	}
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM1; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
@@ -468,7 +416,7 @@ void SceneStage1::UpdateMonsters()
 		}
 	}
 
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM1; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
@@ -488,15 +436,15 @@ void SceneStage1::UpdateMonsters()
 	}
 }
 
+//CHECK FOR COLLISION
 void SceneStage1::UpdateMonsterHitbox()
 {
 	bool isHit = false;
-	int monNum;
 	hitmarkerSize = 0;
 
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
-		for (int mon = 0; mon < MOBNUM; mon++)
+		for (int mon = 0; mon < MOBNUM1; mon++)
 		{
 			if (!isHit)
 			{
@@ -512,7 +460,6 @@ void SceneStage1::UpdateMonsterHitbox()
 				}
 				if (isHit)
 				{
-					monNum = mon;
 					bulletPtr[bul]->monsterHit(camera);
 				}
 			}
@@ -522,7 +469,7 @@ void SceneStage1::UpdateMonsterHitbox()
 	//Monster Fodder
 	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
 	{
-		for (int mon = 0; mon < MOBNUM; mon++)
+		for (int mon = 0; mon < MOBNUM1; mon++)
 		{
 			if (!isHit && elaspeTime > bulletBounceTime)
 			{
@@ -557,7 +504,7 @@ void SceneStage1::UpdateMonsterHitbox()
 	//Player Touch Monster
 	Box *playerBox = new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
 
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM1; i++)
 	{
 		if (monsterFodderBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
 		{
@@ -584,6 +531,7 @@ void SceneStage1::UpdateMonsterHitbox()
 	}
 }
 
+//CHECKS FOR INTERACTIONS
 void SceneStage1::UpdateInteractions()
 {
 	Box cageDoor = Box(Vector3(443, 0, 502.5), 7, 70, 70);
@@ -636,6 +584,8 @@ void SceneStage1::UpdateInteractions()
 	}
 
 }
+
+//ANIMATION
 void SceneStage1::UpdateMonsterAnimations()
 {
 	if (!fodLeft)
@@ -752,9 +702,6 @@ void SceneStage1::Render()
 
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
-	RenderMesh(meshList[GEO_AXES], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, -1000);
 	RenderMesh(meshList[GEO_FRONT], false);
 	modelStack.PopMatrix();
@@ -792,34 +739,20 @@ void SceneStage1::Render()
 	RenderMesh(meshList[GEO_FLOOR], true);
 	modelStack.PopMatrix();
 
-	//LIGHTBALLS
-	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-
 	Vector3 defaultView = Vector3(0, 0, 1).Normalize();
 	double fRot;
 	double dRot;
 
 	//DRAW MOBS
-	for (int i = 0; i < MOBNUM; i++)
+	for (int i = 0; i < MOBNUM1; i++)
 	{
 		if (MonsterFodderPtr[i] != NULL)
 		{
 			Vector3 B = MonsterFodderPtr[i]->pos - camera.position;
 			B.y = MonsterFodderPtr[i]->pos.y;
 
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
+			float rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
+			rotation = rotation * (180.f / 3.14f);
 
 			if (B.x > 0 && B.z < 0)
 				fRot = 180 + rotation;
@@ -834,67 +767,29 @@ void SceneStage1::Render()
 
 			modelStack.PushMatrix();
 			modelStack.Translate((*MonsterFodderPtr[i]).pos.x, (*MonsterFodderPtr[i]).pos.y - 10, (*MonsterFodderPtr[i]).pos.z);
-			modelStack.Rotate(fRot + 90, 0, 1, 0);
-			modelStack.Scale(10, 10, 10);
+			modelStack.Rotate(fRot + 90.f, 0.f, 1.f, 0.f);
+			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_FODDER_BODY], true);
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0, 0.05);
-			modelStack.Translate(0, 1.5, 0);
-			modelStack.Rotate(fodderArmSwing + 300, 0, 0, 1);
-			modelStack.Translate(0, -1.5, 0);
+			modelStack.Translate(0.f, 0.f, 0.05f);
+			modelStack.Translate(0.f, 1.5f, 0.f);
+			modelStack.Rotate(fodderArmSwing + 300.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -1.5f, 0.f);
 			RenderMesh(meshList[GEO_FODDER_HAND], true);
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0, 0, -0.05);
-			modelStack.Rotate(180, 0, 1, 0);
-			modelStack.Translate(0, 1.5, 0);
-			modelStack.Rotate(fodderArmSwing - 60, 0, 0, 1);
-			modelStack.Translate(0, -1.5, 0);
+			modelStack.Translate(0.f, 0.f, -0.05f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Translate(0.f, 1.5f, 0.f);
+			modelStack.Rotate(fodderArmSwing - 60.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -1.5f, 0.f);
 			RenderMesh(meshList[GEO_FODDER_HAND], true);
 			modelStack.PopMatrix();
-			modelStack.PopMatrix();
-		}
-	}
-
-	for (int i = 0; i < MOBBULLETNUM; i++)
-	{
-		if (monsterBulletPtr[i] != NULL)
-		{
-			Vector3 B = monsterBulletPtr[i]->pos - camera.position;
-			B.y = monsterBulletPtr[i]->pos.y;
-
-			double rotation = acos(defaultView.Dot(B) / (defaultView.Length() * B.Length()));
-			rotation = rotation * (180 / 3.14);
-
-			if (B.x > 0 && B.z < 0)
-				dRot = 180 + rotation;
-			else if (B.x > 0 && B.z > 0)
-				dRot = 180 + rotation;
-			else if (B.x < 0 && B.z > 0)
-				dRot = 180 - rotation;
-			else if (B.x < 0 && B.z < 0)
-				dRot = 180 - rotation;
-			else
-				dRot = rotation;
-
-			modelStack.PushMatrix();
-			modelStack.Translate((*monsterBulletPtr[i]).pos.x, (*monsterBulletPtr[i]).pos.y, (*monsterBulletPtr[i]).pos.z);
-			modelStack.Rotate(dRot, 0, 1, 0);
-			modelStack.Rotate(90, 1, 0, 0);
-			modelStack.Scale(2, 2, 2);
-			RenderMesh(meshList[GEO_SPHERE], false);
 			modelStack.PopMatrix();
 		}
 	}
 
 	RenderBullets();
-
-	if (gameOver)
-	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "GAME OVER", Color(1, 1, 1), 5, 4, 5);
-	}
-
-
 
 	//WALLS
 
@@ -1012,23 +907,8 @@ void SceneStage1::Render()
 	RenderObjectives();
 	RenderPlayerHealth();
 	RenderHitmarker();
-
-
-	//DEBUGGING CUBE
-	//modelStack.PushMatrix();
-	//modelStack.Translate(-600, 0, 0);
-	//modelStack.Scale(30, 30, 30);
-	//RenderMesh(meshList[GEO_CUBE], false);
-	//modelStack.PopMatrix();
-
-	//FPS
-	std::ostringstream sFps;
-	sFps << std::fixed << std::setprecision(3);
-	sFps << 1.0 / deltaTime << "fps";
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
-	modelStack.PopMatrix();
 }
+
 void SceneStage1::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -1230,22 +1110,22 @@ void SceneStage1::RenderObjectives()
 	string escape2 = "Escape from the arena";
 	std::ostringstream monsLeft;
 	monsLeft << std::fixed << std::setprecision(1);
-	monsLeft << "kill 5 Humans(" << mobDead << "/10)";
+	monsLeft << "kill 10 Humans(" << mobDead << "/10)";
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 1, 0), 2, 34, 28);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 1, 0), 2, 32, 27);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0, 1, 0), 2, 34, 25);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0, 1, 0), 2, 32, 24);
 	
 	if (inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], escape, Color(0, 1, 0), 2, 26.2, 23);
 	}
 	if (mobDead < 10 && !inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 1, 0), 2, 27, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0, 1, 0), 2, 27, 23);
 	}
 	if (mobDead >= 10 && !inCage)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], escape2, Color(0, 1, 0), 2, 26, 26);
+		RenderTextOnScreen(meshList[GEO_TEXT], escape2, Color(0, 1, 0), 2, 26, 23);
 	}
 	modelStack.PopMatrix();
 }

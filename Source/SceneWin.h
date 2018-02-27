@@ -1,5 +1,5 @@
-#ifndef LEVELSELECT_H
-#define LEVELSELECT_H
+#ifndef WIN_H
+#define WIN_H
 
 #include "Scene.h"
 #include "Camera.h"
@@ -15,7 +15,7 @@
 
 using namespace irrklang;
 
-class LevelSelect : public Scene
+class SceneWin : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -136,8 +136,8 @@ class LevelSelect : public Scene
 	};
 
 public:
-	LevelSelect();
-	~LevelSelect();
+	SceneWin();
+	~SceneWin();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -163,9 +163,6 @@ private:
 
 	float rotateStar;
 	float rotateStar2;
-
-	double elaspeTime;
-	double selectTime;
 
 	//Spawner
 	bool spawn = false;

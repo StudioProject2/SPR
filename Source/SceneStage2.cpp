@@ -114,7 +114,7 @@ void SceneStage2::Init()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 100, 600), Vector3(0, 100, 0), Vector3(0, 1, 0));
+	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
@@ -1878,30 +1878,30 @@ void SceneStage2::RenderObjectives()
 {
 	std::ostringstream monsLeft;
 	monsLeft << std::fixed << std::setprecision(1);
-	monsLeft << "kill 5 guardians(" << monDead << "/5)";
+	monsLeft << "kill 5 guardians(" << (int)monDead << "/5)";
 	modelStack.PushMatrix();
 	std::ostringstream barrierLeft;
 	barrierLeft << std::fixed << std::setprecision(1);
-	barrierLeft << "the glowing roots (" << flowersAmt << "/3)";
+	barrierLeft << "the glowing roots (" << (int)flowersAmt << "/3)";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0.f, 0.8f, 1.f), 2.f, 34.f, 29.f);
-	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0.f, 0.8f, 1.f), 2.f, 32.f, 28.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Objective", Color(0.f, 0.8f, 1.f), 2.f, 34.f, 25.f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "============", Color(0.f, 0.8f, 1.f), 2.f, 32.f, 24.f);
 	if (!objectiveOne)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0.f, 0.8f, 1.f), 2.f, 26.2f, 27.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], monsLeft.str(), Color(0.f, 0.8f, 1.f), 2.f, 26.2f, 23.f);
 	}
 	if (objectiveOne && !objectiveTwo)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0.f, 0.3f, 1.f), 2.f, 29.f, 27.f);
-		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0.f, 0.8f, 1.f), 2.f, 24.2f, 26.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Find and DEVOUR", Color(0.f, 0.3f, 1.f), 2.f, 29.f, 23.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], barrierLeft.str(), Color(0.f, 0.3f, 1.f), 2.f, 24.2f, 22.f);
 	}
 	if (objectiveTwo && !objectiveThree)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0.f, 0.8f, 1.f), 3.f, 10.5f, 18.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR THE TREE OF LIFE", Color(0.f, 0.8f, 1.f), 3.f, 10.5f, 15.3f);
 	}
 	if (objectiveThree)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Head towards the opening", Color(0.f, 0.8f, 1.f), 3.f, 10.5f, 18.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Head towards the opening", Color(0.f, 0.8f, 1.f), 3.f, 10.5f, 15.3f);
 	}
 	modelStack.PopMatrix();
 	if (objectiveFour)

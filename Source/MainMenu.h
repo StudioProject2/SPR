@@ -166,6 +166,7 @@ private:
 
 	double elaspeTime;
 	double muteButtonTime;
+	double selectTime;
 	//Spawner
 	bool spawn = false;
 

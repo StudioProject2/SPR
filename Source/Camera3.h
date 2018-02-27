@@ -16,7 +16,7 @@ private:
 	bool isDropping;
 	float jumpOffset;
 	float jumpSpeed;
-	double jumpPos;
+	float jumpPos;
 
 	bool _collidedX;
 	bool _collidedY;
@@ -37,9 +37,9 @@ private:
 	double elaspeTime;
 	double footstepsTime;
 public:
-	double prevPosX;
-	double prevPosY;
-	double prevPosZ;
+	float prevPosX;
+	float prevPosY;
+	float prevPosZ;
 	enum direction
 	{
 		UP,
@@ -55,12 +55,12 @@ public:
 
 	//Mouse FPS Variables
 	bool firstrun;
-	double xyawnew;
-	double yyawnew;
+	float xyawnew;
+	float yyawnew;
 	double xmousepos;
 	double ymousepos;
-	double oldxmousepos;
-	double oldymousepos;
+	float oldxmousepos;
+	float oldymousepos;
 
 	Camera3();
 	~Camera3();

@@ -1,5 +1,5 @@
-#ifndef LEVELSELECT_H
-#define LEVELSELECT_H
+#ifndef LOSE_H
+#define LOSE_H
 
 #include "Scene.h"
 #include "Camera.h"
@@ -15,7 +15,7 @@
 
 using namespace irrklang;
 
-class LevelSelect : public Scene
+class LoseScene : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -136,8 +136,8 @@ class LevelSelect : public Scene
 	};
 
 public:
-	LevelSelect();
-	~LevelSelect();
+	LoseScene();
+	~LoseScene();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -164,9 +164,6 @@ private:
 	float rotateStar;
 	float rotateStar2;
 
-	double elaspeTime;
-	double selectTime;
-
 	//Spawner
 	bool spawn = false;
 
@@ -185,3 +182,4 @@ private:
 };
 
 #endif
+

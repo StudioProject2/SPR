@@ -1,7 +1,6 @@
 
 #include "Application.h"
 
-#define GLEW_STATIC
 //Include GLEW
 #include <GL/glew.h>
 
@@ -19,6 +18,8 @@
 
 #include "MainMenu.h"
 #include "LevelSelect.h"
+#include "SceneWin.h"
+#include "SceneLose.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -28,6 +29,8 @@ int Application::whatScene = 0;
 bool Application::muted = false;
 bool Application::muteToggle = false;
 bool Application::inMenu = false;
+double Application::sceneChangeDelay = 0;
+double Application::elaspedTime = 0;
 //init watscene;
 
 //Define an error callback
@@ -44,7 +47,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-void Application::SetMousePosition(double xPos, double yPos)
+void Application::SetMousePosition(float xPos, float yPos)
 {
 	glfwSetCursorPos(m_window, xPos, yPos);
 }
@@ -134,10 +137,16 @@ void Application::Run()
 
 	Scene *sceneMenu = new MainMenu();
 	Scene *sceneLevel = new LevelSelect();
+	Scene *sceneWin = new SceneWin();
+	Scene *sceneLose = new LoseScene();
 
 	Scene *scene = sceneMenu;
 
+	elaspedTime = 0;
+	sceneChangeDelay = -1;
+
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
+
 	while (!glfwWindowShouldClose(m_window) && !IsKeyPressed(VK_ESCAPE))
 	{
 		if (Application::muted)
@@ -153,11 +162,11 @@ void Application::Run()
 			Application::muted = false;
 			Application::muteToggle = false;
 		}
-		if (Application::sceneChange == MAINMENU)
+		if (Application::sceneChange == MAINMENU && elaspedTime > sceneChangeDelay)
 		{
+			sceneMenu->Init();
 			ShowCursor(true);
 			scene = sceneMenu;
-			scene->Init();
 			whatScene = MAINMENU;
 			if (!muted && !Application::inMenu)
 			{
@@ -166,13 +175,12 @@ void Application::Run()
 				Application::inMenu = true;
 			}
 			Application::sceneChange = 10;
-			
 		}
-		if (Application::sceneChange == LEVELMENU)
+		if (Application::sceneChange == LEVELMENU && elaspedTime > sceneChangeDelay)
 		{
+			sceneLevel->Init();
 			ShowCursor(true);
 			scene = sceneLevel;
-			scene->Init();
 			whatScene = LEVELMENU;
 			if (!muted && !Application::inMenu)
 			{
@@ -182,10 +190,11 @@ void Application::Run()
 			}
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == STAGE1)
+		if (Application::sceneChange == STAGE1 && elaspedTime > sceneChangeDelay)
 		{
+			scene1->Init();
+			ShowCursor(false);
 			scene = scene1;
-			scene->Init();
 			whatScene = STAGE1;
 			if (!muted)
 			{
@@ -194,11 +203,11 @@ void Application::Run()
 			}
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == STAGE2)
+		if (Application::sceneChange == STAGE2 && elaspedTime > sceneChangeDelay)
 		{
+			scene2->Init();
 			ShowCursor(false);
 			scene = scene2;
-			scene->Init();
 			whatScene = STAGE2;
 			if (!muted)
 			{
@@ -207,10 +216,11 @@ void Application::Run()
 			}
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == STAGE3)
+		if (Application::sceneChange == STAGE3 && elaspedTime > sceneChangeDelay)
 		{
+			scene3->Init();
+			ShowCursor(false);
 			scene = scene3;
-			scene->Init();
 			whatScene = STAGE3;
 			if (!muted)
 			{
@@ -219,11 +229,11 @@ void Application::Run()
 			}
 			Application::sceneChange = 10;
 		}
-		if (Application::sceneChange == STAGE4)
+		if (Application::sceneChange == STAGE4 && elaspedTime > sceneChangeDelay)
 		{
-			scene = sceneBoss;
+			sceneBoss->Init();
 			ShowCursor(false);
-			scene->Init();
+			scene = sceneBoss;
 			whatScene = STAGE4;
 			if (!muted)
 			{
@@ -232,7 +242,23 @@ void Application::Run()
 			}
 			Application::sceneChange = 10;
 		}
-		scene->Update(m_timer.getElapsedTime());
+		if (Application::sceneChange == WIN)
+		{
+			sceneWin->Init();
+			scene = sceneWin;
+			whatScene = WIN;
+			Application::sceneChange = 10;
+		}
+		if (Application::sceneChange == LOSE)
+		{
+			sceneLose->Init();
+			scene = sceneLose;
+			whatScene = LOSE;
+			Application::sceneChange = 10;
+		}
+		tempDT = m_timer.getElapsedTime();
+		scene->Update(tempDT);
+		elaspedTime += tempDT;
 		scene->Render();
 		//Swap buffers
 		glfwSwapBuffers(m_window);
@@ -247,6 +273,8 @@ void Application::Run()
 	scene3->Exit();
 	sceneMenu->Exit();
 	sceneLevel->Exit();
+	sceneWin->Exit();
+	sceneLose->Exit();
 
 	delete sceneBoss;
 	delete scene1;
@@ -254,6 +282,8 @@ void Application::Run()
 	delete scene3;
 	delete sceneMenu;
 	delete sceneLevel;
+	delete sceneWin;
+	delete sceneLose;
 }
 
 void Application::Exit()

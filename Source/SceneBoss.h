@@ -204,13 +204,14 @@ private:
 
 	void UpdateBullets();
 	void UpdateMonsters();
-	void UpdateMonsterBullets();
+	void UpdateCreateMonsterBullets();
 	void UpdateMonsterHitbox();
 	void UpdateBossMovement();
 	void UpdateBossHitbox();
 	void UpdateBossBullets();
 	void UpdateMonsterAnimations();
 	void UpdateBossHealth();
+	void UpdateEnemyBullets();
 
 	void RenderBullets();
 	void RenderHitmarker();
