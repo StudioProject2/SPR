@@ -26,7 +26,6 @@ private:
 	Vector3 pos;
 	Vector3 target;
 	Vector3 view;
-	Vector3 chargeTarget;
 
 	//Movement 
 	bool firstCharge;

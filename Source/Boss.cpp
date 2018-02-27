@@ -95,6 +95,7 @@ bool Boss::isPointZInBox1(Vector3 position, Box box)
 	}
 }
 
+//MOVE STRAIGHT TOWARDS PLAYER
 void Boss::move(Vector3 camPos)
 {
 	prevPosX = pos.x;
@@ -110,6 +111,7 @@ void Boss::move(Vector3 camPos)
 	boundsCheck();
 }
 
+//MOVE IN A ZIG ZAG
 void Boss::moveZigZag(Vector3 camPos, double elaspeTime)
 {
 	//PrevPositions For Ai
@@ -152,19 +154,19 @@ void Boss::moveZigZag(Vector3 camPos, double elaspeTime)
 
 }
 
+//CHARGES TOWARDS PLAYER
 void Boss::charge(Vector3 camPos, double elaspeTime)
 {
-	if (!firstCharge)
+	if (!firstCharge)//Set a delay before charge
 	{
 		bossChargeDelay = elaspeTime + 1.5;
 		firstCharge = true;
 	}
 	if (elaspeTime > bossChargeDelay)
 	{
-		if (!startCharge)
+		if (!startCharge) //Set how long boss charges for and gives target
 		{
-			chargeTarget = camPos;
-			view = (chargeTarget - pos).Normalize();
+			view = (camPos - pos).Normalize();
 			bossChargeTime = elaspeTime + 1.0;
 			startCharge = true;
 		}
@@ -176,7 +178,7 @@ void Boss::charge(Vector3 camPos, double elaspeTime)
 		pos.z = pos.z + view.z * 9;
 
 		boundsCheck();
-		if (elaspeTime > bossChargeTime)
+		if (elaspeTime > bossChargeTime) //Reset
 		{
 			firstCharge = false;
 			startCharge = false;
@@ -184,9 +186,10 @@ void Boss::charge(Vector3 camPos, double elaspeTime)
 	}
 }
 
+//'LEAPS' TOWARDS PLAYER
 void Boss::leap(Vector3 camPos)
 {
-	if (!rising && !chasing && !dropping && !leaped)
+	if (!rising && !chasing && !dropping && !leaped) //If first time leaping
 	{
 		leaped = true;
 		rising = true;
@@ -215,7 +218,6 @@ void Boss::leap(Vector3 camPos)
 	else if (chasing)
 	{
 		Vector3 temp;
-		target = camPos;
 		temp = (camPos - pos).Normalize();
 		pos.x = pos.x + temp.x * 4;
 		pos.z = pos.z + temp.z * 4;
@@ -227,13 +229,13 @@ void Boss::leap(Vector3 camPos)
 	else if (leaped)
 	{
 		Vector3 temp;
-		target = camPos;
 		temp = (camPos - pos).Normalize();
 		pos.x = pos.x + temp.x;
 		pos.z = pos.z + temp.z;
 	}
 }
 
+//CHECK FOR COLLISION
 void Boss::boundsCheck()
 {
 	_collidedX = false;

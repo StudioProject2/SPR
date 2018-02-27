@@ -17,11 +17,13 @@ monsterBullet::~monsterBullet()
 {
 }
 
+//MOVES THE BULLET
 void monsterBullet::move()
 {
 	pos = pos + target * 7;
 }
 
+//CHECK IF BULLET IS IN A BOX
 bool monsterBullet::isBulletInBox(Box box)
 {
 	if ((pos.x >= box.minX && pos.x <= box.maxX)
@@ -36,6 +38,7 @@ bool monsterBullet::isBulletInBox(Box box)
 	}
 }
 
+//CHECKS FOR COLLISION
 bool monsterBullet::bulletCollide()
 {
 	if (Application::whatScene == Application::STAGE1)
@@ -59,6 +62,7 @@ bool monsterBullet::bulletCollide()
 		return false;
 	}
 }
+
 bool monsterBullet::bulletCollideStage1()
 {
 	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800
@@ -71,7 +75,6 @@ bool monsterBullet::bulletCollideStage1()
 		return false;
 	}
 }
-
 bool monsterBullet::bulletCollideStage2()
 {
 	if (pos.x > 800 || pos.x < -800 || pos.y > 800 || pos.y < 0 || pos.z > 800 || pos.z < -800
@@ -84,7 +87,6 @@ bool monsterBullet::bulletCollideStage2()
 		return false;
 	}
 }
-
 bool monsterBullet::bulletCollideStage3()
 {
 	Box hut1 = Box(Vector3(200, -10, 0), 50);
@@ -106,7 +108,6 @@ bool monsterBullet::bulletCollideStage3()
 		return false;
 	}
 }
-
 bool monsterBullet::bulletCollideStage4()
 {
 	Box hut1 = Box(Vector3(200, -10, 0), 50);
