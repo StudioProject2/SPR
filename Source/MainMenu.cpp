@@ -516,19 +516,19 @@ void MainMenu::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Prehistoric", Color(0.8,0.6,0.1), 6, 1.7, 7);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Prehistoric", Color(0.8f,0.6f,0.1f), 6, 1.7f, 7);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Extinction", Color(0.8, 0.6, 0.1), 6, 2.3, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Extinction", Color(0.8f, 0.6f, 0.1f), 6, 2.3f, 6);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Start", Color(1,1,1), 5, 6, 5);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Mute", Color(1, 1, 1), 5, 6.5, 3);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Mute", Color(1, 1, 1), 5, 6.5f, 3);
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5, 1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5f, 1);
 	modelStack.PopMatrix();
 }
 

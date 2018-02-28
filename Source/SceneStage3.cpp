@@ -161,10 +161,10 @@ void SceneStage3::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_SPOT;
-	light[0].position.Set(-630, 50, -650);
+	light[0].type = Light::LIGHT_DIRECTIONAL;
+	light[0].position.Set(0, 800, 0);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 4;
+	light[0].power = 0.5f;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -187,7 +187,7 @@ void SceneStage3::Init()
 	light[1].type = Light::LIGHT_DIRECTIONAL;
 	light[1].position.Set(720, 150, 720);
 	light[1].color.Set(1, 1, 1);
-	light[1].power = 1;
+	light[1].power = 0;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -210,7 +210,7 @@ void SceneStage3::Init()
 	light[2].type = Light::LIGHT_POINT;
 	light[2].position.Set(-720, 150, 720);
 	light[2].color.Set(1, 1, 1);
-	light[2].power = 20;
+	light[2].power = 0;
 	light[2].kC = 1.f;
 	light[2].kL = 0.01f;
 	light[2].kQ = 0.001f;
@@ -233,7 +233,7 @@ void SceneStage3::Init()
 	light[3].type = Light::LIGHT_POINT;
 	light[3].position.Set(720, 150, -720);
 	light[3].color.Set(1, 1, 1);
-	light[3].power = 20;
+	light[3].power = 0;
 	light[3].kC = 1.f;
 	light[3].kL = 0.01f;
 	light[3].kQ = 0.001f;
@@ -259,7 +259,7 @@ void SceneStage3::Init()
 	}
 
 	//Others
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.5f, 0.5f, 0.5f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.0f, 0.7f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -358,6 +358,10 @@ void SceneStage3::Init()
 	//FENCE
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Fence.obj");
 	meshList[GEO_FENCE]->textureID = LoadTGA("Image//Boss Stage/Fence.tga");
+	meshList[GEO_FENCE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FENCE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FENCE]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_FENCE]->material.kShininess = 1.0f;
 
 	//GRASS
 	meshList[GEO_GRASS_LINE] = MeshBuilder::GenerateOBJ("grass", "OBJ//stage2//Grass_Line.obj");
@@ -377,6 +381,10 @@ void SceneStage3::Init()
 
 	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
 	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
+	meshList[GEO_BUILDING]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_BUILDING]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BUILDING]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_BUILDING]->material.kShininess = 1.0f;
 
 	//Fire	
 	meshList[GEO_CUBE2] = MeshBuilder::GenerateOBJ("building", "OBJ//cube.obj");
@@ -603,9 +611,9 @@ void SceneStage3::UpdateMonsters()
 	if (monsterSpawnDelay1 != 0 && elaspeTime > monsterSpawnDelay1)
 	{
 		MonsterPtr[0] = new Monster(Vector3(100, 0, 93));
-		monsterBoxPtr[0] = new Box(MonsterPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[0] = new Box(MonsterPtr[0]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[1] = new Monster(Vector3(290, 0, -85));
-		monsterBoxPtr[1] = new Box(MonsterPtr[1]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[1] = new Box(MonsterPtr[1]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[0] = new MonsterFodder(Vector3(272, 0, -80));
 		monsterFodderBoxPtr[0] = new Box(MonsterFodderPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[1] = new MonsterFodder(Vector3(120, 0, 90));
@@ -613,18 +621,18 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[2] = new MonsterFodder(Vector3(115, 0, 100));
 		monsterFodderBoxPtr[2] = new Box(MonsterFodderPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[0] = new MonsterArcher(Vector3(101, 0, -100));
-		monsterArcherBoxPtr[0] = new Box(MonsterArcherPtr[0]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[0] = new Box(MonsterArcherPtr[0]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[1] = new MonsterArcher(Vector3(295, 0, -80));
-		monsterArcherBoxPtr[1] = new Box(MonsterArcherPtr[1]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[1] = new Box(MonsterArcherPtr[1]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay1 = 0;
 	}
 
 	if (monsterSpawnDelay2 != 0 && elaspeTime > monsterSpawnDelay2)
 	{
 		MonsterPtr[2] = new Monster(Vector3(280, 0, 280));
-		monsterBoxPtr[2] = new Box(MonsterPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[2] = new Box(MonsterPtr[2]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[3] = new Monster(Vector3(100, 0, 293));
-		monsterBoxPtr[3] = new Box(MonsterPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[3] = new Box(MonsterPtr[3]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[3] = new MonsterFodder(Vector3(272, 0, 125));
 		monsterFodderBoxPtr[3] = new Box(MonsterFodderPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[4] = new MonsterFodder(Vector3(120, 0, 290));
@@ -632,18 +640,18 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[5] = new MonsterFodder(Vector3(115, 0, 300));
 		monsterFodderBoxPtr[5] = new Box(MonsterFodderPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[2] = new MonsterArcher(Vector3(101, 0, 100));
-		monsterArcherBoxPtr[2] = new Box(MonsterArcherPtr[2]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[2] = new Box(MonsterArcherPtr[2]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[3] = new MonsterArcher(Vector3(285, 0, 295));
-		monsterArcherBoxPtr[3] = new Box(MonsterArcherPtr[3]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[3] = new Box(MonsterArcherPtr[3]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay2 = 0;
 	}
 
 	if (monsterSpawnDelay3 != 0 && elaspeTime > monsterSpawnDelay3)
 	{
 		MonsterPtr[4] = new Monster(Vector3(-300, 0, 93));
-		monsterBoxPtr[4] = new Box(MonsterPtr[4]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[4] = new Box(MonsterPtr[4]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[5] = new Monster(Vector3(-110, 0, -85));
-		monsterBoxPtr[5] = new Box(MonsterPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[5] = new Box(MonsterPtr[5]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[6] = new MonsterFodder(Vector3(-128, 0, -80));
 		monsterFodderBoxPtr[6] = new Box(MonsterFodderPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[7] = new MonsterFodder(Vector3(-280, 0, 90));
@@ -651,18 +659,18 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[8] = new MonsterFodder(Vector3(-295, 0, 100));
 		monsterFodderBoxPtr[8] = new Box(MonsterFodderPtr[8]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[4] = new MonsterArcher(Vector3(-299, 0, -100));
-		monsterArcherBoxPtr[4] = new Box(MonsterArcherPtr[4]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[4] = new Box(MonsterArcherPtr[4]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[5] = new MonsterArcher(Vector3(-105, 0, -80));
-		monsterArcherBoxPtr[5] = new Box(MonsterArcherPtr[5]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[5] = new Box(MonsterArcherPtr[5]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay3 = 0;
 	}
 
 	if (monsterSpawnDelay4 != 0 && elaspeTime > monsterSpawnDelay4)
 	{
 		MonsterPtr[6] = new Monster(Vector3(-300, 0, 280));
-		monsterBoxPtr[6] = new Box(MonsterPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[6] = new Box(MonsterPtr[6]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[7] = new Monster(Vector3(-110, 0, 115));
-		monsterBoxPtr[7] = new Box(MonsterPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterBoxPtr[7] = new Box(MonsterPtr[7]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterFodderPtr[9] = new MonsterFodder(Vector3(-128, 0, 110));
 		monsterFodderBoxPtr[9] = new Box(MonsterFodderPtr[9]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[10] = new MonsterFodder(Vector3(-280, 0, 295));
@@ -670,18 +678,19 @@ void SceneStage3::UpdateMonsters()
 		MonsterFodderPtr[11] = new MonsterFodder(Vector3(-295, 0, 100));
 		monsterFodderBoxPtr[11] = new Box(MonsterFodderPtr[11]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterArcherPtr[6] = new MonsterArcher(Vector3(-299, 0, 300));
-		monsterArcherBoxPtr[6] = new Box(MonsterArcherPtr[6]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[6] = new Box(MonsterArcherPtr[6]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[7] = new MonsterArcher(Vector3(-105, 0, 120));
-		monsterArcherBoxPtr[7] = new Box(MonsterArcherPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+		monsterArcherBoxPtr[7] = new Box(MonsterArcherPtr[7]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		monsterSpawnDelay4 = 0;
 	}
 
+	//Monster
 	for (int i = 0; i < MOBNUM3; i++)
 	{
 		if (MonsterPtr[i] != NULL)
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -731,7 +740,7 @@ void SceneStage3::UpdateMonsters()
 		if (MonsterArcherPtr[i] != NULL)
 		{
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -1540,12 +1549,12 @@ void SceneStage3::Render()
 				aRot = rotation;
 
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y - 10, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y + 13, (*MonsterArcherPtr[i]).pos.z);
 			modelStack.Rotate(aRot + 90.f, 0.f, 1.f, 0.f);
 			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_ARCHER_BODY], true);
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 4.3f);
+			modelStack.Translate(0.f, -2.1f, 2.0f);
 			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 			modelStack.Translate(0.f, 2.f, 0.f);
 			modelStack.Rotate(80.f, 0.f, 0.f, 1.f);
@@ -1560,14 +1569,14 @@ void SceneStage3::Render()
 			modelStack.PopMatrix();
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, -0.05f);
+			modelStack.Translate(0.f, -2.8f, -2.15f);
 			modelStack.Translate(0.f, 1.5f, 0.f);
 			modelStack.Rotate(archerLegSwing + 340.f, 0.f, 0.f, 1.f);
-			modelStack.Translate(0.f, -1.5f, 0.f);
+			modelStack.Translate(0.f, -1.f, 0.f);
 			RenderMesh(meshList[GEO_ARCHER_LEG], true);
 			modelStack.PopMatrix();
 			modelStack.PushMatrix();
-			modelStack.Translate(0.f, 0.f, 4.3f);
+			modelStack.Translate(0.f, -2.3f, 2.15f);
 			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
 			modelStack.Translate(0.f, 1.5f, 0.f);
 			modelStack.Rotate(archerLegSwing - 20.f, 0.f, 0.f, 1.f);
@@ -1885,74 +1894,74 @@ void SceneStage3::RenderFire()
 	if (hut1Burned)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, 0.f, 20.f);
+		modelStack.Translate(200, 0, 20);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, 0.f, -20.f);
+		modelStack.Translate(200, 0, -20);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(180.f, 0.f, 0.f);
+		modelStack.Translate(180, 0, 0);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(220.f, 0.f, 0.f);
+		modelStack.Translate(230, 0, 0);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate, 0.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate, 0.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate / 0.9f, 20.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate / 0.9f, 20);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate / 0.8f, -25.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate / 0.8f, -25);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(190.f, yTranslate2, -25.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(190, yTranslate2, -25);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(210.f, yTranslate2, 25.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(210, yTranslate2, 25);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(185.f, yTranslate3, 15.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(185, yTranslate3, 15);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(215.f, yTranslate3, -15.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(215, yTranslate3, -15);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 	}
@@ -1960,74 +1969,74 @@ void SceneStage3::RenderFire()
 	if (hut2Burned)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, 0.f, 220.f);
+		modelStack.Translate(200, 0, 20 + 200);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, 0.f, 180.f);
+		modelStack.Translate(200, 0, -20 + 200);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(180.f, 0.f, 200.f);
+		modelStack.Translate(180, 0, 0 + 200);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(220.f, 0.f, 200.f);
+		modelStack.Translate(230, 0, 0 + 200);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate, 200.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate, 200.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate / 0.9f, 220.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate / 0.9f, 20 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, yTranslate / 0.8f, 175.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200, yTranslate / 0.8f, -25 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(190.f, yTranslate2, 175.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(190, yTranslate2, -25 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(210.f, yTranslate2, 225.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(210, yTranslate2, 25 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(185.f, yTranslate3, 215.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(185, yTranslate3, 15 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(215.f, yTranslate3, 185.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(215, yTranslate3, -15 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 	}
@@ -2035,74 +2044,74 @@ void SceneStage3::RenderFire()
 	if (hut3Burned)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, 0, 20.f);
+		modelStack.Translate(200 - 400, 0, 20);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(200.f, 0, -20.f);
+		modelStack.Translate(200 - 400, 0, -20);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-220.f, 0.f, 0.f);
+		modelStack.Translate(180 - 400, 0, 0);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(180.f, 0.f, 0.f);
+		modelStack.Translate(230 - 400, 0, 0);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate, 0.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate, 0.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate, 0);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate / 0.9f, 20.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate / 0.9f, 20);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate / 0.8f, -25.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate / 0.8f, -25);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-210.f, yTranslate2, -25.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(190 - 400, yTranslate2, -25);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-190.f, yTranslate2, 25.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(210 - 400, yTranslate2, 25);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-215.f, yTranslate3, 15.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(185 - 400, yTranslate3, 15);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-185.f, yTranslate3, -15.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(215 - 400, yTranslate3, -15);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 	}
@@ -2110,74 +2119,74 @@ void SceneStage3::RenderFire()
 	if (hut4Burned)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, 0, 220.f);
+		modelStack.Translate(200 - 400, 0, 20 + 200);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, 0, 180.f);
+		modelStack.Translate(200 - 400, 0, -20 + 200);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-220.f, 0, 200.f);
+		modelStack.Translate(180 - 400, 0, 0 + 200);
 		modelStack.Scale(scaleAll2, scaleAll2, scaleAll2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-180.f, 0, 200.f);
+		modelStack.Translate(230 - 400, 0, 0 + 200);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate, 200.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate, 200.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate, 0 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate / 0.9f, 220.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate / 0.9f, 20 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-200.f, yTranslate / 0.8f, 175.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(200 - 400, yTranslate / 0.8f, -25 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-210.f, yTranslate2, 175.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(190 - 400, yTranslate2, -25 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-190.f, yTranslate2, 225.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(210 - 400, yTranslate2, 25 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-215.f, yTranslate3, 215.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(185 - 400, yTranslate3, 15 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 
 		modelStack.PushMatrix();
-		modelStack.Translate(-185.f, yTranslate3, 185.f);
-		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.Translate(215 - 400, yTranslate3, -15 + 200);
+		modelStack.Scale(2, 2, 2);
 		RenderMesh(meshList[GEO_CUBE2], false);
 		modelStack.PopMatrix();
 	}

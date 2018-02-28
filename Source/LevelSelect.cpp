@@ -544,31 +544,31 @@ void LevelSelect::Render()
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Select", Color(0.8, 0.6, 0.1), 6.5, 4, 8);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Select", Color(0.8f, 0.6f, 0.1f), 6.5f, 4, 8);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "a Level", Color(0.8, 0.6, 0.1), 6, 4, 7.5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "a Level", Color(0.8f, 0.6f, 0.1f), 6, 4, 7.5f);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 1, 1), 4.5, 6, 7);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 1, 1), 4.5f, 6, 7);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Level 2", Color(1, 1, 1), 4.5, 6, 5.5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 2", Color(1, 1, 1), 4.5f, 6, 5.5f);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 1, 1), 4.5, 6, 4);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 1, 1), 4.5f, 6, 4);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "BOSS", Color(1, 0, 0), 5, 6.5, 2.5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "BOSS", Color(1, 0, 0), 5, 6.5f, 2.5f);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Back", Color(1, 1, 1), 5, 6.5, 1);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Back", Color(1, 1, 1), 5, 6.5f, 1);
 	modelStack.PopMatrix();
 }
 

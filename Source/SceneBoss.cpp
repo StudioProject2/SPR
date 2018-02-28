@@ -180,9 +180,9 @@ void SceneBoss::Init()
 	glEnable(GL_DEPTH_TEST);
 
 	light[0].type = Light::LIGHT_SPOT;
-	light[0].position.Set(-630, 50, -650);
+	light[0].position.Set(0, 800, 0);
 	light[0].color.Set(1, 1, 1);
-	light[0].power = 4;
+	light[0].power = 0.5f;
 	light[0].kC = 1.f;
 	light[0].kL = 0.01f;
 	light[0].kQ = 0.001f;
@@ -205,7 +205,7 @@ void SceneBoss::Init()
 	light[1].type = Light::LIGHT_DIRECTIONAL;
 	light[1].position.Set(720, 150, 720);
 	light[1].color.Set(1, 1, 1);
-	light[1].power = 1;
+	light[1].power = 0.f;
 	light[1].kC = 1.f;
 	light[1].kL = 0.01f;
 	light[1].kQ = 0.001f;
@@ -228,7 +228,7 @@ void SceneBoss::Init()
 	light[2].type = Light::LIGHT_POINT;
 	light[2].position.Set(-720, 150, 720);
 	light[2].color.Set(1, 1, 1);
-	light[2].power = 20;
+	light[2].power = 0.f;
 	light[2].kC = 1.f;
 	light[2].kL = 0.01f;
 	light[2].kQ = 0.001f;
@@ -251,7 +251,7 @@ void SceneBoss::Init()
 	light[3].type = Light::LIGHT_POINT;
 	light[3].position.Set(720, 150, -720);
 	light[3].color.Set(1, 1, 1);
-	light[3].power = 20;
+	light[3].power = 0.f;
 	light[3].kC = 1.f;
 	light[3].kL = 0.01f;
 	light[3].kQ = 0.001f;
@@ -299,9 +299,17 @@ void SceneBoss::Init()
 
 	meshList[GEO_BUILDING] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Hut.obj");
 	meshList[GEO_BUILDING]->textureID = LoadTGA("Image//Boss Stage/Hut.tga");
+	meshList[GEO_BUILDING]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_BUILDING]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_BUILDING]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_BUILDING]->material.kShininess = 1.0f;
 
 	meshList[GEO_FENCE] = MeshBuilder::GenerateOBJ("building", "OBJ//Boss Stage/Fence.obj");
 	meshList[GEO_FENCE]->textureID = LoadTGA("Image//Boss Stage/Fence.tga");
+	meshList[GEO_FENCE]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
+	meshList[GEO_FENCE]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
+	meshList[GEO_FENCE]->material.kSpecular.Set(0.01f, 0.01f, 0.01f);
+	meshList[GEO_FENCE]->material.kShininess = 1.0f;
 
 	//Monsters
 	meshList[GEO_FODDER_BODY] = MeshBuilder::GenerateOBJ("fodder", "OBJ//MonstersOBJ//FodderBodyOBJ.obj");
@@ -578,7 +586,7 @@ void SceneBoss::UpdateMonsters()
 			if (MonsterPtr[i] == NULL)
 			{
 				MonsterPtr[i] = new Monster();
-				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterBoxPtr[i] = new Box(MonsterPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 				monsterTime = elaspeTime + 5.0;
 				break;
 			}
@@ -590,7 +598,7 @@ void SceneBoss::UpdateMonsters()
 		if (MonsterPtr[i] != NULL)
 		{
 			(*MonsterPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterBoxPtr[i] = Box(MonsterPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -655,7 +663,7 @@ void SceneBoss::UpdateMonsters()
 			if (MonsterArcherPtr[i] == NULL)
 			{
 				MonsterArcherPtr[i] = new MonsterArcher();
-				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+				monsterArcherBoxPtr[i] = new Box(MonsterArcherPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 				monsterArcherTime = elaspeTime + 5.0;
 				break;
 			}
@@ -666,7 +674,7 @@ void SceneBoss::UpdateMonsters()
 		if (MonsterArcherPtr[i] != NULL)
 		{
 			(*MonsterArcherPtr[i]).moveRand(camera.position, elaspeTime);
-			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
+			*monsterArcherBoxPtr[i] = Box(MonsterArcherPtr[i]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		}
 	}
 
@@ -1416,40 +1424,40 @@ void SceneBoss::Render()
 				aRot = rotation;
 
 			modelStack.PushMatrix();
-			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y - 10, (*MonsterArcherPtr[i]).pos.z);
+			modelStack.Translate((*MonsterArcherPtr[i]).pos.x, (*MonsterArcherPtr[i]).pos.y + 13, (*MonsterArcherPtr[i]).pos.z);
 			modelStack.Rotate(aRot + 90.f, 0.f, 1.f, 0.f);
 			modelStack.Scale(10.f, 10.f, 10.f);
 			RenderMesh(meshList[GEO_ARCHER_BODY], true);
-				modelStack.PushMatrix();
-				modelStack.Translate(0.f, 0.f, 4.3f);
-				modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-				modelStack.Translate(0.f, 2.f, 0.f);
-				modelStack.Rotate(80.f, 0.f, 0.f, 1.f);
-				modelStack.Translate(0.f, -2.f, 0.f);
-				RenderMesh(meshList[GEO_ARCHER_HAND], true);
-					modelStack.PushMatrix();
-					modelStack.Translate(0.f, 1.f, 3.f);
-					modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
-					modelStack.Rotate(160.f, 1.f, 0.f, 0.f);
-					modelStack.Scale(0.5f, 0.5f, 0.5f);
-					RenderMesh(meshList[GEO_ARCHER_WEAPON], true);
-					modelStack.PopMatrix();
-				modelStack.PopMatrix();
-					modelStack.PushMatrix();
-					modelStack.Translate(0.f, 0.f, -0.05f);
-					modelStack.Translate(0.f, 1.5f, 0.f);
-					modelStack.Rotate(archerLegSwing + 340.f, 0.f, 0.f, 1.f);
-					modelStack.Translate(0.f, -1.5f, 0.f);
-					RenderMesh(meshList[GEO_ARCHER_LEG], true);
-					modelStack.PopMatrix();
-					modelStack.PushMatrix();
-					modelStack.Translate(0.f, 0.f, 4.3f);
-					modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
-					modelStack.Translate(0.f, 1.5f, 0.f);
-					modelStack.Rotate(archerLegSwing - 20.f, 0.f, 0.f, 1.f);
-					modelStack.Translate(0.f, -1.5f, 0.f);
-					RenderMesh(meshList[GEO_ARCHER_LEG], true);
-					modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, -2.1f, 2.0f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Translate(0.f, 2.f, 0.f);
+			modelStack.Rotate(80.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -2.f, 0.f);
+			RenderMesh(meshList[GEO_ARCHER_HAND], true);
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 1.f, 3.f);
+			modelStack.Rotate(90.f, 0.f, 1.f, 0.f);
+			modelStack.Rotate(160.f, 1.f, 0.f, 0.f);
+			modelStack.Scale(0.5f, 0.5f, 0.5f);
+			RenderMesh(meshList[GEO_ARCHER_WEAPON], true);
+			modelStack.PopMatrix();
+			modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, -2.8f, -2.15f);
+			modelStack.Translate(0.f, 1.5f, 0.f);
+			modelStack.Rotate(archerLegSwing + 340.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -1.f, 0.f);
+			RenderMesh(meshList[GEO_ARCHER_LEG], true);
+			modelStack.PopMatrix();
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, -2.3f, 2.15f);
+			modelStack.Rotate(180.f, 0.f, 1.f, 0.f);
+			modelStack.Translate(0.f, 1.5f, 0.f);
+			modelStack.Rotate(archerLegSwing - 20.f, 0.f, 0.f, 1.f);
+			modelStack.Translate(0.f, -1.5f, 0.f);
+			RenderMesh(meshList[GEO_ARCHER_LEG], true);
+			modelStack.PopMatrix();
 			modelStack.PopMatrix();
 		}
 	}
