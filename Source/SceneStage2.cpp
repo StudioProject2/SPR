@@ -1933,6 +1933,7 @@ void SceneStage2::Exit()
 		delete bulletPtr[bul];
 		delete bulletBoxPtr[bul];
 	}
+
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
 		if (meshList[i] != NULL)

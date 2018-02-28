@@ -2,12 +2,6 @@
 #include "Application.h"
 #include <cstdlib>
 
-bool Monster::isPointInBox(Vector3 position, Box box)
-{
-	return (position.x >= box.minX&&position.x <= box.maxX) &&
-		(position.y >= box.minY&&position.y <= box.maxY) &&
-		(position.z >= box.minZ && position.z <= box.maxZ);
-}
 
 Monster::Monster()
 {
@@ -58,6 +52,12 @@ Monster::~Monster()
 {
 }
 
+bool Monster::isPointInBox(Vector3 position, Box box)
+{
+	return (position.x >= box.minX&&position.x <= box.maxX) &&
+		(position.y >= box.minY&&position.y <= box.maxY) &&
+		(position.z >= box.minZ && position.z <= box.maxZ);
+}
 bool Monster::isPointXInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX - 2 && position.x <= box.minX + 2)
@@ -74,7 +74,6 @@ bool Monster::isPointXInBox1(Vector3 position, Box box)
 		return false;
 	}
 }
-
 bool Monster::isPointYInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
@@ -91,7 +90,6 @@ bool Monster::isPointYInBox1(Vector3 position, Box box)
 		return false;
 	}
 }
-
 bool Monster::isPointZInBox1(Vector3 position, Box box)
 {
 	if (((position.x >= box.minX && position.x <= box.maxX)
@@ -117,7 +115,6 @@ void Monster::move(Vector3 camPos)
 	pos.x = pos.x + temp.x;
 	pos.z = pos.z + temp.z;
 }
-
 void Monster::moveRand(Vector3 camPos, double elaspeTime)
 {
 	//PrevPositions For Ai
@@ -234,7 +231,6 @@ void Monster::boundsCheckStage1()
 		target = pos + view;
 	}
 }
-
 void Monster::boundsCheckStage2()
 {
 	Box tree = Box(Vector3(-10, 0, 10), 170, 170);
@@ -294,37 +290,18 @@ void Monster::boundsCheckStage2()
 		target = pos + view;
 	}
 }
-
 void Monster::boundsCheckStage3()
 {
 	Box hut1 = Box(Vector3(200, -10, 0), 50);
 	Box hut2 = Box(Vector3(200, -10, 200), 50);
 	Box hut3 = Box(Vector3(-200, -10, 0), 50);
 	Box hut4 = Box(Vector3(-200, -10, 200), 50);
+	Box wall = Box(Vector3(300, 0, 0), 1, 1000, 1);
+	Box wall2 = Box(Vector3(-300, 0, 0), 1, 1000, 1);
+	Box wall3 = Box(Vector3(0, 0, 890), 500, 1, 1);
+	Box wall4 = Box(Vector3(0, 0, -890), 500, 1, 1);
 
-	//Spawn Check, so mob wont spawn in objects
-	if (firstSpawn == true)
-	{
-		float spawnPtX;
-		float spawnPtZ;
-
-		do
-		{
-			spawnPtX = (rand() % 1400 - 700) + 1.0f;
-			spawnPtZ = (rand() % 1400 - 700) + 1.0f;
-
-			pos = Vector3(spawnPtX, 0, spawnPtZ);
-			dirChanger = 0;
-			moveRight = true;
-			monsterDirTime = 0.0;
-
-		} while (isPointInBox(pos, hut1)
-			|| isPointInBox(pos, hut2)
-			|| isPointInBox(pos, hut3)
-			|| isPointInBox(pos, hut4));
-
-		firstSpawn = false;
-	}
+	//Spawn Check not needed for stage3
 
 	_collidedX = false;
 	_collidedY = false;
@@ -333,7 +310,11 @@ void Monster::boundsCheckStage3()
 	if (isPointXInBox1(pos, hut1)
 		|| isPointXInBox1(pos, hut2)
 		|| isPointXInBox1(pos, hut3)
-		|| isPointXInBox1(pos, hut4))
+		|| isPointXInBox1(pos, hut4)
+		|| isPointXInBox1(pos, wall)
+		|| isPointXInBox1(pos, wall2)
+		|| isPointXInBox1(pos, wall3)
+		|| isPointXInBox1(pos, wall4))
 
 	{
 		_collidedX = true;
@@ -342,7 +323,11 @@ void Monster::boundsCheckStage3()
 	if (isPointYInBox1(pos, hut1)
 		|| isPointYInBox1(pos, hut2)
 		|| isPointYInBox1(pos, hut3)
-		|| isPointYInBox1(pos, hut4))
+		|| isPointYInBox1(pos, hut4)
+		|| isPointYInBox1(pos, wall)
+		|| isPointYInBox1(pos, wall2)
+		|| isPointYInBox1(pos, wall3)
+		|| isPointYInBox1(pos, wall4))
 	{
 		_collidedY = true;
 	}
@@ -350,7 +335,11 @@ void Monster::boundsCheckStage3()
 	if (isPointZInBox1(pos, hut1)
 		|| isPointZInBox1(pos, hut2)
 		|| isPointZInBox1(pos, hut3)
-		|| isPointZInBox1(pos, hut4))
+		|| isPointZInBox1(pos, hut4)
+		|| isPointZInBox1(pos, wall)
+		|| isPointZInBox1(pos, wall2)
+		|| isPointZInBox1(pos, wall3)
+		|| isPointZInBox1(pos, wall4))
 	{
 		_collidedZ = true;
 	}
@@ -369,7 +358,6 @@ void Monster::boundsCheckStage3()
 		target = pos + view;
 	}
 }
-
 void Monster::boundsCheckBoss()
 {
 	Box hut1 = Box(Vector3(200, -10, 0), 50);
@@ -378,8 +366,13 @@ void Monster::boundsCheckBoss()
 	Box hut4 = Box(Vector3(-200, -10, 0), 50);
 	Box hut5 = Box(Vector3(-200, -10, 200), 50);
 	Box hut6 = Box(Vector3(-200, -10, -200), 50);
+	Box wall = Box(Vector3(300, 0, 0), 1, 1000, 1);
+	Box wall2 = Box(Vector3(-300, 0, 0), 1, 1000, 1);
+	Box wall3 = Box(Vector3(0, 0, 890), 500, 1, 1);
+	Box wall4 = Box(Vector3(0, 0, -890), 500, 1, 1);
 
-	//Spawn Check, so mob wont spawn in objects
+
+	//Spawn Check, so mob wont spawn in objects and outside intended area
 	if (firstSpawn == true)
 	{
 		float spawnPtX;
@@ -387,8 +380,8 @@ void Monster::boundsCheckBoss()
 
 		do
 		{
-			spawnPtX = (rand() % 1400 - 700) + 1.0f;
-			spawnPtZ = (rand() % 1400 - 700) + 1.0f;
+			spawnPtX = (rand() % 580 - 290) + 1.0f;
+			spawnPtZ = (rand() % 1760 - 880) + 1.0f;
 
 			pos = Vector3(spawnPtX, 0, spawnPtZ);
 			dirChanger = 0;
@@ -414,7 +407,12 @@ void Monster::boundsCheckBoss()
 		|| isPointXInBox1(pos, hut3)
 		|| isPointXInBox1(pos, hut4)
 		|| isPointXInBox1(pos, hut5)
-		|| isPointXInBox1(pos, hut6))
+		|| isPointXInBox1(pos, hut6)
+
+		|| isPointXInBox1(pos, wall)
+		|| isPointXInBox1(pos, wall2)
+		|| isPointXInBox1(pos, wall3)
+		|| isPointXInBox1(pos, wall4))
 
 	{
 		_collidedX = true;
@@ -425,7 +423,12 @@ void Monster::boundsCheckBoss()
 		|| isPointYInBox1(pos, hut3)
 		|| isPointYInBox1(pos, hut4)
 		|| isPointYInBox1(pos, hut5)
-		|| isPointYInBox1(pos, hut6))
+		|| isPointYInBox1(pos, hut6)
+
+		|| isPointYInBox1(pos, wall)
+		|| isPointYInBox1(pos, wall2)
+		|| isPointYInBox1(pos, wall3)
+		|| isPointYInBox1(pos, wall4))
 	{
 		_collidedY = true;
 	}
@@ -435,7 +438,12 @@ void Monster::boundsCheckBoss()
 		|| isPointZInBox1(pos, hut3)
 		|| isPointZInBox1(pos, hut4)
 		|| isPointZInBox1(pos, hut5)
-		|| isPointZInBox1(pos, hut6))
+		|| isPointZInBox1(pos, hut6)
+		
+		|| isPointZInBox1(pos, wall)
+		|| isPointZInBox1(pos, wall2)
+		|| isPointZInBox1(pos, wall3)
+		|| isPointZInBox1(pos, wall4))
 	{
 		_collidedZ = true;
 	}

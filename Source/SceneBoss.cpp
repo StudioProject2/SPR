@@ -179,7 +179,7 @@ void SceneBoss::Init()
 
 	glEnable(GL_DEPTH_TEST);
 
-	light[0].type = Light::LIGHT_SPOT;
+	light[0].type = Light::LIGHT_DIRECTIONAL;
 	light[0].position.Set(0, 800, 0);
 	light[0].color.Set(1, 1, 1);
 	light[0].power = 0.5f;
@@ -469,7 +469,7 @@ void SceneBoss::Update(double dt)
 	}
 	UpdateBullets();
 
-	if (boss.getHealth() <= 500 && !gameOver)//Spawn and update monsters only when boss is below 500hp and player didn't lose
+	if (boss.getHealth() <= 1000 && !gameOver)//Spawn and update monsters only when boss is below 500hp and player didn't lose
 	{
 		UpdateMonsters();
 		UpdateCreateMonsterBullets();

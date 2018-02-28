@@ -259,7 +259,7 @@ void SceneStage3::Init()
 	}
 
 	//Others
-	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.0f, 0.7f), 20, 20, 0.5);
+	meshList[GEO_BULLETS] = MeshBuilder::GenerateHem("bullets", Color(0.7f, 1.f, 0.7f), 20, 20, 0.5);
 
 	//SKYBOX STUFF
 	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
@@ -648,7 +648,7 @@ void SceneStage3::UpdateMonsters()
 
 	if (monsterSpawnDelay3 != 0 && elaspeTime > monsterSpawnDelay3)
 	{
-		MonsterPtr[4] = new Monster(Vector3(-300, 0, 93));
+		MonsterPtr[4] = new Monster(Vector3(-295, 0, 93));
 		monsterBoxPtr[4] = new Box(MonsterPtr[4]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[5] = new Monster(Vector3(-110, 0, -85));
 		monsterBoxPtr[5] = new Box(MonsterPtr[5]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
@@ -658,7 +658,7 @@ void SceneStage3::UpdateMonsters()
 		monsterFodderBoxPtr[7] = new Box(MonsterFodderPtr[7]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[8] = new MonsterFodder(Vector3(-295, 0, 100));
 		monsterFodderBoxPtr[8] = new Box(MonsterFodderPtr[8]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-		MonsterArcherPtr[4] = new MonsterArcher(Vector3(-299, 0, -100));
+		MonsterArcherPtr[4] = new MonsterArcher(Vector3(-295, 0, -100));
 		monsterArcherBoxPtr[4] = new Box(MonsterArcherPtr[4]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[5] = new MonsterArcher(Vector3(-105, 0, -80));
 		monsterArcherBoxPtr[5] = new Box(MonsterArcherPtr[5]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
@@ -667,7 +667,7 @@ void SceneStage3::UpdateMonsters()
 
 	if (monsterSpawnDelay4 != 0 && elaspeTime > monsterSpawnDelay4)
 	{
-		MonsterPtr[6] = new Monster(Vector3(-300, 0, 280));
+		MonsterPtr[6] = new Monster(Vector3(-295, 0, 280));
 		monsterBoxPtr[6] = new Box(MonsterPtr[6]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterPtr[7] = new Monster(Vector3(-110, 0, 115));
 		monsterBoxPtr[7] = new Box(MonsterPtr[7]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
@@ -677,7 +677,7 @@ void SceneStage3::UpdateMonsters()
 		monsterFodderBoxPtr[10] = new Box(MonsterFodderPtr[10]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
 		MonsterFodderPtr[11] = new MonsterFodder(Vector3(-295, 0, 100));
 		monsterFodderBoxPtr[11] = new Box(MonsterFodderPtr[11]->pos, MOB_SIZE, MOB_SIZE, MOB_SIZE);
-		MonsterArcherPtr[6] = new MonsterArcher(Vector3(-299, 0, 300));
+		MonsterArcherPtr[6] = new MonsterArcher(Vector3(-295, 0, 300));
 		monsterArcherBoxPtr[6] = new Box(MonsterArcherPtr[6]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
 		MonsterArcherPtr[7] = new MonsterArcher(Vector3(-105, 0, 120));
 		monsterArcherBoxPtr[7] = new Box(MonsterArcherPtr[7]->pos, 7, MOB_SIZE, MOB_SIZE, 15);
@@ -1370,6 +1370,12 @@ void SceneStage3::Render()
 		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 
+	//modelStack.PushMatrix();
+	//modelStack.Translate(0,0,890);
+	//modelStack.Scale(500,10,10);
+	//RenderMesh(meshList[GEO_CUBE2], false);
+	//modelStack.PopMatrix();
+
 	//SKYBOX + FLOOR
 	modelStack.PushMatrix();
 	modelStack.Translate(0, 0, -1000);
@@ -1893,6 +1899,7 @@ void SceneStage3::RenderFire()
 	//FIRE
 	if (hut1Burned)
 	{
+		//cout << "1" << endl;
 		modelStack.PushMatrix();
 		modelStack.Translate(200, 0, 20);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
@@ -1968,6 +1975,7 @@ void SceneStage3::RenderFire()
 
 	if (hut2Burned)
 	{
+		//cout << "2" << endl;
 		modelStack.PushMatrix();
 		modelStack.Translate(200, 0, 20 + 200);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
@@ -2043,6 +2051,7 @@ void SceneStage3::RenderFire()
 
 	if (hut3Burned)
 	{
+		//cout << "3" << endl;
 		modelStack.PushMatrix();
 		modelStack.Translate(200 - 400, 0, 20);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
@@ -2118,6 +2127,7 @@ void SceneStage3::RenderFire()
 
 	if (hut4Burned)
 	{
+		//cout << "4" << endl;
 		modelStack.PushMatrix();
 		modelStack.Translate(200 - 400, 0, 20 + 200);
 		modelStack.Scale(scaleAll, scaleAll, scaleAll);
