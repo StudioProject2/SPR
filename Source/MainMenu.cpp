@@ -311,11 +311,11 @@ void MainMenu::Update(double dt)
 	double posy;
 	Application::GetMousePosition(posx, posy);
 
-	if (posx > 270 && posx < 490)
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 330 && posy < 370)
+		if (posx > 270 && posx < 490)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 330 && posy < 370)
 			{
 				if (!Application::muted)
 				{
@@ -324,18 +324,14 @@ void MainMenu::Update(double dt)
 				Application::sceneChange = Application::LEVELMENU;
 				std::cout << "you have started the game" << endl;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
-
 	}
-	if (posx > 300 && posx < 470)
+
+	if (Application::IsKeyPressed(VK_LBUTTON) && elaspeTime > muteButtonTime)
 	{
-		if (posy > 435 && posy < 470)
+		if (posx > 300 && posx < 470)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON) && elaspeTime > muteButtonTime)
+			if (posy > 435 && posy < 470)
 			{
 				if (Application::muted)
 				{
@@ -348,27 +344,17 @@ void MainMenu::Update(double dt)
 				}
 				muteButtonTime = elaspeTime + 0.5;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
-
-	}	
-	if (posx > 300 && posx < 465)
+	}
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 535 && posy < 565)
+		if (posx > 300 && posx < 465)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 535 && posy < 565)
 			{
 				exit(EXIT_FAILURE);
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
-
 	}
 
 	camera.Update(dt);

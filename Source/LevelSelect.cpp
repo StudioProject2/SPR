@@ -308,11 +308,11 @@ void LevelSelect::Update(double dt)
 	double posy;
 	Application::GetMousePosition(posx, posy);
 
-	if (posx > 245 && posx < 535)
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 270 && posy < 300)
+		if (posx > 245 && posx < 535)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 270 && posy < 300)
 			{
 				//Level 1
 				if (!Application::muted)
@@ -323,18 +323,14 @@ void LevelSelect::Update(double dt)
 				Application::sceneChange = Application::STAGE1;
 				//std::cout << "you have started the game" << endl;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
-
 	}
-	if (posx > 245 && posx < 535)
+
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 340 && posy < 365)
+		if (posx > 245 && posx < 535)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 340 && posy < 365)
 			{
 				if (!Application::muted)
 				{
@@ -344,13 +340,13 @@ void LevelSelect::Update(double dt)
 				Application::sceneChange = Application::STAGE2;
 			}
 		}
-
 	}
-	if (posx > 245 && posx < 565)
+	
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 405 && posy < 435)
+		if (posx > 245 && posx < 565)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 405 && posy < 435)
 			{
 				if (!Application::muted)
 				{
@@ -360,13 +356,13 @@ void LevelSelect::Update(double dt)
 				Application::sceneChange = Application::STAGE3;
 			}
 		}
-
 	}
-	if (posx > 300 && posx < 460)
+
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 465 && posy < 490)
+		if (posx > 300 && posx < 460)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 465 && posy < 490)
 			{
 				if (!Application::muted)
 				{
@@ -376,13 +372,13 @@ void LevelSelect::Update(double dt)
 				Application::sceneChange = Application::STAGE4;
 			}
 		}
-
 	}
-	if (posx > 300 && posx < 465)
+
+	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
-		if (posy > 535 && posy < 565)
+		if (posx > 300 && posx < 465)
 		{
-			if (Application::IsKeyPressed(VK_LBUTTON))
+			if (posy > 535 && posy < 565)
 			{
 				if (!Application::muted)
 				{
@@ -391,12 +387,7 @@ void LevelSelect::Update(double dt)
 				//Back to Main Menu
 				Application::sceneChange = 0;
 			}
-			//else
-			//{
-			//	Application::sceneChange = 0;
-			//}
 		}
-
 	}
 
 	camera.Update(dt);

@@ -165,6 +165,7 @@ private:
 	Camera3 camera;
 
 	double elaspeTime;
+	double deltaTime;
 	double monsterSpawnDelay1;
 	double monsterSpawnDelay2;
 	double monsterSpawnDelay3;
