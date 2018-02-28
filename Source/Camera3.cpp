@@ -617,12 +617,11 @@ void Camera3::Update(double dt)
 		view = rotation * view;
 		target = position + view;
 
-		if (view.y > -0.99 && view.y < 0.95)
-		{
-			rotation.SetToRotation(yyawnew, right.x, right.y, right.z);
-			view = rotation * view;
-			target = position + view;
-		}
+
+		rotation.SetToRotation(yyawnew, right.x, right.y, right.z);
+		view = rotation * view;
+		target = position + view;
+
 		oldxmousepos = (float)xmousepos;
 		oldymousepos = (float)ymousepos;
 	}

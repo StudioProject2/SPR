@@ -7,6 +7,7 @@ Player::Player()
 	health = 100;
 	damage = 10;
 	points = 0;
+	timer = 0.0;
 }
 
 Player::~Player()

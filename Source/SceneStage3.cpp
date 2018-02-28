@@ -458,6 +458,7 @@ void SceneStage3::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
+	player->timer += dt;
 	start.isShooting = true;
 
 	UpdateBullets();
@@ -914,6 +915,7 @@ void SceneStage3::UpdateMonsterHitbox()
 		}
 	}
 
+	delete playerBox;
 
 	if (hitmarkerTimer > 0)
 	{
@@ -1001,6 +1003,7 @@ void SceneStage3::UpdateInteractions()
 	}
 	if (Application::IsKeyPressed('E') && isNearExit && hutsBurned == 4 && monstersLeft == 0)
 	{
+		player->points += 100;
 		Application::sceneChange = Application::STAGE4;
 	}
 }
@@ -1804,6 +1807,13 @@ void SceneStage3::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0.f, 1.f, 1.f), 2.5f, 8.f, 5.f);
 	}
 
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
+	modelStack.PopMatrix();
+
 }
 void SceneStage3::RenderTopTeeth()
 {
@@ -2222,6 +2232,37 @@ void SceneStage3::RenderHitmarker()
 
 void SceneStage3::Exit()
 {
+	for (int i = 0; i < MOBNUM3; i++)
+	{
+		delete MonsterPtr[i];
+		delete monsterBoxPtr[i];
+	}
+	for (int i = 0; i < MOBNUM3; i++)
+	{
+		delete MonsterFodderPtr[i];
+		delete monsterFodderBoxPtr[i];
+	}
+	for (int i = 0; i < MOBNUM3; i++)
+	{
+		delete MonsterArcherPtr[i];
+		delete monsterArcherBoxPtr[i];
+	}
+
+	for (int i = 0; i < 25; i++)
+	{
+		delete monsterBulletPtr[i];
+	}
+	for (int i = 0; i < 25; i++)
+	{
+		delete monsterArcherBulletPtr[i];
+	}
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		delete bulletPtr[bul];
+		delete bulletBoxPtr[bul];
+	}
+
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
 		if (meshList[i] != NULL)
