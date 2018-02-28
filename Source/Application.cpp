@@ -26,7 +26,7 @@ const unsigned char FPS = 60; // FPS of this game
 const unsigned int frameTime = 1000 / FPS; // time for each frame
 int Application::sceneChange = 0;
 int Application::whatScene = 0;
-bool Application::muted = true;
+bool Application::muted = false;
 bool Application::muteToggle = false;
 bool Application::inMenu = false;
 //init watscene;
@@ -159,7 +159,6 @@ void Application::Run()
 		}
 		if (Application::sceneChange == MAINMENU)
 		{
-			ShowCursor(true);
 			scene = sceneMenu;
 			scene->Init();
 			whatScene = MAINMENU;
@@ -174,7 +173,6 @@ void Application::Run()
 		}
 		if (Application::sceneChange == LEVELMENU)
 		{
-			ShowCursor(true);
 			scene = sceneLevel;
 			scene->Init();
 			whatScene = LEVELMENU;
@@ -189,6 +187,7 @@ void Application::Run()
 		if (Application::sceneChange == STAGE1)
 		{
 			scene = scene1;
+			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE1;
 			if (!muted)
@@ -200,8 +199,8 @@ void Application::Run()
 		}
 		if (Application::sceneChange == STAGE2)
 		{
-			ShowCursor(false);
 			scene = scene2;
+			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE2;
 			if (!muted)
@@ -214,6 +213,7 @@ void Application::Run()
 		if (Application::sceneChange == STAGE3)
 		{
 			scene = scene3;
+			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE3;
 			if (!muted)
