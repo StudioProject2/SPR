@@ -159,6 +159,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == MAINMENU)
 		{
+			ShowCursor(true);
 			scene = sceneMenu;
 			scene->Init();
 			whatScene = MAINMENU;
@@ -173,6 +174,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == LEVELMENU)
 		{
+			ShowCursor(true);
 			scene = sceneLevel;
 			scene->Init();
 			whatScene = LEVELMENU;
@@ -187,7 +189,6 @@ void Application::Run()
 		if (Application::sceneChange == STAGE1)
 		{
 			scene = scene1;
-			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE1;
 			if (!muted)
@@ -199,8 +200,8 @@ void Application::Run()
 		}
 		if (Application::sceneChange == STAGE2)
 		{
-			scene = scene2;
 			ShowCursor(false);
+			scene = scene2;
 			scene->Init();
 			whatScene = STAGE2;
 			if (!muted)
@@ -213,7 +214,6 @@ void Application::Run()
 		if (Application::sceneChange == STAGE3)
 		{
 			scene = scene3;
-			ShowCursor(false);
 			scene->Init();
 			whatScene = STAGE3;
 			if (!muted)
