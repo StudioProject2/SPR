@@ -138,7 +138,6 @@ void Application::Run()
 	Scene *sceneWin = new SceneWin();
 	Scene *sceneLose = new LoseScene();
 
-
 	Scene *scene = sceneMenu;
 
 	m_timer.startTimer();    // Start timer to calculate how long it takes to render this frame
