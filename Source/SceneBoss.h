@@ -278,6 +278,7 @@ private:
 	float baRot;
 	float bRot;
 
+	double playerHurtBounceTime;
 
 	Player *player;
 	ISoundEngine* engine;

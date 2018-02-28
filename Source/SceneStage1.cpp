@@ -339,6 +339,7 @@ void SceneStage1::Update(double dt)
 {
 	elaspeTime += dt;
 	start.isShooting = true;
+	player->timer += dt;
 
 	UpdateBullets();
 	UpdateMonsters();
@@ -398,8 +399,7 @@ void SceneStage1::UpdateBullets()
 		}
 	}
 }
-
-//CREATE MONSTERS, MOVE IT IF IT EXISTS AND UPDATE HITBOX FOR MONSTER
+//CREATE MONSTERS AND DELETE MONSTERS, UPDATE MONTSER POSITION
 void SceneStage1::UpdateMonsters()
 {
 	if (inCage == true)
@@ -438,6 +438,7 @@ void SceneStage1::UpdateMonsters()
 				delete monsterFodderBoxPtr[i];
 				MonsterFodderPtr[i] = NULL;
 				monsterFodderBoxPtr[i] = NULL;
+				
 				if (elaspeTime > monsterTime)
 				{
 					monsterTime = elaspeTime + 1.0;
@@ -447,7 +448,6 @@ void SceneStage1::UpdateMonsters()
 		}
 	}
 }
-
 //CHECK FOR COLLISION
 void SceneStage1::UpdateMonsterHitbox()
 {
@@ -532,6 +532,8 @@ void SceneStage1::UpdateMonsterHitbox()
 		}
 	}
 
+	delete playerBox;
+
 	if (isHit)
 	{
 		hitmarkerTimer = 50;
@@ -591,6 +593,7 @@ void SceneStage1::UpdateInteractions()
 	{
 		if (isNearExit && mobDead >= 10)
 		{
+			player->points += 100;
 			Application::sceneChange = Application::STAGE2;
 		}
 	}
@@ -917,6 +920,13 @@ void SceneStage1::Render()
 	RenderObjectives();
 	RenderPlayerHealth();
 	RenderHitmarker();
+
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
+	modelStack.PopMatrix();
 }
 
 void SceneStage1::RenderMesh(Mesh *mesh, bool enableLight)
@@ -1167,6 +1177,24 @@ bool SceneStage1::isNearObject(Camera3 camera, Box object)
 
 void SceneStage1::Exit()
 {
+
+	for (int i = 0; i < MOBNUM1; i++)
+	{
+		delete MonsterPtr[i];
+		delete monsterBoxPtr[i];
+	}
+	for (int i = 0; i < MOBNUM1; i++)
+	{
+		delete MonsterFodderPtr[i];
+		delete monsterFodderBoxPtr[i];
+	}
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		delete bulletPtr[bul];
+		delete bulletBoxPtr[bul];
+	}
+
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
 		if (meshList[i] != NULL)

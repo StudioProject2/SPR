@@ -69,6 +69,8 @@ void SceneBoss::Init()
 	player = Player::getInstance();
 	hitmarkerSize = 0;
 
+	playerHurtBounceTime = 0.0;
+
 	for (int i = 0; i < MOBNUM; i++)
 	{
 		MonsterPtr[i] = NULL;
@@ -457,10 +459,12 @@ void SceneBoss::Update(double dt)
 {
 	spinToWin += 30;
 	elaspeTime += dt;
+	player->timer += dt;
 	start.isShooting = true;
 
 	if (win)
 	{
+		player->points += 100;
 		Application::sceneChange = Application::WIN;
 	}
 	if (gameOver)
@@ -957,22 +961,30 @@ void SceneBoss::UpdateMonsterHitbox()
 	{
 		for (int mon = 0; mon < MOBNUM; mon++)
 		{
-			if (!isHit)
+			if (!isHit && elaspeTime > bulletBounceTime)
 			{
 				if (bulletBoxPtr[bul] != NULL && monsterBoxPtr[mon] != NULL)
 				{
-					isHit = bulletPtr[0]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
+					isHit = bulletPtr[bul]->isBulletHit(bulletBoxPtr[bul], monsterBoxPtr[mon]);
 				}
 				if (isHit)
 				{
 					(*MonsterPtr[mon]).health = (*MonsterPtr[mon]).health - player->damage;
-					hitmarkerTimer = 50;
-					bulletPtr[bul]->monsterHit(camera);
-					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
 					if (!Application::muted)
 					{
 						engine->play2D("Sound/highHumanHit.wav", false);
 					}
+					cout << "HIT " << endl;
+				}
+				if (isHit)
+				{
+					hitmarkerTimer = 50;
+				}
+				if (isHit)
+				{
+					bulletPtr[bul]->monsterHit(camera);
+					bulletBoxPtr[bul]->position = bulletPtr[bul]->throws;
+					bulletBounceTime = elaspeTime + 0.1;
 					isHit = false;
 				}
 			}
@@ -1049,6 +1061,53 @@ void SceneBoss::UpdateMonsterHitbox()
 			}
 		}
 	}
+
+	//Check if monster in player
+	Box *playerBox = new Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		if (monsterBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterBoxPtr[i]))
+			{
+				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
+				playerHurtBounceTime = elaspeTime + 0.5;
+			}
+		}
+
+		if (monsterFodderBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterFodderBoxPtr[i]))
+			{
+				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
+				playerHurtBounceTime = elaspeTime + 0.5;
+			}
+		}
+
+		if (monsterArcherBoxPtr[i] != NULL && elaspeTime > playerHurtBounceTime)
+		{
+			if (bulletPtr[0]->isBulletHit(playerBox, monsterArcherBoxPtr[i]))
+			{
+				player->health -= 10;
+				if (!Application::muted)
+				{
+					engine->play2D("Sound/dinosaurHiss.wav", false);
+				}
+				playerHurtBounceTime = elaspeTime + 0.5;
+			}
+		}
+	}
+
+	delete playerBox;
 
 	if (hitmarkerTimer > 0)
 	{
@@ -1654,6 +1713,13 @@ void SceneBoss::Render()
 	RenderPlayerHealth();
 	RenderBossHealth();
 	RenderHitmarker();
+
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
+	modelStack.PopMatrix();
 }
 
 void SceneBoss::RenderTopTeeth()
@@ -1877,6 +1943,48 @@ void SceneBoss::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, fl
 
 void SceneBoss::Exit()
 {
+
+	for (int i = 0; i < DIRECTBULLETNUM; i++)
+	{
+		delete directBulletPtr[i];
+	}
+
+	for (int i = 0; i < RINGBULLETNUM; i++)
+	{
+		delete ringBulletPtr[i];
+	}
+
+	for (int i = 0; i < GROUNDBULLETNUM; i++)
+	{
+		delete groundBulletPtr[i];
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		delete MonsterPtr[i];
+		delete monsterBoxPtr[i];
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		delete MonsterFodderPtr[i];
+		delete monsterFodderBoxPtr[i];
+	}
+
+	for (int i = 0; i < MOBNUM; i++)
+	{
+		delete MonsterArcherPtr[i];
+		delete monsterArcherBoxPtr[i];
+	}
+
+	for (int bul = 0; bul < NO_OF_BULLETS; bul++)
+	{
+		delete bulletPtr[bul];
+		delete bulletBoxPtr[bul];
+	}
+
+	delete bossBox;
+
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{
 		if (meshList[i] != NULL)

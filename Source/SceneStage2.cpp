@@ -490,6 +490,7 @@ void SceneStage2::Update(double dt)
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	deltaTime = dt;
+	player->timer += dt;
 	start.isShooting = true;
 
 	UpdateBullets();
@@ -910,6 +911,8 @@ void SceneStage2::UpdateMonsterHitbox()
 		}
 	}
 
+	delete playerBox;
+
 	if (hitmarkerTimer > 0)
 	{
 		hitmarkerTimer -= 1;
@@ -1147,9 +1150,9 @@ void SceneStage2::UpdateInteractions()
 
 	if (Application::IsKeyPressed('E') && inExit && objectiveFour)
 	{
+		player->points += 100;
 		Application::sceneChange = Application::STAGE3;
 	}
-
 
 }
 void SceneStage2::UpdatePickups()
@@ -1862,6 +1865,14 @@ void SceneStage2::RenderUi()
 	RenderTextOnScreen(meshList[GEO_TEXT], "Press E to", Color(1, 1, 1), interactionSize, 6, 7);
 	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
 	modelStack.PopMatrix();
+
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0.f, 0.8f, 1.f), 2, 1, 17);
+	modelStack.PopMatrix();
+
 }
 void SceneStage2::RenderPickups()
 {
@@ -1906,7 +1917,7 @@ void SceneStage2::RenderObjectives()
 	modelStack.PopMatrix();
 	if (objectiveFour)
 	{
-		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0.f, 1.f, 1.f), 2.5f, 8.f, 5.f);
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go to the village", Color(0.f, 1.f, 1.f), 2.5f, 8.f, 5.f);
 	}
 }
 

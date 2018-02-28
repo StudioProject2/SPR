@@ -13,6 +13,7 @@ public:
 	int health;
 	int damage;
 	int points; 
+	double timer;
 };
 
 #endif 
