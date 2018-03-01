@@ -269,15 +269,6 @@ void LevelSelect::Update(double dt)
 	elaspeTime1 += dt;
 	deltaTime1 = dt;
 
-	//if (Application::IsKeyPressed('1'))
-	//{
-	//	glEnable(GL_CULL_FACE);
-	//}
-	//if (Application::IsKeyPressed('2'))
-	//{
-	//	glDisable(GL_CULL_FACE);
-	//}
-
 	if (Application::IsKeyPressed(VK_SPACE))
 	{
 		float upperRotateBounds = 360;
@@ -291,8 +282,6 @@ void LevelSelect::Update(double dt)
 		rotateAngle += (float)(rotateAmt * dt);
 		translateX += (float)(translateAmt * dt);
 		scaleAll += (float)(scaleAmt * dt);
-
-		//std::cout << rotateAngle << std::endl;
 
 		//Without these bounds, translate will move out of screen and scale will be too large
 		if (rotateAngle > upperRotateBounds || rotateAngle < lowerRotateBounds)
@@ -392,8 +381,6 @@ void LevelSelect::Update(double dt)
 			}
 		}
 	}
-
-	camera.Update(dt);
 }
 
 void LevelSelect::Render()
