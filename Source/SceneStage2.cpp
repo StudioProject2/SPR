@@ -1289,6 +1289,7 @@ void SceneStage2::Render()
 	}
 
 }
+
 void SceneStage2::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
@@ -1402,7 +1403,6 @@ void SceneStage2::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 
 	glEnable(GL_DEPTH_TEST);
 }
-
 void SceneStage2::RenderMeshOnScreen(Mesh* mesh, float x, float y, float sizex, float sizey)
 {
 	glDisable(GL_DEPTH_TEST);

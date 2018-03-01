@@ -339,6 +339,7 @@ void SceneStage1::Update(double dt)
 {
 	elaspeTime += dt;
 	start.isShooting = true;
+	deltaTime = dt;
 	player->timer += dt;
 
 	UpdateBullets();
@@ -378,7 +379,7 @@ void SceneStage1::Update(double dt)
 
 }
 
-//UPDATE PLAYER BULLET
+//Updates player bullet
 void SceneStage1::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -399,7 +400,7 @@ void SceneStage1::UpdateBullets()
 		}
 	}
 }
-//CREATE MONSTERS AND DELETE MONSTERS, UPDATE MONTSER POSITION
+//create, delete monster, update the monsters and their hitbox position
 void SceneStage1::UpdateMonsters()
 {
 	if (inCage == true)
@@ -448,7 +449,7 @@ void SceneStage1::UpdateMonsters()
 		}
 	}
 }
-//CHECK FOR COLLISION
+//checks if bullet hits monster and if monster touches player
 void SceneStage1::UpdateMonsterHitbox()
 {
 	bool isHit = false;
@@ -545,7 +546,7 @@ void SceneStage1::UpdateMonsterHitbox()
 	}
 }
 
-//CHECKS FOR INTERACTIONS
+//Interactions
 void SceneStage1::UpdateInteractions()
 {
 	Box cageDoor = Box(Vector3(443, 0, 502.5), 7, 70, 70);
@@ -599,8 +600,7 @@ void SceneStage1::UpdateInteractions()
 	}
 
 }
-
-//ANIMATION
+//Update animation Variables
 void SceneStage1::UpdateMonsterAnimations()
 {
 	if (!fodLeft)
@@ -629,7 +629,7 @@ void SceneStage1::UpdateMonsterAnimations()
 	}
 }
 
-//RENDER FUNCTIONS
+//Render Functions
 void SceneStage1::Render()
 {
 	//Clear color & depth buffer every frame
@@ -926,6 +926,13 @@ void SceneStage1::Render()
 	timer << player->timer << " Seconds";
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
+	modelStack.PopMatrix();
+
+	std::ostringstream sFps;
+	sFps << std::fixed << std::setprecision(3);
+	sFps << 1.0 / deltaTime << "fps";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
 }
 

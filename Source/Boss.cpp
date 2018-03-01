@@ -12,7 +12,7 @@ bool Boss::isPointInBox(Vector3 position, Box box)
 
 Boss::Boss()
 {
-	health = 1;
+	health = 1000;
 
 	//Vector3
 	Vector3 pos = Vector3(0, 0, 100);

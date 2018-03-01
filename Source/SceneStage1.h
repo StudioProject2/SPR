@@ -153,6 +153,7 @@ private:
 
 	double elaspeTime;
 	double monsterTime;
+	double deltaTime;
 	double bulletBounceTime;
 
 	Light light[4];

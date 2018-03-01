@@ -459,6 +459,7 @@ void SceneStage3::Update(double dt)
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
 	player->timer += dt;
+	deltaTime = dt;
 	start.isShooting = true;
 
 	UpdateBullets();
@@ -494,6 +495,7 @@ void SceneStage3::Update(double dt)
 	}
 }
 
+//Updates player bullet
 void SceneStage3::UpdateBullets()
 {
 	Vector3 view = (camera.target - camera.position).Normalized();
@@ -514,6 +516,7 @@ void SceneStage3::UpdateBullets()
 		}
 	}
 }
+//checks if monster bullet hits the player
 void SceneStage3::UpdateMonsterBullets()
 {
 	Box playerBox = Box(Vector3(camera.position.x, camera.position.y, camera.position.z), 5, 5, 5);
@@ -606,6 +609,7 @@ void SceneStage3::UpdateMonsterBullets()
 	}
 
 }
+//create, delete monster, update the monsters and their hitbox position
 void SceneStage3::UpdateMonsters()
 {
 
@@ -760,6 +764,7 @@ void SceneStage3::UpdateMonsters()
 		}
 	}
 }
+//checks if bullet hits monster and if monster touches player
 void SceneStage3::UpdateMonsterHitbox()
 {
 	bool isHit = false;
@@ -924,6 +929,8 @@ void SceneStage3::UpdateMonsterHitbox()
 	}
 
 }
+
+//Interactions and animations
 void SceneStage3::UpdateInteractions()
 {
 	Box hut1 = Box(Vector3(200, -10, 0), 70);
@@ -1155,139 +1162,6 @@ void SceneStage3::UpdateFireAnimation(double dt)
 }
 
 //BASE RENDER FUNCTIONS
-void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
-{
-	Mtx44 MVP, modelView, modelView_inverse_transpose;
-
-	MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
-	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
-	modelView = viewStack.Top() * modelStack.Top();
-	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, &modelView.a[0]);
-	if (enableLight)
-	{
-		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
-		modelView_inverse_transpose = modelView.GetInverse().GetTranspose();
-		glUniformMatrix4fv(m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, &modelView_inverse_transpose.a[0]);
-
-		//load material
-		glUniform3fv(m_parameters[U_MATERIAL_AMBIENT], 1, &mesh->material.kAmbient.r);
-		glUniform3fv(m_parameters[U_MATERIAL_DIFFUSE], 1, &mesh->material.kDiffuse.r);
-		glUniform3fv(m_parameters[U_MATERIAL_SPECULAR], 1, &mesh->material.kSpecular.r);
-		glUniform1f(m_parameters[U_MATERIAL_SHININESS], mesh->material.kShininess);
-	}
-	else
-	{
-		glUniform1i(m_parameters[U_LIGHTENABLED], 0);
-	}
-
-
-	if (mesh->textureID > 0)
-	{
-		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-		glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-	}
-	else
-	{
-		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 0);
-	}
-	mesh->Render();
-	if (mesh->textureID > 0)
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-}
-void SceneStage3::RenderText(Mesh* mesh, std::string text, Color color)
-{
-	if (!mesh || mesh->textureID <= 0) //Proper error check
-		return;
-
-	glDisable(GL_DEPTH_TEST);
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
-	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
-	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-	for (unsigned i = 0; i < text.length(); ++i)
-	{
-		Mtx44 characterSpacing;
-		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
-		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
-		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
-
-		mesh->Render((unsigned)text[i] * 6, 6);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
-	glEnable(GL_DEPTH_TEST);
-}
-void SceneStage3::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
-{
-	if (!mesh || mesh->textureID <= 0) //Proper error check
-		return;
-
-	glDisable(GL_DEPTH_TEST);
-
-	//Add these code just after glDisable(GL_DEPTH_TEST);
-	Mtx44 ortho;
-	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
-	projectionStack.PushMatrix();
-	projectionStack.LoadMatrix(ortho);
-	viewStack.PushMatrix();
-	viewStack.LoadIdentity(); //No need camera for ortho mode
-	modelStack.PushMatrix();
-	modelStack.LoadIdentity(); //Reset modelStack
-	modelStack.Scale(size, size, size);
-	modelStack.Translate(x, y, 0);
-
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
-	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
-	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
-	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
-	for (unsigned i = 0; i < text.length(); ++i)
-	{
-		Mtx44 characterSpacing;
-		characterSpacing.SetToTranslation(i * 0.7f, 0, 0); //1.0f is the spacing of each character, you may change this value
-		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
-		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
-
-		mesh->Render((unsigned)text[i] * 6, 6);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
-	projectionStack.PopMatrix();
-	viewStack.PopMatrix();
-	modelStack.PopMatrix();
-
-	glEnable(GL_DEPTH_TEST);
-}
-void SceneStage3::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
-{
-	glDisable(GL_DEPTH_TEST);
-	Mtx44 ortho;
-	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
-	projectionStack.PushMatrix();
-	projectionStack.LoadMatrix(ortho);
-	viewStack.PushMatrix();
-	viewStack.LoadIdentity(); //No need camera for ortho mode
-	modelStack.PushMatrix();
-	modelStack.LoadIdentity();
-	modelStack.Scale(sizex, sizey, 0);
-	modelStack.Translate(x, y, 0);
-	RenderMesh(mesh, false); //UI should not have light
-	projectionStack.PopMatrix();
-	viewStack.PopMatrix();
-	modelStack.PopMatrix();
-	glEnable(GL_DEPTH_TEST);
-}
-
 void SceneStage3::Render()
 {
 	//Clear color & depth buffer every frame
@@ -1411,7 +1285,7 @@ void SceneStage3::Render()
 	modelStack.Rotate(-90, 1, 0, 0);
 	RenderMesh(meshList[GEO_BOTTOM], false);
 	modelStack.PopMatrix();
-	
+
 	modelStack.PushMatrix();
 	modelStack.Translate(0, -10, 0);
 	modelStack.Rotate(90, 0, 1, 0);
@@ -1665,7 +1539,7 @@ void SceneStage3::Render()
 			modelStack.PopMatrix();
 		}
 	}
-	
+
 	//FENCES
 	for (int i = 0; i < 1800; i += 30)
 	{
@@ -1675,7 +1549,7 @@ void SceneStage3::Render()
 		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
-		
+
 		modelStack.PushMatrix();
 		modelStack.Translate(300.f, -10.f, -900.f + i);
 		modelStack.Rotate(270.f, 0.f, 1.f, 0.f);
@@ -1687,7 +1561,7 @@ void SceneStage3::Render()
 	for (int i = 0; i < 660; i += 30)
 	{
 		modelStack.PushMatrix();
-		modelStack.Translate( -i - 50.f, -10.f, 890.f);
+		modelStack.Translate(-i - 50.f, -10.f, 890.f);
 		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
@@ -1697,7 +1571,7 @@ void SceneStage3::Render()
 		modelStack.Scale(20.f, 20.f, 20.f);
 		RenderMesh(meshList[GEO_FENCE], true);
 		modelStack.PopMatrix();
-		
+
 		if (hutsBurned != 4 || monstersLeft != 0)
 		{
 			modelStack.PushMatrix();
@@ -1720,7 +1594,7 @@ void SceneStage3::Render()
 			RenderMesh(meshList[GEO_FENCE], true);
 			modelStack.PopMatrix();
 		}
-		
+
 	}
 
 	//RENDER GRASSES
@@ -1814,7 +1688,147 @@ void SceneStage3::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
 	modelStack.PopMatrix();
 
+	std::ostringstream sFps;
+	sFps << std::fixed << std::setprecision(3);
+	sFps << 1.0 / deltaTime << "fps";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
+	modelStack.PopMatrix();
 }
+
+void SceneStage3::RenderMesh(Mesh *mesh, bool enableLight)
+{
+	Mtx44 MVP, modelView, modelView_inverse_transpose;
+
+	MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top();
+	glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+	modelView = viewStack.Top() * modelStack.Top();
+	glUniformMatrix4fv(m_parameters[U_MODELVIEW], 1, GL_FALSE, &modelView.a[0]);
+	if (enableLight)
+	{
+		glUniform1i(m_parameters[U_LIGHTENABLED], 1);
+		modelView_inverse_transpose = modelView.GetInverse().GetTranspose();
+		glUniformMatrix4fv(m_parameters[U_MODELVIEW_INVERSE_TRANSPOSE], 1, GL_FALSE, &modelView_inverse_transpose.a[0]);
+
+		//load material
+		glUniform3fv(m_parameters[U_MATERIAL_AMBIENT], 1, &mesh->material.kAmbient.r);
+		glUniform3fv(m_parameters[U_MATERIAL_DIFFUSE], 1, &mesh->material.kDiffuse.r);
+		glUniform3fv(m_parameters[U_MATERIAL_SPECULAR], 1, &mesh->material.kSpecular.r);
+		glUniform1f(m_parameters[U_MATERIAL_SHININESS], mesh->material.kShininess);
+	}
+	else
+	{
+		glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	}
+
+
+	if (mesh->textureID > 0)
+	{
+		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+		glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	}
+	else
+	{
+		glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 0);
+	}
+	mesh->Render();
+	if (mesh->textureID > 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+}
+void SceneStage3::RenderText(Mesh* mesh, std::string text, Color color)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+
+	glDisable(GL_DEPTH_TEST);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		Mtx44 characterSpacing;
+		characterSpacing.SetToTranslation(i * 1.0f, 0, 0); //1.0f is the spacing of each character, you may change this value
+		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+	glEnable(GL_DEPTH_TEST);
+}
+void SceneStage3::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+{
+	if (!mesh || mesh->textureID <= 0) //Proper error check
+		return;
+
+	glDisable(GL_DEPTH_TEST);
+
+	//Add these code just after glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity(); //Reset modelStack
+	modelStack.Scale(size, size, size);
+	modelStack.Translate(x, y, 0);
+
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 1);
+	glUniform3fv(m_parameters[U_TEXT_COLOR], 1, &color.r);
+	glUniform1i(m_parameters[U_LIGHTENABLED], 0);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE_ENABLED], 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mesh->textureID);
+	glUniform1i(m_parameters[U_COLOR_TEXTURE], 0);
+	for (unsigned i = 0; i < text.length(); ++i)
+	{
+		Mtx44 characterSpacing;
+		characterSpacing.SetToTranslation(i * 0.7f, 0, 0); //1.0f is the spacing of each character, you may change this value
+		Mtx44 MVP = projectionStack.Top() * viewStack.Top() * modelStack.Top() * characterSpacing;
+		glUniformMatrix4fv(m_parameters[U_MVP], 1, GL_FALSE, &MVP.a[0]);
+
+		mesh->Render((unsigned)text[i] * 6, 6);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+
+	glEnable(GL_DEPTH_TEST);
+}
+void SceneStage3::RenderMeshOnScreen(Mesh * mesh, float x, float y, float sizex, float sizey)
+{
+	glDisable(GL_DEPTH_TEST);
+	Mtx44 ortho;
+	ortho.SetToOrtho(0, 80, 0, 60, -10, 10); //size of screen UI
+	projectionStack.PushMatrix();
+	projectionStack.LoadMatrix(ortho);
+	viewStack.PushMatrix();
+	viewStack.LoadIdentity(); //No need camera for ortho mode
+	modelStack.PushMatrix();
+	modelStack.LoadIdentity();
+	modelStack.Scale(sizex, sizey, 0);
+	modelStack.Translate(x, y, 0);
+	RenderMesh(mesh, false); //UI should not have light
+	projectionStack.PopMatrix();
+	viewStack.PopMatrix();
+	modelStack.PopMatrix();
+	glEnable(GL_DEPTH_TEST);
+}
+
 void SceneStage3::RenderTopTeeth()
 {
 	Mtx44 ortho;
