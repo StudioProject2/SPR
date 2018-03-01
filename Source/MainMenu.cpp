@@ -272,15 +272,6 @@ void MainMenu::Update(double dt)
 	elaspeTime += dt;
 	deltaTime = dt;
 
-	//if (Application::IsKeyPressed('1'))
-	//{
-	//	glEnable(GL_CULL_FACE);
-	//}
-	//if (Application::IsKeyPressed('2'))
-	//{
-	//	glDisable(GL_CULL_FACE);
-	//}
-
 	if (Application::IsKeyPressed(VK_SPACE))
 	{
 		float upperRotateBounds = 360;
@@ -371,7 +362,6 @@ void MainMenu::Update(double dt)
 			}
 		}
 	}
-	camera.Update(dt);
 }
 
 void MainMenu::Render()
