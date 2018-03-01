@@ -1866,12 +1866,12 @@ void SceneStage2::RenderUi()
 	RenderTextOnScreen(meshList[GEO_TEXT], "DEVOUR", Color(1, 0, 0), interactionSize, 7, 6);
 	modelStack.PopMatrix();
 
-	//std::ostringstream timer;
-	//timer << std::fixed << std::setprecision(3);
-	//timer << player->timer << " Seconds";
-	//modelStack.PushMatrix();
-	//RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0.f, 0.8f, 1.f), 2, 1, 17);
-	//modelStack.PopMatrix();
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0.f, 0.8f, 1.f), 2, 1, 17);
+	modelStack.PopMatrix();
 
 }
 void SceneStage2::RenderPickups()

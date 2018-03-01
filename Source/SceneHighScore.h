@@ -1,5 +1,5 @@
-#ifndef WIN_H
-#define WIN_H
+#ifndef SCENE_HIGH_SCORE_H
+#define SCENE_HIGH_SCORE_H
 
 #include "Scene.h"
 #include "Camera.h"
@@ -9,13 +9,9 @@
 #include "Light.h"
 #include "Camera3.h"
 #include "CameraDebug.h"
-#include "irrKlang.h"
+#include "Player.h"
 
-#pragma comment(lib, "irrKlang.lib")
-
-using namespace irrklang;
-
-class SceneWin : public Scene
+class SceneHighScore : public Scene
 {
 	enum UNIFORM_TYPE
 	{
@@ -88,7 +84,6 @@ class SceneWin : public Scene
 	};
 
 
-
 	enum GEOMETRY_TYPE
 	{
 		GEO_AXES,
@@ -128,7 +123,6 @@ class SceneWin : public Scene
 		GEO_LAMP,
 		GEO_TANK,
 		GEO_WATCHTOWER,
-		GEO_GUY,
 
 		GEO_TEXT,
 
@@ -136,8 +130,8 @@ class SceneWin : public Scene
 	};
 
 public:
-	SceneWin();
-	~SceneWin();
+	SceneHighScore();
+	~SceneHighScore();
 
 	virtual void Init();
 	virtual void Update(double dt);
@@ -163,22 +157,25 @@ private:
 
 	float rotateStar;
 	float rotateStar2;
-
-	//Spawner
-	bool spawn = false;
-
-
 	MS modelStack, viewStack, projectionStack;
 
-	Camera camera;
+	Camera3 camera;
 
 	Light light[4];
-
 	void RenderMesh(Mesh *mesh, bool enableLight);
 	void RenderText(Mesh* mesh, std::string text, Color color);
 	void RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y);
-	ISoundEngine* engine = createIrrKlangDevice();
 
+	double elaspeTime;
+	double bounceTime;
+	double deltaTime;
+
+	int previousScene;
+	int first, second, third;
+	int PlayerScore;
+	void UpdateScoreBoard();
+	Player *player;
 };
 
 #endif
+

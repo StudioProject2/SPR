@@ -338,7 +338,6 @@ void SceneStage1::Init()
 void SceneStage1::Update(double dt)
 {
 	elaspeTime += dt;
-	deltaTime = dt;
 	start.isShooting = true;
 	player->timer += dt;
 
@@ -922,20 +921,12 @@ void SceneStage1::Render()
 	RenderPlayerHealth();
 	RenderHitmarker();
 
-	//std::ostringstream timer;
-	//timer << std::fixed << std::setprecision(3);
-	//timer << player->timer << " Seconds";
-	//modelStack.PushMatrix();
-	//RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
-	//modelStack.PopMatrix();
-
-	std::ostringstream sFps;
-	sFps << std::fixed << std::setprecision(3);
-	sFps << 1.0 / deltaTime << "fps";
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
 	modelStack.PopMatrix();
-
 }
 
 void SceneStage1::RenderMesh(Mesh *mesh, bool enableLight)

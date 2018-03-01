@@ -458,7 +458,6 @@ void SceneStage3::Update(double dt)
 {
 	static const float LSPEED = 10.0f;
 	elaspeTime += dt;
-	deltaTime = dt;
 	player->timer += dt;
 	start.isShooting = true;
 
@@ -1808,18 +1807,11 @@ void SceneStage3::Render()
 		RenderTextOnScreen(meshList[GEO_TEXT], "Press E to go further in", Color(0.f, 1.f, 1.f), 2.5f, 8.f, 5.f);
 	}
 
-	//std::ostringstream timer;
-	//timer << std::fixed << std::setprecision(3);
-	//timer << player->timer << " Seconds";
-	//modelStack.PushMatrix();
-	//RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
-	//modelStack.PopMatrix();
-
-	std::ostringstream sFps;
-	sFps << std::fixed << std::setprecision(3);
-	sFps << 1.0 / deltaTime << "fps";
+	std::ostringstream timer;
+	timer << std::fixed << std::setprecision(3);
+	timer << player->timer << " Seconds";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
+	RenderTextOnScreen(meshList[GEO_TEXT], timer.str(), Color(0, 1, 0), 2, 1, 17);
 	modelStack.PopMatrix();
 
 }

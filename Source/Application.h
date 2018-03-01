@@ -26,6 +26,7 @@ public:
 	static bool muted;
 	static bool muteToggle;
 	static bool inMenu;
+	static bool wasInMenu;
 
 	enum sceneType
 	{
@@ -37,7 +38,8 @@ public:
 		STAGE4,
 		STAGETEST,
 		WIN,
-		LOSE
+		LOSE,
+		HIGHSCORE,
 	};
 
 private:

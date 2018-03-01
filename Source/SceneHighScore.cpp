@@ -1,5 +1,4 @@
-#include <iostream>
-#include "LevelSelect.h"
+#include "SceneHighScore.h"
 #include "GL\glew.h"
 #include "shader.hpp"
 #include "Mtx44.h"
@@ -9,54 +8,38 @@
 #include "LoadOBJ.h"
 #include "Box.h"
 
+#include <iomanip>
+#include <sstream>
+#include <fstream>
+
 using namespace std;
 
-double elaspeTime1;
-double deltaTime1;
-
-LevelSelect::LevelSelect()
+SceneHighScore::SceneHighScore()
 {
-
 }
 
-LevelSelect::~LevelSelect()
+SceneHighScore::~SceneHighScore()
 {
-
 }
 
-void LevelSelect::Init()
+void SceneHighScore::Init()
 {
-	//Timer
-	elaspeTime1 = 0.0;
-	deltaTime1 = 0.0;
+	//From Var.h
+	elaspeTime = 0.0;
+	bounceTime = 2.0;
+	deltaTime = 0.0;
 
-
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-	// Generate a default VAO for now
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glGenVertexArrays(1, &m_vertexArrayID);
 	glBindVertexArray(m_vertexArrayID);
-	//Enable culling
-	//glEnable(GL_CULL_FACE);
-	//Enable blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	camera.Init(Vector3(0, 10, 600), Vector3(0, 10, 0), Vector3(0, 1, 0));
-
-	rotateAngle = 0.0f;
-	translateX = 0.0f;
-	scaleAll = 0.0f;
-	rotateStar = 0.0f;
-
-	rotateAmt = 60;
-	translateAmt = 10;
-	scaleAmt = 2;
+	camera.Init(Vector3(0, 10, 0), Vector3(0, 10, -1000), Vector3(0, 1, 0));
 
 	Mtx44 projection;
 	projection.SetToPerspective(45.f, 4.f / 3.f, 0.1f, 10000.f);
 	projectionStack.LoadMatrix(projection);
-
-
 	Color colour;
 	m_programID = LoadShaders("Shader//Texture.vertexshader", "Shader//Text.fragmentshader");
 
@@ -223,180 +206,149 @@ void LevelSelect::Init()
 	glUniform1f(m_parameters[U_LIGHT3_COSINNER], light[3].cosInner);
 	glUniform1f(m_parameters[U_LIGHT3_EXPONENT], light[3].exponent);
 
-	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
-	meshList[GEO_LIGHTBALL] = MeshBuilder::GenerateHem("Sphere", Color(1.0f, 1.0f, 1.0f), 20, 20, 0.5);
-	//SKYBOX STUFF
-	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
-	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
-	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
-	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
-	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
-	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
-	//FLOOR
-	meshList[GEO_FLOOR] = MeshBuilder::GenerateQuad1("Sand", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 10.0f);
-	meshList[GEO_FLOOR]->textureID = LoadTGAR("Image//Sand2.tga");
-	meshList[GEO_FLOOR]->material.kAmbient.Set(0.5f, 0.5f, 0.5f);
-	meshList[GEO_FLOOR]->material.kDiffuse.Set(0.6f, 0.6f, 0.6f);
-	meshList[GEO_FLOOR]->material.kSpecular.Set(0.3f, 0.3f, 0.3f);
-	meshList[GEO_FLOOR]->material.kShininess = 1.f;
+	//Init meshList
+	for (int i = 0; i < NUM_GEOMETRY; i++)
+	{
+		meshList[i] = NULL;
+	}
 
-	meshList[GEO_FRONT] = MeshBuilder::GenerateQuad1("front", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_FRONT]->textureID = LoadTGA("Image//mnight_ft1.tga");
-	meshList[GEO_BACK] = MeshBuilder::GenerateQuad1("back", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BACK]->textureID = LoadTGA("Image//mnight_bk1.tga");
-	meshList[GEO_LEFT] = MeshBuilder::GenerateQuad1("left", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_LEFT]->textureID = LoadTGA("Image//mnight_rt1.tga");
-	meshList[GEO_RIGHT] = MeshBuilder::GenerateQuad1("right", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_RIGHT]->textureID = LoadTGA("Image//mnight_lf1.tga");
-	meshList[GEO_TOP] = MeshBuilder::GenerateQuad1("top", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_TOP]->textureID = LoadTGA("Image//mnight_up1.tga");
-	meshList[GEO_BOTTOM] = MeshBuilder::GenerateQuad1("bottom", Color(1.0f, 1.0f, 1.0f), 1000.0f, 1000.0f, 1.0f);
-	meshList[GEO_BOTTOM]->textureID = LoadTGA("Image//mnight_dn1.tga");
-
+	//TEXT STUFF
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
+
+	first = 0;
+	second = 0;
+	third = 0;
+	player = Player::getInstance();
+	PlayerScore = 0;
+	UpdateScoreBoard();
+
 }
 
-void LevelSelect::Update(double dt)
+void SceneHighScore::Update(double dt)
 {
-	static const float LSPEED = 10.0f;
-	elaspeTime1 += dt;
-	deltaTime1 = dt;
-
-	//if (Application::IsKeyPressed('1'))
-	//{
-	//	glEnable(GL_CULL_FACE);
-	//}
-	//if (Application::IsKeyPressed('2'))
-	//{
-	//	glDisable(GL_CULL_FACE);
-	//}
-
+	elaspeTime += dt;
+	deltaTime = dt;
+	
+	
 	if (Application::IsKeyPressed(VK_SPACE))
 	{
-		float upperRotateBounds = 360;
-		float lowerRotateBounds = 0;
-
-		float translateMax = 10;
-		float screenMin = -10;
-
-		float maxScale = 10;
-
-		rotateAngle += (float)(rotateAmt * dt);
-		translateX += (float)(translateAmt * dt);
-		scaleAll += (float)(scaleAmt * dt);
-
-		//std::cout << rotateAngle << std::endl;
-
-		//Without these bounds, translate will move out of screen and scale will be too large
-		if (rotateAngle > upperRotateBounds || rotateAngle < lowerRotateBounds)
-			rotateAmt = -rotateAmt; // -60 or -(-60)
-
-		if (translateX > translateMax)
-			translateX = screenMin; // start from left side of screen
-
-		if (scaleAll > maxScale)
-			scaleAll = 1; // reset Scale
-	}
-	double posx;
-	double posy;
-	Application::GetMousePosition(posx, posy);
-
-	if (Application::IsKeyPressed(VK_LBUTTON))
-	{
-		if (posx > 245 && posx < 535)
+		if (Application::wasInMenu)
 		{
-			if (posy > 270 && posy < 300)
-			{
-				//Level 1
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/select.wav", false);
-				}
-				Application::inMenu = false;
-				Application::sceneChange = Application::STAGE1;
-				//std::cout << "you have started the game" << endl;
-
-			}
+			Application::sceneChange = Application::MAINMENU;
 		}
-	}
-	if (Application::IsKeyPressed(VK_LBUTTON))
-	{
-		if (posx > 245 && posx < 535)
+		else
 		{
-			if (posy > 340 && posy < 365)
-			{
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/select.wav", false);
-				}
-				Application::inMenu = false;
-				Application::sceneChange = Application::STAGE2;
-			}
+			exit(EXIT_FAILURE);
 		}
 	}
 
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	
+}
+void SceneHighScore::UpdateScoreBoard()
+{
+	ifstream inHighScore;
+	ofstream outHighScore;
+	string data;
+
+	int Score[3] = { NULL, NULL, NULL };
+
+	PlayerScore =(int)(player->points - player->timer);
+
+	inHighScore.open("HighScore.txt");
+
+	if (inHighScore.is_open())
 	{
-		if (posx > 245 && posx < 565)
+		for (int i = 0; i < 3; i++)
 		{
-			if (posy > 405 && posy < 435)
-			{
-
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/select.wav", false);
-				}
-				Application::inMenu = false;
-				Application::sceneChange = Application::STAGE3;
-			}
-
+			getline(inHighScore, data);
+			Score[i] = stoi(data);
 		}
+		inHighScore.close();
+	}
+	else
+	{
+		cout << "Error opening HighScore.txt" << endl;
 	}
 
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	for (int i = 0; i < 3; i++)
 	{
-		if (posx > 300 && posx < 460)
-		{
-			if (posy > 465 && posy < 490)
-			{
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/select.wav", false);
-				}
-				Application::inMenu = false;
-				Application::sceneChange = Application::STAGE4;
-			}
-		}
+		cout << Score[i] << endl;
 	}
 
-
-	if (Application::IsKeyPressed(VK_LBUTTON))
+	if (Score[0] > Score[1] && Score[0] > Score[2])
 	{
-		if (posx > 300 && posx < 465)
-		{
-			if (posy > 535 && posy < 565)
-			{
-				if (!Application::muted)
-				{
-					engine->play2D("Sound/select.wav", false);
-				}
-				//Back to Main Menu
-				Application::sceneChange = 0;
-			}
-		}
+		first = Score[0];
+	}
+	else if (Score[1] > Score[0] && Score[1] > Score[2])
+	{
+		first = Score[1];
+	}
+	else if (Score[2] > Score[0] && Score[2] > Score[1])
+	{
+		first = Score[2];
 	}
 
-	camera.Update(dt);
+	if (Score[0] < Score[1] && Score[0] < Score[2])
+	{
+		third = Score[0];
+	}
+	else if (Score[1] < Score[0] && Score[1] < Score[2])
+	{
+		third = Score[1];
+	}
+	else if (Score[2] < Score[0] && Score[2] < Score[1])
+	{
+		third = Score[2];
+	}
+
+	if (Score[0] < Score[1] && Score[0] > Score[2] || Score[0] > Score[1] && Score[0] < Score[2])
+	{
+		second = Score[0];
+	}
+	else if (Score[1] < Score[0] && Score[1] > Score[2] || Score[1] > Score[0] && Score[1] < Score[2])
+	{
+		second = Score[1];
+	}
+	else if (Score[2] < Score[0] && Score[2] > Score[1] || Score[2] > Score[0] && Score[2] < Score[1])
+	{
+		second = Score[2];
+	}
+
+	cout << first << endl;
+	cout << second << endl;
+	cout << third << endl;
+
+	if (PlayerScore > first && PlayerScore > second && PlayerScore > third)
+	{
+		third = second;
+		second = first;
+		first = PlayerScore;
+	}
+	else if (PlayerScore < first && PlayerScore > second && PlayerScore > third)
+	{
+		third = second;
+		second = PlayerScore;
+	}
+	else if (PlayerScore < first && PlayerScore < second && PlayerScore > third)
+	{
+		third = PlayerScore;
+	}
+	else
+	{
+		cout << "You did not beat the highscore. Try again" << endl;
+	}
+
+	outHighScore.open("HighScore.txt");
+
+	if (outHighScore.is_open())
+	{
+		outHighScore << to_string(first) << "\n" << to_string(second) << "\n" << to_string(third);
+	}
+	outHighScore.close();
 }
 
-void LevelSelect::Render()
+void SceneHighScore::Render()
 {
 	//Clear color & depth buffer every frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -481,92 +433,47 @@ void LevelSelect::Render()
 		glUniform3fv(m_parameters[U_LIGHT3_POSITION], 1, &lightPosition_cameraspace.x);
 	}
 
-	//SKYBOX + FLOOR
-	modelStack.PushMatrix();
-	//RenderMesh(meshList[GEO_AXES], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, -1000);
-	RenderMesh(meshList[GEO_FRONT], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(-1000, 0, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	RenderMesh(meshList[GEO_LEFT], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(1000, 0, 0);
-	modelStack.Rotate(-90, 0, 1, 0);
-	RenderMesh(meshList[GEO_RIGHT], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 0, 1000);
-	modelStack.Rotate(180, 0, 1, 0);
-	RenderMesh(meshList[GEO_BACK], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, 1000, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(90, 1, 0, 0);
-	RenderMesh(meshList[GEO_TOP], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, -1000, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_BOTTOM], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(0, -10, 0);
-	modelStack.Rotate(90, 0, 1, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
-	RenderMesh(meshList[GEO_FLOOR], true);
-	modelStack.PopMatrix();
+	if (player->points != 0)
+	{
+		modelStack.PushMatrix();
+		RenderTextOnScreen(meshList[GEO_TEXT], "Your Score: " + to_string(PlayerScore), Color(1, 1, 1), 3, 7, 14);
+		modelStack.PopMatrix();
+	}
 
-	//LIGHTBALLS
 	modelStack.PushMatrix();
-	modelStack.Translate(light[0].position.x, light[0].position.y, light[0].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[1].position.x, light[1].position.y, light[1].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
-	modelStack.PopMatrix();
-	modelStack.PushMatrix();
-	modelStack.Translate(light[2].position.x, light[2].position.y, light[2].position.z);
-	RenderMesh(meshList[GEO_LIGHTBALL], false);
+	RenderTextOnScreen(meshList[GEO_TEXT], "1st: " + to_string(first), Color(1, 1, 1), 3, 7, 12);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Select", Color(0.8f, 0.6f, 0.1f), 6.5f, 4, 8);
+	RenderTextOnScreen(meshList[GEO_TEXT], "2nd: " + to_string(second), Color(1, 1, 1), 3, 7, 10);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "a Level", Color(0.8f, 0.6f, 0.1f), 6, 4, 7.5f);
+	RenderTextOnScreen(meshList[GEO_TEXT], "3rd: " + to_string(third), Color(1, 1, 1), 3, 7, 8);
 	modelStack.PopMatrix();
 
+	if (Application::wasInMenu)
+	{
+		modelStack.PushMatrix();
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press Space to back", Color(1, 1, 1), 3, 7, 6);
+		modelStack.PopMatrix();
+	}
+	else
+	{
+		modelStack.PushMatrix();
+		RenderTextOnScreen(meshList[GEO_TEXT], "Press Space or Esc to quit.", Color(1, 1, 1), 3, 0.5, 6);
+		modelStack.PopMatrix();
+	}
+
+	std::ostringstream sFps;
+	sFps << std::fixed << std::setprecision(3);
+	sFps << 1.0 / deltaTime << "fps";
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Level 1", Color(1, 1, 1), 4.5f, 6, 7);
+	RenderTextOnScreen(meshList[GEO_TEXT], sFps.str(), Color(1, 1, 1), 2, 1, 29);
 	modelStack.PopMatrix();
 
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Level 2", Color(1, 1, 1), 4.5f, 6, 5.5f);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Level 3", Color(1, 1, 1), 4.5f, 6, 4);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "BOSS", Color(1, 0, 0), 5, 6.5f, 2.5f);
-	modelStack.PopMatrix();
-
-	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Back", Color(1, 1, 1), 5, 6.5f, 1);
-	modelStack.PopMatrix();
 }
-
-void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
+void SceneHighScore::RenderMesh(Mesh *mesh, bool enableLight)
 {
 	Mtx44 MVP, modelView, modelView_inverse_transpose;
 
@@ -609,10 +516,8 @@ void LevelSelect::RenderMesh(Mesh *mesh, bool enableLight)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-
 }
-
-void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
+void SceneHighScore::RenderText(Mesh* mesh, std::string text, Color color)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -638,8 +543,7 @@ void LevelSelect::RenderText(Mesh* mesh, std::string text, Color color)
 	glUniform1i(m_parameters[U_TEXT_ENABLED], 0);
 	glEnable(GL_DEPTH_TEST);
 }
-
-void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
+void SceneHighScore::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, float size, float x, float y)
 {
 	if (!mesh || mesh->textureID <= 0) //Proper error check
 		return;
@@ -683,7 +587,7 @@ void LevelSelect::RenderTextOnScreen(Mesh* mesh, std::string text, Color color, 
 	glEnable(GL_DEPTH_TEST);
 }
 
-void LevelSelect::Exit()
+void SceneHighScore::Exit()
 {
 	for (int i = 0; i < NUM_GEOMETRY; i++)
 	{

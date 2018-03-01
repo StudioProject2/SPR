@@ -20,6 +20,7 @@
 #include "LevelSelect.h"
 #include "SceneWin.h"
 #include "SceneLose.h"
+#include "SceneHighScore.h"
 
 GLFWwindow* m_window;
 const unsigned char FPS = 60; // FPS of this game
@@ -29,6 +30,7 @@ int Application::whatScene = 0;
 bool Application::muted = false;
 bool Application::muteToggle = false;
 bool Application::inMenu = false;
+bool Application::wasInMenu = false;
 //init watscene;
 
 //Define an error callback
@@ -127,7 +129,6 @@ void Application::Init()
 
 void Application::Run()
 {
-
 	Scene *sceneBoss = new SceneBoss();
 	Scene *scene1 = new SceneStage1();
 	Scene *scene2 = new SceneStage2();
@@ -137,6 +138,7 @@ void Application::Run()
 	Scene *sceneLevel = new LevelSelect();
 	Scene *sceneWin = new SceneWin();
 	Scene *sceneLose = new LoseScene();
+	Scene *sceneHighScore = new SceneHighScore();
 
 	Scene *scene = sceneMenu;
 
@@ -158,7 +160,6 @@ void Application::Run()
 		}
 		if (Application::sceneChange == MAINMENU)
 		{
-			ShowCursor(true);
 			scene = sceneMenu;
 			scene->Init();
 			whatScene = MAINMENU;
@@ -173,7 +174,6 @@ void Application::Run()
 		}
 		if (Application::sceneChange == LEVELMENU)
 		{
-			ShowCursor(true);
 			scene = sceneLevel;
 			scene->Init();
 			whatScene = LEVELMENU;
@@ -187,6 +187,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == STAGE1)
 		{
+			ShowCursor(false);
 			scene = scene1;
 			scene->Init();
 			whatScene = STAGE1;
@@ -212,6 +213,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == STAGE3)
 		{
+			ShowCursor(false);
 			scene = scene3;
 			scene->Init();
 			whatScene = STAGE3;
@@ -224,6 +226,7 @@ void Application::Run()
 		}
 		if (Application::sceneChange == STAGE4)
 		{
+			ShowCursor(false);
 			scene = sceneBoss;
 			ShowCursor(false);
 			scene->Init();
@@ -249,6 +252,15 @@ void Application::Run()
 			whatScene = LOSE;
 			Application::sceneChange = 10;
 		}
+		if (Application::sceneChange == HIGHSCORE)
+		{
+			scene = sceneHighScore;
+			scene->Init();
+			whatScene = HIGHSCORE;
+			Application::sceneChange = 10;
+
+		}
+
 		scene->Update(m_timer.getElapsedTime());
 		scene->Render();
 		//Swap buffers
@@ -266,6 +278,7 @@ void Application::Run()
 	sceneLevel->Exit();
 	sceneWin->Exit();
 	sceneLose->Exit();
+	sceneHighScore->Exit();
 
 	delete sceneBoss;
 	delete scene1;
@@ -275,6 +288,7 @@ void Application::Run()
 	delete sceneLevel;
 	delete sceneWin;
 	delete sceneLose;
+	delete sceneHighScore;
 }
 
 void Application::Exit()

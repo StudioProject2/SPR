@@ -176,7 +176,6 @@ private:
 	Camera3 camera;
 
 	double elaspeTime;
-	double deltaTime;
 	double tempElaspeTime;
 	double monsterTime;
 	double bossPlayerShootTime;

@@ -321,9 +321,10 @@ void MainMenu::Update(double dt)
 				{
 					engine->play2D("Sound/select.wav", false);
 				}
+				Application::wasInMenu = false;
 				Application::sceneChange = Application::LEVELMENU;
-				std::cout << "you have started the game" << endl;
 			}
+
 		}
 	}
 
@@ -345,7 +346,9 @@ void MainMenu::Update(double dt)
 				muteButtonTime = elaspeTime + 0.5;
 			}
 		}
+
 	}
+
 	if (Application::IsKeyPressed(VK_LBUTTON))
 	{
 		if (posx > 300 && posx < 465)
@@ -357,6 +360,17 @@ void MainMenu::Update(double dt)
 		}
 	}
 
+	if (Application::IsKeyPressed(VK_LBUTTON))
+	{
+		if (posx > 525 && posx < 775)
+		{
+			if (posy > 500 && posy < 520)
+			{
+				Application::wasInMenu = true;
+				Application::sceneChange = Application::HIGHSCORE;
+			}
+		}
+	}
 	camera.Update(dt);
 }
 
@@ -515,6 +529,9 @@ void MainMenu::Render()
 	modelStack.PopMatrix();
 	modelStack.PushMatrix();
 	RenderTextOnScreen(meshList[GEO_TEXT], "Exit", Color(1, 0, 0), 5, 6.5f, 1);
+	modelStack.PopMatrix();
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "HighScore", Color(1, 1, 1), 3, 18, 3);
 	modelStack.PopMatrix();
 }
 

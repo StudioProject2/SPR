@@ -310,10 +310,14 @@ void SceneWin::Update(double dt)
 	{
 		exit(EXIT_FAILURE);
 	}
+
+	if (Application::IsKeyPressed('S'))
+	{
+		Application::sceneChange = Application::HIGHSCORE;
+	}
+
 	//cout << posx << endl;
 	//cout << posy << endl;
-
-
 
 }
 void SceneWin::Render()
@@ -456,16 +460,21 @@ void SceneWin::Render()
 
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "CONGRATS!", Color(1, 1, 1), 4.5, 4.5, 7.5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "CONGRATS!", Color(1, 1, 1), 4.5f, 4.5f, 7.5f);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "You Won!", Color(1, 1, 1), 4.5, 5, 6);
+	RenderTextOnScreen(meshList[GEO_TEXT], "You Won!", Color(1, 1, 1), 4.5f, 5, 6);
 	modelStack.PopMatrix();
 
 	modelStack.PushMatrix();
-	RenderTextOnScreen(meshList[GEO_TEXT], "Press ESC to EXIT", Color(1, 1, 1), 4, 2.25, 5.5);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Press S to save score", Color(1, 1, 1), 3, 2.9f, 7);
 	modelStack.PopMatrix();
+
+	modelStack.PushMatrix();
+	RenderTextOnScreen(meshList[GEO_TEXT], "Press ESC to EXIT", Color(1, 1, 1), 4, 2.25f, 3);
+	modelStack.PopMatrix();
+
 }
 
 void SceneWin::RenderMesh(Mesh *mesh, bool enableLight)
